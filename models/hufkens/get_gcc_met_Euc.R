@@ -1,4 +1,5 @@
 library(HIEv)
+# get gcc from hiev
 green.df <- downloadCSV("FACE_P0037_RA_CANOPYGREENNESS-FULL_OPEN_L2.dat")
 names(green.df) <- c("DateTime","Date","Ring","angle","Green")
 # average by ring and date
@@ -40,6 +41,7 @@ ros.1 <- merge(ros15_30, ros05_30)
 # combine gcc with net
 gcc.met.df <- merge(green.sum.df,ros.1,all=TRUE)
 
+# need to get 16 dates of met before gcc
 start.date <- gcc.met.df$Date[min(which(!is.na(gcc.met.df$Green)))]
 
 gcc.met.df <- gcc.met.df[gcc.met.df$Date >= (start.date - 16),]
@@ -52,6 +54,7 @@ gcc.met.df <- gcc.met.df[!is.na(gcc.met.df$Green),]
 
 gcc.met.df <- rbind(tmp.df,gcc.met.df)
 
+# normalis GCC
 gcc.met.df$GCC.norm <- (gcc.met.df$Green - min(gcc.met.df$Green,na.rm=T)) / 
   (-min(gcc.met.df$Green,na.rm=T) + max(gcc.met.df$Green,na.rm=T))
 
@@ -59,3 +62,4 @@ gcc.met.df$map <- 830
 
 gcc.met.df <- gcc.met.df[gcc.met.df$PPFD>0,]
 
+saveRDS(gcc.met.df,'gcc.met.df.rds')
