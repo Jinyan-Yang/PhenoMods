@@ -10,6 +10,8 @@ source('models/hufkens/pen_mon.R')
 
 if(!file.exists('gcc.met.df.rds')){
   source('models/hufkens/get_gcc_met_Euc.R')
+}else{
+  gcc.met.df <- readRDS('gcc.met.df.rds')
 }
 
 # # to be fitted

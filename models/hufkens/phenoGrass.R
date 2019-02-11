@@ -36,9 +36,9 @@ phenoGrass.func <- function(gcc.df,
   cover.pred.vec <- c()
   cover.pred.vec[day.lay] <- gcc.df$cover[!is.na(gcc.df$cover)][1]
   water.avi <- c()
-  # water.avi[1] <- swc.inital - swc.wilt
+  water.avi[1:(day.lay-1)] <- 100
   water.lag <- c()
-  water.lag[day.lay - 1] <- water.avi.inital <- 50 #need to be calculated in the future
+  water.lag[1:(day.lay-1)] <- 100 
   t.m <- c()
 
   # calcualte the par values
@@ -52,13 +52,14 @@ phenoGrass.func <- function(gcc.df,
     # plant avialbe water
     water.avi[nm.day] <- max(0,swc.vec[nm.day]- swc.wilt)
     
-    # define the legency effect 
+    # # define the legency effect 
     i=0
-    while(i<day.lay & (nm.day-i)>0){
+    while(i+1<day.lay & (nm.day-i)>0){
       i=i+1
     }
     
-    water.lag[nm.day] <- min(water.avi[(nm.day-i):nm.day],na.rm=TRUE) #note this is different from the Hufkens
+    # water.lag[nm.day] <- min(water.avi[(nm.day-i):nm.day],na.rm=TRUE) #note this is different from the Hufkens
+    water.lag[nm.day] <- water.avi[nm.day-i]
     t.m[nm.day] <- mean(gcc.df$Tair[(nm.day-i):nm.day],na.rm=TRUE) #hufkens used 15 days
     # hufkens used evaportanspiration from Hargreaves 1985
     # here is from evapotranspiration R package
@@ -68,7 +69,7 @@ phenoGrass.func <- function(gcc.df,
     
     # get plant cover
     # check whether water allow leaf drop
-    if(water.lag[nm.day] < water.lag[nm.day-1]){
+    if(water.lag[nm.day] <  water.lag[nm.day-1]){
       d = 1
     }else{
       d = 0
@@ -109,5 +110,14 @@ phenoGrass.func <- function(gcc.df,
   return(cover.pred.vec)
 }
 
-# phenoGrass.func(gcc.df,200,25,0.5,0.05,.001,100,400,45)
+# phenoGrass.func(gcc.met.df,264.807,30.046,0.707,0.05,0.002698,100,400,45)
+# 264.807,30.046,0.707,0.05,0.002698,
 
+# f.h = 246
+# f.t.opt = 30
+# f.extract = 0.7
+# f.sec = 0.05
+# f.growth = 0.002
+# swc.wilt = 100
+# swc.capacity =400
+# t.max =45
