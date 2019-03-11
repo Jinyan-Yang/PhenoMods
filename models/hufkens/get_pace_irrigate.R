@@ -1,0 +1,50 @@
+# irrigation/rain
+# PACE_AUTO_ALL_IRRIG_R_20190228.dat
+
+
+# wind speed
+# PACE_AUTO_ALL_WINDSPEED_R_20190228.dat
+download.path <- file.path("download/")
+setToPath(download.path)
+startDate = '2018-04-01'
+endDate = '2018-08-30'
+
+library(HIEv)
+irig.df <- downloadTOA5('PACE_AUTO_ALL_IRRIG_R_', 
+                      maxnfiles = 100, 
+                      rowbind=TRUE,
+                      startDate = startDate,
+                      endDate = endDate)  
+ws.df <- downloadTOA5('PACE_AUTO_ALL_WINDSPEED_R', 
+                        maxnfiles = 100, 
+                        rowbind=TRUE,
+                        startDate = startDate,
+                        endDate = endDate)    
+# plot(WS_ms_Avg~DateTime,data = ws.df[ws.df$Date == as.Date('2018-05-10'),])
+# daily windspeed avg really is not ideal!
+ws.daily.df <- summaryBy(WS_ms_Avg~Date,data = ws.df,FUN=mean,na.rm=TRUE,keep.names = TRUE)
+
+irig.df$currentplot <- as.character(irig.df$currentplot)
+# irig.df$Shelter <- grep(irig.df$currentplot,'S[:digit:]-')
+
+sub.nm.df <- as.data.frame(do.call(rbind,strsplit(irig.df$currentplot,split = c('-'))))
+names(sub.nm.df) <- c('Shelter','Plot')
+
+irig.df$Shelter <- as.numeric(sub.nm.df$Shelter)
+
+irig.df$Plot <- as.numeric(as.character(sub.nm.df$Plot))
+
+irig.df <- irig.df[,c('Date','irrigsum','Shelter','Plot')]
+
+
+gcc.swc.irg.df <- merge(gcc.swc.df,irig.df,
+                        all.x=TRUE,all.y=FALSE,
+                        by=c('Date','Shelter','Plot'))
+
+
+
+gcc.swc.irg.ws.df <- merge(gcc.swc.irg.df,
+                           ws.daily.df,
+                           all.x=TRUE,all.y=FALSE,
+                           by=c('Date'))
+

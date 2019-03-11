@@ -27,8 +27,7 @@ phenoGrass.func <- function(gcc.df,
   
   # set the lag factor; in num of days
   day.lay <- 16
-  sf.value <- scaling.f.func(mean(gcc.df$map),f.h)
-  gcc.df$cover <- sf.value * gcc.df$GCC.norm 
+  sf.value <- scaling.f.func(mean(gcc.df$map,na.rm=TRUE),f.h)
   # set up the inital conditions
   swc.vec <- c()
   swc.vec[day.lay] <- 200

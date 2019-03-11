@@ -2,7 +2,7 @@ library(DEoptim)
 library(Evapotranspiration)
 library(HIEv)
 library(data.table)
-library(DoBy)
+library(doBy)
 
 if(!dir.exists("download"))dir.create("download")
 source('models/hufkens/phenoGrass.R')
