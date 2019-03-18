@@ -1,5 +1,11 @@
+library(zoo)
+# source('models/hufkens/get_pace_gcc.R')
+source('models/hufkens/phenoGrass.R')
+source('models/hufkens/pen_mon.R')
 gcc.met.pace.df <- readRDS('pace_gcc_met.rds')
 gcc.met.pace.df$map=760
+
+plot(GCC~Date,data = gcc.met.pace.df[gcc.met.pace.df$SubplotID == 'S1P3C',])
 
 gcc.met.pace.df$u2 <- na.locf(gcc.met.pace.df$WS_ms_Avg)
 gcc.met.pace.df$Rain <- na.locf(gcc.met.pace.df$irrigsum)
@@ -10,7 +16,7 @@ gcc.met.pace.df$PPFD <- na.locf(gcc.met.pace.df$par)
 
 # need to get 16 dates of met before gcc
 # test.df <- gcc.met.pace.df[gcc.met.pace.df$SubplotID == 'S5P5B',]
-test.df <- gcc.met.pace.df[gcc.met.pace.df$SubplotID == 'S3P3B',]
+test.df <- gcc.met.pace.df[gcc.met.pace.df$SubplotID == 'S1P3C',]
 
 
 start.date <- test.df$Date[min(which(!is.na(test.df$GCC)))]
@@ -50,14 +56,18 @@ target.func <- function(dat,
   
   dat$cover <- sf.value * dat$GCC.norm 
   
-  dat$cover.pred.vec <- phenoGrass.func(dat,f.h,f.t.opt,f.extract,f.sec,f.growth,
+  pred.df <- phenoGrass.func(dat,f.h,f.t.opt,f.extract,f.sec,f.growth,
                                         swc.wilt = swc.wilt,
                                         swc.capacity = swc.capacity,
                                         t.max = t.max)
+  dat$cover.pred <- pred.df$cover.pred.vec
+  dat$swc.pred <- pred.df$swc.pred.vec
   
   cvmae <- sum((dat$cover - dat$cover.pred.vec),na.rm=TRUE) / mean(dat$cover,na.rm=TRUE)
   
-  return(abs(cvmae))
+  cvmae.swc <- sum((dat$vwc - dat$swc.pred),na.rm=TRUE) / mean(dat$vwc,na.rm=TRUE)
+  
+  return(c(abs(cvmae) + abs(cvmae.swc)))
 }
 
 
@@ -89,20 +99,24 @@ hufkens.fit.pace <- DEoptim(fn=target.func,lower=lower,upper=upper,
                             DEoptim.control(NP = NPmax,itermax=maxiter,
                                             trace=T,parallelType = 1,
                                             parVar = list("pet.func","scaling.f.func",
-                                                          "t.func",'phenoGrass.func','constants')))
+                                                          "t.func",'phenoGrass.func',
+                                                          'constants')))
 
 hufkens.fit.best.pace <- unname(hufkens.fit.pace$optim$bestmem)
 
 # make predictions
-gcc.met.pace.df.16$c.pred <- phenoGrass.func(gcc.met.pace.df.16,
-                                            hufkens.fit.best.pace[1],
-                                            hufkens.fit.best.pace[2],
-                                            hufkens.fit.best.pace[3],
-                                            hufkens.fit.best.pace[4],
-                                            hufkens.fit.best.pace[5],
-                                            swc.wilt = swc.wilt,
-                                            swc.capacity = swc.capacity,
-                                            t.max = t.max)
+out.pred.df <- phenoGrass.func(gcc.met.pace.df.16,
+                               hufkens.fit.best.pace[1],
+                               hufkens.fit.best.pace[2],
+                               hufkens.fit.best.pace[3],
+                               hufkens.fit.best.pace[4],
+                               hufkens.fit.best.pace[5],
+                               swc.wilt = swc.wilt,
+                               swc.capacity = swc.capacity,
+                               t.max = t.max)
+
+gcc.met.pace.df.16$c.pred <- out.pred.df$cover.pred.vec
+gcc.met.pace.df.16$swc.pred <- out.pred.df$swc.pred.vec
 
 sf.value <- scaling.f.func(mean(gcc.met.pace.df.16$map,na.rm=TRUE),hufkens.fit.best.pace[1])
 
@@ -112,10 +126,10 @@ gcc.met.pace.df.16$cover <- sf.value * gcc.met.pace.df.16$GCC.norm
 # 1:1
 plot(c.pred~cover,data = gcc.met.pace.df.16)
 abline(a=0,b=1)
-title('S5P5B LUC Drought Warm')
+title('S1P3C LUC Drought Warm')
 
 # time 
 plot(cover~Date,data = gcc.met.pace.df.16)
 points(c.pred~Date,data = gcc.met.pace.df.16,type='s',col='coral')
 legend('topleft',legend = c('OBS','MOD'),pch=16,col=c('black','coral'))
-title('S3P3B LUC comtrol amb')
+title('S1P3C LUC comtrol amb')

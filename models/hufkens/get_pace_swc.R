@@ -5,8 +5,8 @@
 # PACE_AUTO_S6_ABVGRND_R_20190228.dat
 
 
-# download.path <- file.path("download/")
-# setToPath(download.path)
+download.path <- file.path("download/")
+setToPath(download.path)
 
 sensor.df <- read.csv('download/FIELD_SoilSensor Installation Master.csv')
 # get met for pace
@@ -49,4 +49,7 @@ swc.all.df$SubplotID <- as.character(swc.all.df$SubPlotID)
 swc.all.df$Subplot <- as.character(swc.all.df$Subplot)
 gcc.swc.df <- merge(gcc.plot.df,swc.all.df[,c('SubplotID','Location','vwc','Date','Shelter','Plot','Subplot')],
                     all = TRUE,by=c('Date','SubplotID','Subplot'))
+
+gcc.swc.df$Shelter <- substr(gcc.swc.df$SubplotID,2,2)
+gcc.swc.df$Plot <- substr(gcc.swc.df$SubplotID,4,4)
 

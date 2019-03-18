@@ -43,7 +43,7 @@ target.func <- function(dat,
   dat$cover.pred.vec <- phenoGrass.func(dat,f.h,f.t.opt,f.extract,f.sec,f.growth,
                                         swc.wilt = swc.wilt,
                                         swc.capacity = swc.capacity,
-                                        t.max = t.max)
+                                        t.max = t.max)$swc.pred.vec
   
   cvmae <- sum((dat$cover - dat$cover.pred.vec),na.rm=TRUE) / mean(dat$cover,na.rm=TRUE)
   
@@ -87,7 +87,7 @@ hufkens.fit.best <- unname(hufkens.fit$optim$bestmem)
 gcc.met.df$c.pred<- phenoGrass.func(gcc.met.df,264.807,30.046,0.707,0.05,0.002698,
                                     swc.wilt = swc.wilt,
                                     swc.capacity = swc.capacity,
-                                    t.max = t.max)
+                                    t.max = t.max)$swc.pred.vec
 
 # plots
 # 1:1

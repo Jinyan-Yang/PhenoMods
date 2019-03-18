@@ -2,7 +2,7 @@ library(DEoptim)
 library(Evapotranspiration)
 library(HIEv)
 library(data.table)
-library(DoBy)
+library(doBy)
 
 if(!dir.exists("download"))dir.create("download")
 source('models/hufkens/phenoGrass.R')
@@ -26,3 +26,4 @@ gcc.plot.df$Subplot <- as.character(gcc.plot.df$Subplot)
 gcc.plot.df <- subset(gcc.plot.df,select = -DateTime)
 # getting the mean of the four gcc for now
 gcc.plot.df <- summaryBy(GCC~.,data = gcc.plot.df,FUN=mean,na.rm=TRUE,keep.names = TRUE)
+

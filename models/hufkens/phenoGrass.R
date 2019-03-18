@@ -106,7 +106,10 @@ phenoGrass.func <- function(gcc.df,
     
   }
   
-  return(cover.pred.vec)
+  out.df <- data.frame(cover.pred.vec = cover.pred.vec,
+                       swc.pred.vec = swc.vec)
+  
+  return(out.df)
 }
 
 # phenoGrass.func(gcc.met.df,264.807,30.046,0.707,0.05,0.002698,100,400,45)
