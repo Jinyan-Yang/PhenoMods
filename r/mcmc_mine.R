@@ -199,10 +199,11 @@ hist(chain[10000:20001,2])
 
 
 # 
+pdf('Modified Huf LUC CWAT.pdf',width = 8,height = 8*0.618)
 library(viridisLite)
 palette(viridis(8))
 par(mar=c(3,5,1,1))
-par(bg = rgb(240/255,241/255,211/255))
+# par(bg = rgb(240/255,241/255,211/255))
 plot(cover~Date,data = hufken.pace.pred,type='b',pch=16,
      xlab=' ',ylab=expression('Plant cover'),ylim=c(0,0.8),col = palette()[6])
 
@@ -210,3 +211,6 @@ points(cover.hufken~Date,data = hufken.pace.pred,type='l',col=palette()[1],lwd=2
 
 legend('bottomright',legend = c('MOD','OBS'),lty='solid',col=palette()[c(1,6)],bty='n')
 
+legend('topleft',legend = 'LUC Control Ambient',bty='n')
+
+dev.off()

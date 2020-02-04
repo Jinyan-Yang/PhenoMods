@@ -1,5 +1,7 @@
 # note this model is modified from the evapertranspiration R package
 # THe change is only to simpile the original model since we have spesific inputs 
+library(Evapotranspiration)
+data("constants") #this is used for penman et value; data from Adleide
 
 pet.func <- function(Date,PPFD,Tair,Tmax,Tmin,RHmax,RHmin,u2,P = 101.3,lat = 33.618891 ){
   gcc.met.df <- data.frame(Date = as.Date(Date),

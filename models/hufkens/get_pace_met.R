@@ -4,8 +4,8 @@
 
 download.path <- file.path("download/")
 setToPath(download.path)
-startDate = '2018-04-01'
-endDate = '2018-08-30'
+startDate = '2018-03-01'
+endDate = '2018-12-31'
 
 shelter.vec <- 1:6
 met.ls <- list()
@@ -19,12 +19,14 @@ for (shelter.num in shelter.vec){
                         endDate = endDate)      
   met.df$RH_Avg[met.df$RH_Avg > 100] <- 100
   met.df$RH_Avg[met.df$RH_Avg < 0] <- 0
+  
+  met.df$PAR_Avg[met.df$PAR_Avg < 0] <- 0
 
   library(data.table)
   met.ls[[shelter.num]] <- data.table(met.df)[,list(Tair = mean(AirT2_Avg,na.rm=TRUE),
                                             Tmin = min(AirT2_Avg,na.rm=TRUE),
                                             Tmax = max(AirT2_Avg,na.rm=TRUE),
-                                            par = mean(PAR_Avg,na.rm=TRUE),
+                                            par = 1800*sum(PAR_Avg, na.rm=TRUE)*10^-6/4.57,
                                             rh = mean(RH_Avg, na.rm=TRUE),
                                             RHmax = max(RH_Avg, na.rm=TRUE),
                                             RHmin = min(RH_Avg, na.rm=TRUE)),
@@ -33,12 +35,47 @@ for (shelter.num in shelter.vec){
   met.ls[[shelter.num]]$Shelter <- shelter.num
 }
 
-met.df <- do.call(rbind,met.ls)
+met.all.df <- do.call(rbind,met.ls)
 
-gcc.swc.irg.ws.met.df <- merge(gcc.swc.irg.ws.df,met.df,by=c('Date','Shelter'),all=T)
 
-gcc.swc.irg.ws.met.df <- gcc.swc.irg.ws.met.df
+# get ros par to replace the bad data in pace####
+library(HIEv)
+download.path <- file.path("download/")
+setToPath(download.path)
+setToken()
+ros05 <- downloadTOA5("ROS_WS_Table05",
+                      startDate = startDate,
+                      endDate = endDate)
 
-gcc.swc.irg.ws.met.df$irrigsum[is.na(gcc.swc.irg.ws.met.df$irrigsum)] <- 0
+ros05$PPFD[ros05$PPFD_Avg < 0] <- 0
 
-saveRDS(gcc.swc.irg.ws.met.df,'pace_gcc_met.rds')
+library(doBy)
+ros.day.df <- summaryBy(PPFD_Avg~Date,data = ros05,FUN=sum,na.rm=T,keep.names = T)
+
+ros.day.df$PAR.ros <- 300 * ros.day.df$PPFD_Avg * 10^-6 / 4.57
+
+met.df <- merge(met.all.df,ros.day.df[,c('Date','PAR.ros')],by='Date',all.x=T)
+#####
+saveRDS(met.df,'cache/pace.met.rds')
+
+
+
+
+
+
+# 
+# gcc.swc.irg.ws.met.df <- merge(gcc.swc.irg.ws.df,met.all.df,by=c('Date','Shelter'),all=T)
+# 
+# gcc.swc.irg.ws.met.df <- gcc.swc.irg.ws.met.df
+# 
+# gcc.swc.irg.ws.met.df$irrigsum[is.na(gcc.swc.irg.ws.met.df$irrigsum)] <- 0
+
+
+
+# library(viridisLite)
+# palette(c('red',cividis(6)[1:5]))
+# plot(par~Date,data = met.all.df,pch=paste0(Shelter),col=Shelter,cex=1)
+# legend('top',legend = 1:6,pch=16,col=palette(),horiz = T)
+
+
+

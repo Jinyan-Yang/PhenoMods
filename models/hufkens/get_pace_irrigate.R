@@ -6,8 +6,8 @@
 # PACE_AUTO_ALL_WINDSPEED_R_20190228.dat
 download.path <- file.path("download/")
 setToPath(download.path)
-startDate = '2018-04-01'
-endDate = '2018-08-30'
+startDate = '2018-01-01'
+endDate = '2018-12-31'
 
 library(HIEv)
 irig.df <- downloadTOA5('PACE_AUTO_ALL_IRRIG_R_', 
@@ -35,16 +35,24 @@ irig.df$Shelter <- as.numeric(sub.nm.df$Shelter)
 irig.df$Plot <- as.numeric(as.character(sub.nm.df$Plot))
 
 irig.df <- irig.df[,c('Date','irrigsum','Shelter','Plot')]
+library(doBy)
 
+irig.df <- summaryBy(irrigsum~Date + Shelter + Plot,FUN=sum,na.rm=T,
+                     data = irig.df,keep.names = T)
 
-gcc.swc.irg.df <- merge(gcc.swc.df,irig.df,
-                        all.x=TRUE,all.y=FALSE,
-                        by=c('Date','Shelter','Plot'))
+# 
+saveRDS(irig.df,'cache/irig.rds')
+saveRDS(ws.daily.df,'cache/ws.daily.rds')
 
+# gcc.swc.irg.df <- merge(gcc.swc.df,irig.df,
+#                         all.x=TRUE,all.y=FALSE,
+#                         by=c('Date','Shelter','Plot'))
+# 
+# 
+# 
+# gcc.swc.irg.ws.df <- merge(gcc.swc.irg.df,
+#                            ws.daily.df,
+#                            all.x=TRUE,all.y=FALSE,
+#                            by=c('Date'))
 
-
-gcc.swc.irg.ws.df <- merge(gcc.swc.irg.df,
-                           ws.daily.df,
-                           all.x=TRUE,all.y=FALSE,
-                           by=c('Date'))
-
+# see.df <- gcc.swc.irg.ws.df[gcc.swc.irg.ws.df$SubplotID == 'S1P8B',]
