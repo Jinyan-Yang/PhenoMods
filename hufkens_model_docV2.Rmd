@@ -55,7 +55,7 @@ $$ f_{w,t} = {E_{max} \over E_{max.sat}} $$
 
 
 ### how does V12 work 
-```{r, echo=FALSE}
+```{r, echo=FALSE,warning=F,message=F}
 source('r/functions_mcmc_v12.r')
 day.lag <- 2
 source('r/pace_data_process.R')
@@ -67,6 +67,9 @@ gcc.met.pace.df.16 <- get.pace.func(gcc.met.pace.df,
                                     species.in = 'Luc',
                                     prep.in = 'Drought',
                                     temp.in ='Ambient')
+gcc.met.pace.df.16 = gcc.met.pace.df.16[gcc.met.pace.df.16$Date<
+                                          as.Date('2018-8-31'),]
+gcc.met.pace.df.16$map=760
 chain.fes = readRDS('cache/chain.Luc.Control.Ambient.rds')
 
   # # check acceptance so that the 
