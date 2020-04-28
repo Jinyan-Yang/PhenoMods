@@ -4,14 +4,16 @@
 # par RH and tair
 # PACE_AUTO_S6_ABVGRND_R_20190228.dat
 library(RCurl)
-
+library(HIEv)
 download.path <- file.path("download/")
 setToPath(download.path)
 
 sensor.df <- read.csv('download/FIELD_SoilSensor Installation Master.csv')
 # get met for pace
 startDate = '2018-03-01'
-endDate = '2018-12-31'
+endDate = '2019-12-31'
+# startDate = '2019-01-01'
+# endDate = '2019-12-31'
 
 shelter.vec <- 1:6
 swc.all.ls <- list()
@@ -45,9 +47,11 @@ for (shelter.num in shelter.vec){
 
 swc.all.df <- do.call(rbind,swc.all.ls)
 swc.all.df$Date <- as.Date(as.character(swc.all.df$Date),'%Y-%m-%d')
-swc.all.df$SubplotID <- as.character(swc.all.df$SubPlotID)
+# swc.all.df$SubplotID <- as.character(swc.all.df$SubplotID)
 swc.all.df$Subplot <- as.character(swc.all.df$Subplot)
 saveRDS(swc.all.df,'cache/swc.rds')
+
+
 # swc.all.df <- readRDS('cache/swc.rds')
 gcc.swc.df <- merge(gcc.plot.df,swc.all.df[,c('SubplotID','Location','vwc','Date','Shelter','Plot','Subplot','Species')],
                     all = TRUE,by=c('Date','SubplotID','Shelter','Plot','Subplot','Species'))

@@ -1,17 +1,17 @@
 # par RH and tair
 # PACE_AUTO_S6_ABVGRND_R_20190228.dat
-
+library(HIEv)
 
 download.path <- file.path("download/")
 setToPath(download.path)
-startDate = '2018-03-01'
-endDate = '2018-12-31'
+startDate = '2018-01-01'
+endDate = '2019-12-31'
 
 shelter.vec <- 1:6
 met.ls <- list()
 for (shelter.num in shelter.vec){
   fn <- sprintf('PACE_AUTO_S%s_ABVGRND_R_',shelter.num)
-  library(HIEv)
+
   met.df <- downloadTOA5(fn, 
                         maxnfiles = 100, 
                         rowbind=TRUE,
@@ -38,6 +38,8 @@ for (shelter.num in shelter.vec){
 met.all.df <- do.call(rbind,met.ls)
 
 
+
+
 # get ros par to replace the bad data in pace####
 library(HIEv)
 download.path <- file.path("download/")
@@ -55,6 +57,7 @@ ros.day.df <- summaryBy(PPFD_Avg~Date,data = ros05,FUN=sum,na.rm=T,keep.names = 
 ros.day.df$PAR.ros <- 300 * ros.day.df$PPFD_Avg * 10^-6 / 4.57
 
 met.df <- merge(met.all.df,ros.day.df[,c('Date','PAR.ros')],by='Date',all.x=T)
+irrig.wd.df <- readRDS('cache/irrig.wd.df.rds')
 #####
 saveRDS(met.df,'cache/pace.met.rds')
 

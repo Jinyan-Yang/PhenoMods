@@ -7,7 +7,7 @@
 download.path <- file.path("download/")
 setToPath(download.path)
 startDate = '2018-01-01'
-endDate = '2018-12-31'
+endDate = '2019-12-31'
 
 library(HIEv)
 irig.df <- downloadTOA5('PACE_AUTO_ALL_IRRIG_R_', 
@@ -44,6 +44,9 @@ irig.df <- summaryBy(irrigsum~Date + Shelter + Plot,FUN=sum,na.rm=T,
 saveRDS(irig.df,'cache/irig.rds')
 saveRDS(ws.daily.df,'cache/ws.daily.rds')
 
+irrig.wd.df <- merge(irig.df,ws.daily.df,all=T)
+saveRDS(irrig.wd.df,'cache/irrig.wd.df.rds')
+# saveRDS(irig.df,'cache/irig2019.rds')
 # gcc.swc.irg.df <- merge(gcc.swc.df,irig.df,
 #                         all.x=TRUE,all.y=FALSE,
 #                         by=c('Date','Shelter','Plot'))
