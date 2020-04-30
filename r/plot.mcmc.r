@@ -3,7 +3,7 @@ plot.mcmc.func = function(species.in,prep.in,temp.in){
                                       species.in = species.in,
                                       prep.in = prep.in,
                                       temp.in =temp.in)
-  gcc.met.pace.df.16 <- gcc.met.pace.df.16[(gcc.met.pace.df.16$Date) < as.Date('2018-9-1'),]
+  gcc.met.pace.df.16 <- gcc.met.pace.df.16[(gcc.met.pace.df.16$Date) < as.Date('2019-11-26'),]
   gcc.met.pace.df.16$map <- 760
   fn=paste0('cache/chain.',species.in,'.',prep.in,'.',temp.in,'.rds')
   # chain.fes <- readRDS('cache/chain.Rye.Control.Ambient.rds')
@@ -46,10 +46,10 @@ plot.mcmc.func = function(species.in,prep.in,temp.in){
   library(viridisLite)
   palette(viridis(8))
   par(mar=c(5,5,1,1))
-  plot(cover~Date,data = hufken.pace.pred,type='b',pch=16,
+  plot(cover~Date,data = hufken.pace.pred,type='l',#pch=16,
        xlab=' ',ylab=expression(f[cover]),ylim=c(0,0.8),col = palette()[6])
   
-  points(cover.hufken~Date,data = hufken.pace.pred,type='b',col=palette()[8],pch=16)
+  points(cover.hufken~Date,data = hufken.pace.pred,type='l',col=palette()[8])
   # 
   legend('topleft',legend = paste0(species.in,prep.in,temp.in),bty='n')
 }

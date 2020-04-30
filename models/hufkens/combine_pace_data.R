@@ -68,7 +68,78 @@ names(met.gcc.swc.df.add)[names(met.gcc.swc.df.add) == 'irrigsum'] <- 'irrig.aut
 met.gcc.swc.df.add$hand.water[is.na(met.gcc.swc.df.add$hand.water)] <-  0
 
 met.gcc.swc.df.add$irrig.tot <- met.gcc.swc.df.add$hand.water + met.gcc.swc.df.add$irrig.auto
+# add harvest
+# get harveast date
+library(XLConnect)
+event.wb <- loadWorkbook('data/PACE Events log - Start 2017.xlsx')
+event.df <- readWorksheet(event.wb,sheet = 'PACE')
+event.df$Date <- as.Date(event.df$Event.Date)
+hav.df = event.df[event.df$Item..keyword. == 'Harvest',]
+# fix date
+hav.df$Date = as.Date(NA)
 
-saveRDS(met.gcc.swc.df.add,'cache/gcc.met.pace.df.rds')
+hav.df$Date[nchar(hav.df$Event.Date) == 19] = 
+  as.Date(hav.df$Event.Date[nchar(hav.df$Event.Date) == 19])
+
+hav.df$Date[nchar(hav.df$Event.Date) < 19] = 
+  as.Date(hav.df$Event.Date[nchar(hav.df$Event.Date) < 19],'%d-%m-%Y')
+
+# get species
+tmp.ls = list()
+
+spc.vec = c('Bis','Dig','DigBis','Fes',
+            'Kan','KanWal','Luc','Pha',
+            'PhaSub','Rho','Rye','Wal')
+
+for (i in seq_along(spc.vec)) {
+  
+  if(!spc.vec[i] %in% c('PhaSub','Pha')){
+    
+    tmp.ls[[i]]=data.frame(Date = hav.df$Date[grep(spc.vec[i],
+                                                   hav.df$Activity...Description,
+                                                   ignore.case = T)],
+                           Species = spc.vec[i])
+    
+  }
+  
+  if(spc.vec[i]=='PhaSub'){
+    v1 = hav.df$Date[grep('PhaSub',
+                          hav.df$Activity...Description,ignore.case = T)]
+    v2 = hav.df$Date[grep('Pha/',
+                          hav.df$Activity...Description,ignore.case = T)] 
+    v3 = hav.df$Date[grep('Phal/',
+                          hav.df$Activity...Description,ignore.case = T)]
+    
+    tmp.ls[[i]]=data.frame(Date = c(v1,v2,v3),
+                           Species = spc.vec[i])
+  }
+  
+  
+  if(spc.vec[i]=='Pha'){
+    v1 = hav.df$Date[grep('Pha ',
+                          hav.df$Activity...Description,ignore.case = T)]
+    v2 = hav.df$Date[grep('Pha,',
+                          hav.df$Activity...Description,ignore.case = T)] 
+    v3 = hav.df$Date[grep(' Pha',
+                          hav.df$Activity...Description,ignore.case = T)]
+    
+    tmp.ls[[i]]=data.frame(Date = c(v1,v2,v3),
+                           Species = spc.vec[i])
+    
+  }
+  
+  
+  
+  
+}
+
+hav.date.df=do.call(rbind,tmp.ls)
+hav.date.df$harvest = 1
+write.csv(hav.date.df,'cache/pace.harvest.date.csv',row.names = F)
+met.gcc.swc.df.add.har = merge(met.gcc.swc.df.add,hav.date.df,by=c('Date','Species'),
+                               all.x=T)
+met.gcc.swc.df.add.har$harvest[is.na(met.gcc.swc.df.add.har$harvest)] = 0
+# save results
+saveRDS(met.gcc.swc.df.add.har,'cache/gcc.met.pace.df.rds')
 write.csv(met.gcc.swc.df.add,'gcc.met.pace.df.csv',row.names = F)
 sum(met.gcc.swc.df.add$irrig.tot[met.gcc.swc.df.add$SubplotID == 'S1P1A'],na.rm = T)

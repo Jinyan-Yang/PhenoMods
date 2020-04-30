@@ -1,9 +1,5 @@
 gcc.met.pace.df <- readRDS('cache/gcc.met.pace.df.rds')
-library(XLConnect)
-event.wb <- loadWorkbook('data/PACE Events log - Start 2017.xlsx')
-event.df <- readWorksheet(event.wb,sheet = 'PACE')
-event.df$Date <- as.Date(event.df$Event.Date)
-hav.df = event.df[event.df$Item..keyword. == 'Harvest',]
+# with(gcc.met.pace.df[gcc.met.pace.df$SubplotID == 'S1P1A',],plot(GCC~Date))
 
 # 
 get.norm.gcc.func <- function(df){

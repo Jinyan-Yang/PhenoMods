@@ -238,7 +238,9 @@ phenoGrass.func.v12 <- function(gcc.df,
     
     # give min
     cover.pred.vec[nm.day] <- max(0,min(cover.pred.vec[nm.day],cover.max))
-    
+    if(gcc.df$harvest[nm.day] == 1){
+      cover.pred.vec[nm.day] <- gcc.df$cover[nm.day]
+    }
     # calculate swc
     evap.vec[nm.day] <- (1 - cover.pred.vec[nm.day-1]) * 
       # loss.f^2*

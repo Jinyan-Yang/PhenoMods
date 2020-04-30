@@ -3,6 +3,7 @@ library(HIEv)
 green.df <- downloadCSV("FACE_P0037_RA_CANOPYGREENNESS-FULL_OPEN_L2.dat")
 names(green.df) <- c("DateTime","Date","Ring","angle","Green")
 # average by ring and date
+green.df <- green.df[!is.na(green.df$Ring),]
 green.sum.df <- doBy::summaryBy(Green~Date,
                                 data = green.df,FUN = mean,na.rm=TRUE,keep.names = TRUE)
 green.sum.df$Date <- as.Date(green.sum.df$Date)
@@ -44,7 +45,7 @@ gcc.met.df <- merge(green.sum.df,ros.1,all=TRUE)
 # need to get 16 dates of met before gcc
 start.date <- gcc.met.df$Date[min(which(!is.na(gcc.met.df$Green)))]
 
-gcc.met.df <- gcc.met.df[gcc.met.df$Date >= (start.date - 16),]
+gcc.met.df <- gcc.met.df[gcc.met.df$Date >= (start.date - 15),]
 
 gcc.met.df <- gcc.met.df[!is.na(gcc.met.df$PPFD),]
 

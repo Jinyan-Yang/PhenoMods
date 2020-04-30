@@ -10,7 +10,7 @@ fit.mcmc.pace.func <- function(species.in = 'Luc',prep.in = 'Control', temp.in =
                                       species.in =species.in,
                                       prep.in = prep.in,
                                       temp.in =temp.in)
-  gcc.met.pace.df.16 <- gcc.met.pace.df.16[gcc.met.pace.df.16$Date<as.Date('2019-11-26'),]
+  gcc.met.pace.df.16 <- gcc.met.pace.df.16[gcc.met.pace.df.16$Date<as.Date('2019-01-01'),]
   gcc.met.pace.df.16$map <- 760
   # para values####
   par.df <- data.frame(#f.h = c(200,220,240,NA,NA),
@@ -51,8 +51,13 @@ fit.mcmc.pace.func(species.in='Rye',prep.in = 'Control', temp.in ='Ambient')
 
 fit.mcmc.pace.func(species.in='Luc',prep.in = 'Drought', temp.in ='Ambient')
 fit.mcmc.pace.func(species.in='Fes',prep.in = 'Drought', temp.in ='Ambient')
+
+
+
+
+
 # # 
-luc.d.a.df= readRDS('cache/chain.Luc.Drought.Ambient.rds')
+luc.d.a.df= readRDS('cache/chain.Luc.Control.Ambient.rds')
 gcc.met.pace.df.16 <- get.pace.func(gcc.met.pace.df,
                                     species.in = 'Fes',
                                     prep.in = 'Drought',

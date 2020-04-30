@@ -8,7 +8,16 @@ gcc.pace.df.daily <- doBy::summaryBy(GCC ~  Date + Cam + SubplotID +
                                      data = gcc.pace.df)
 saveRDS(gcc.pace.df.daily,'cache/gcc.pace.daily.2019.rds')
 
-with(gcc.pace.df.daily[gcc.pace.df.daily$SubplotID == 'S1P1A',],plot(GCC~Date))
+# 
+gcc.pace.df <- readRDS('cache/pace.gcc.2018.rds')
+gcc.pace.df$Date <- gcc.pace.df$DateTime
+gcc.pace.df.daily <- doBy::summaryBy(GCC ~  Date + Cam + SubplotID +
+                                       Species + Precipitation + Temperature,
+                                     FUN = mean, na.rm=T,keep.names = T,
+                                     data = gcc.pace.df)
+saveRDS(gcc.pace.df.daily,'cache/gcc.pace.daily.2018.rds')
+
+# with(gcc.pace.df.daily[gcc.pace.df.daily$SubplotID == 'S1P1A',],plot(GCC~Date))
 # library(HIEv)
 # # library(data.table)
 # library(doBy)
