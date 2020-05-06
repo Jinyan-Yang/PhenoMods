@@ -131,8 +131,10 @@ phenoGrass.func.v12 <- function(gcc.df,
 
     # loss of supply
     # loss.f <- (1-weibull.func(swc.vec[nm.day-1],1000,0.2)+0.01)
+    
+    # reduction of soil conductivity
     loss.f.soil <- k.soil.func(swc.vec[nm.day-1]/bucket.size,
-                               psi.e = -0.03,#KPa
+                               psi.e = -0.03e-3,#KPa
                                b = 4.26,
                                swc.sat = swc.capacity,
                                k.sat = 79.8) / 79.8
@@ -149,9 +151,9 @@ phenoGrass.func.v12 <- function(gcc.df,
                           lai=4,
                           k.plant = 0.08,
                           psi.e = -0.03e-3,#MPa
-                          b = 15, 
+                          b = 4.26, 
                           psi.min = -2,
-                          k.sat = 10)
+                          k.sat = 79.8)
 
     # loss.f <- max(0,(swc.vec[nm.day-1]- swc.wilt*bucket.size))
     # / (swc.capacity*bucket.size - swc.wilt*bucket.size)
@@ -169,6 +171,7 @@ phenoGrass.func.v12 <- function(gcc.df,
     loss.f.soil <- max(loss.f.soil,0)
     
     water.avi[nm.day] <- max(0,(swc.vec[nm.day-1]- swc.wilt*bucket.size))
+    
     # water.avi[nm.day] <- loss.f
     # # define the legency effect 
     i=0
