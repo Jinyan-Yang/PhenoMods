@@ -33,10 +33,10 @@ k.s.p.func <- function(swc,
                        lai=8,
                        l.v=1490,
                        r.root=0.0005,
-                       swc.sat = 0.24,
-                       psi.e = -0.74e-3,#KPa
-                       b = 6.4, 
-                       k.sat = 11.4){
+                       swc.sat = 0.13,
+                       psi.e = -0.36e-3,#KPa
+                       b = 4.26, 
+                       k.sat = 79.8){
   ks <- r.l*2*pi*
     k.soil.func(swc,swc.sat,psi.e,b,k.sat)/
     lai/log10(1/sqrt(pi * l.v)/r.root)
@@ -47,10 +47,10 @@ k.s.p.func <- function(swc,
 # calculate Emax 
 e.frac.func <- function(swc,
                         k.plant = 0.02,#plant hydro conductance; mmol m–2 s–1 MPa–1
-                        swc.sat = 0.24,
+                        swc.sat = 0.13,
                         psi.e = -0.74e-3,#KPa
-                        b = 6.4, 
-                        k.sat = 11.4,#soil sat hydo conductivity; molm–1 s–1MPa–1
+                        b = 4.26, 
+                        k.sat = 79.8,#soil sat hydo conductivity; molm–1 s–1MPa–1
                         psi.min = -2,#min plant psi; Mpa
                         r.l = 0.48,#Root length index; m m–2
                         lai = 8,

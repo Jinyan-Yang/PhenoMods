@@ -1,13 +1,13 @@
 source('r/function_hydro.R')
 # creat swc vector
-swc.vec <- seq(0.05,0.13,by = 0.001)
+swc.vec <- seq(0.01,0.13,by = 0.001)
 # get psi
 psi.vec <- psi.s.func(swc.vec,
-                      psi.e = -0.03,#KPa
+                      psi.e = -0.03e-3,#KPa
                       b = 4.26, 
                       swc.sat = 0.13)
 plot(psi.vec~swc.vec)
-k.soil = k.soil.func(swc.vec)
+k.soil = k.soil.func(swc.vec,b = 4.26, swc.sat = 0.13,k.sat = 80)
 plot(k.soil~swc.vec)
 # get fraction of max E
 fract.vec <- sapply(swc.vec,e.frac.func,
