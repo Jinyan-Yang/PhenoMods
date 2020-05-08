@@ -15,13 +15,15 @@ library(zoo)
 #                                     prep.in = prep.in,
 #                                     temp.in =temp.in)
 
+gcc.met.pace.df.16 <- get.pace.func(gcc.met.pace.df,
+                                    subplot = 'S3P3B')
+
 # check soil moisture capacity
 swv.sat.obs = quantile(gcc.met.pace.df.16$vwc,.99,na.rm=T)
 # max(gcc.met.pace.df.16$vwc,na.rm=T)
 # min(gcc.met.pace.df.16$vwc,na.rm=T)
 
-gcc.met.pace.df.16 <- get.pace.func(gcc.met.pace.df,
-                                    subplot = 'S3P3B')
+# subset by date
 gcc.met.pace.df.16 <- gcc.met.pace.df.16[gcc.met.pace.df.16$Date<as.Date('2019-6-01')&
                                            gcc.met.pace.df.16$Date>as.Date('2019-05-01'),]
 gcc.met.pace.df.16$map <- 760
@@ -48,7 +50,7 @@ par.df["fit",] <- colMeans(chain.read[burnIn:nrow(chain.read),])
 hufken.pace.pred <- phenoGrass.func.v12(gcc.met.pace.df.16,
                                         f.h = 222,
                                         f.t.opt = par.df["fit",1],
-                                        f.extract = 100* par.df["fit",2],
+                                        f.extract = par.df["fit",2],
                                         f.sec= par.df["fit",3],
                                         f.growth = par.df["fit",4],
                                         bucket.size = bucket.size,
