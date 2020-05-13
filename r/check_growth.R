@@ -55,6 +55,7 @@ plot.spec.func = function(spc.in){
   grow.df = do.call(rbind,grow.ls)
   boxplot(gcc.change~days.rained,data = grow.df,notch=TRUE,ylim=c(-0.01,0.01))
   abline(h=0,lty='dotted')
+  title(spc.in)
 }
 
 pdf('growth.pdf',width = 10,height = 10*0.618)
