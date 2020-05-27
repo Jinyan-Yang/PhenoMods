@@ -1,22 +1,22 @@
-gcc.pace.df <- read.csv('download/ColourCoordinates2018.csv')
-gcc.pace.df$GCC <- gcc.pace.df$G / (gcc.pace.df$R + gcc.pace.df$G + gcc.pace.df$B)
-gcc.pace.df$date <- as.Date(as.character(gcc.pace.df$ï..DateTime),'%d/%m/%Y')
+# gcc.pace.df <- read.csv('download/ColourCoordinates2018.csv')
+# gcc.pace.df$GCC <- gcc.pace.df$G / (gcc.pace.df$R + gcc.pace.df$G + gcc.pace.df$B)
+# gcc.pace.df$date <- as.Date(as.character(gcc.pace.df$ï..DateTime),'%d/%m/%Y')
+# 
+# gcc.pace.df.daily <- doBy::summaryBy(GCC~  date + Cam + Subplot,
+#                                      FUN = mean, na.rm=T,keep.names = T,
+#                                      data = gcc.pace.df)
+# 
+# gcc.pace.df.daily$Shelter <- ceiling(gcc.pace.df.daily$Cam / 8)
+# 
+# gcc.pace.df.daily$Plot <- gcc.pace.df.daily$Cam %% 8
+# gcc.pace.df.daily$Plot[gcc.pace.df.daily$Plot == 0] <- 8
+# # names(gcc.pace.df.daily) <- c('Date','Cam','Subplot','RCC','GCC','BCC','Shelter','Plot')
 
-gcc.pace.df.daily <- doBy::summaryBy(GCC~  date + Cam + Subplot,
-                                     FUN = mean, na.rm=T,keep.names = T,
-                                     data = gcc.pace.df)
 
-gcc.pace.df.daily$Shelter <- ceiling(gcc.pace.df.daily$Cam / 8)
-
-gcc.pace.df.daily$Plot <- gcc.pace.df.daily$Cam %% 8
-gcc.pace.df.daily$Plot[gcc.pace.df.daily$Plot == 0] <- 8
-# names(gcc.pace.df.daily) <- c('Date','Cam','Subplot','RCC','GCC','BCC','Shelter','Plot')
-
-
-
+gcc.pace.df.daily <- readRDS('cache/gcc.met.pace.df.processed.rds')
 
 # plot
-gcc.pace.df.daily$days <- as.numeric(gcc.pace.df.daily$date - min(gcc.pace.df.daily$date))
+gcc.pace.df.daily$days <- as.numeric(gcc.pace.df.daily$Date - min(gcc.pace.df.daily$Date))
 # 
 # plot(GCC~date,data = gcc.pace.df.daily[gcc.pace.df.daily$Cam == 1 & gcc.pace.df.daily$Subplot == 'A',])
 # 
@@ -24,29 +24,44 @@ gcc.pace.df.daily$days <- as.numeric(gcc.pace.df.daily$date - min(gcc.pace.df.da
 
 
 
+# library(mgcv)
+# 
+# fit.gam <- gam(GCC~s(days),
+#                data = gcc.pace.df.daily[gcc.pace.df.daily$Cam == 1 & gcc.pace.df.daily$Subplot == 'A',])
+# 
+# plot.df <- data.frame(days = gcc.pace.df.daily$days[gcc.pace.df.daily$Cam == 1 & gcc.pace.df.daily$Subplot == 'A'],
+#                       gcc.pred = predict(fit.gam))
+# 
+# # points(gcc.pred~days,data = plot.df,type='l',col='grey')
+
+
+
+
+s1p3c.df <- gcc.pace.df.daily[gcc.pace.df.daily$SubplotID == 'S1P3C',]
+s1p3c.df$days <- as.numeric(s1p3c.df$Date - min(s1p3c.df$Date)) + 1
+s1p3c.df <- s1p3c.df[order(s1p3c.df$days),]
+s1p3c.df <- s1p3c.df[!is.na(s1p3c.df$GCC),]
+
+# s1p3c.df.sub <- s1p3c.df[seq(1, nrow(s1p3c.df), 7), ]
+# s1p3c.df.sub <- s1p3c.df.sub[s1p3c.df.sub$date != as.Date('2018-07-09'),]
 library(mgcv)
-
-fit.gam <- gam(GCC~s(days),
-               data = gcc.pace.df.daily[gcc.pace.df.daily$Cam == 1 & gcc.pace.df.daily$Subplot == 'A',])
-
-plot.df <- data.frame(days = gcc.pace.df.daily$days[gcc.pace.df.daily$Cam == 1 & gcc.pace.df.daily$Subplot == 'A'],
-                      gcc.pred = predict(fit.gam))
-
-# points(gcc.pred~days,data = plot.df,type='l',col='grey')
-
-
-
-
-s1p3c.df <- gcc.pace.df.daily[gcc.pace.df.daily$Cam == 3 & gcc.pace.df.daily$Subplot == 'C',]
-
-s1p3c.df.sub <- s1p3c.df[seq(1, nrow(s1p3c.df), 7), ]
-s1p3c.df.sub <- s1p3c.df.sub[s1p3c.df.sub$date != as.Date('2018-07-09'),]
-library(mgcv)
-fit.gam <- gam(GCC~s(days),
+fit.gam <- gam(GCC~s(days,k=10),
                data = s1p3c.df)
+# 
+# plot.df <- data.frame(days = fit.gam$coefficients,
+#                       gcc.pred = fit.gam$fitted.values)
 
-plot.df <- data.frame(days = s1p3c.df$days,
-                      gcc.pred = predict(fit.gam))
+par(mar=c(5,5,5,5))
+plot(GCC~Date,data = s1p3c.df,pch=16,col='darkseagreen')
+points(fit.gam$fitted.values~s1p3c.df$Date,type='l',col='grey80',lwd=3)
+par(new=T)
+plot(irrig.tot~Date,data = s1p3c.df,type='s',col='blue',ann=F,axes=F,xlab='',ylab='')
+axis(4,at=seq(0,15,by=5),labels = seq(0,15,by=5))
+mtext('Irrigation (mm/d)',side = 4,line=2,col='blue')
+
+
+
+
 
 file.dir.nm <- 'download/pic/P3'
 

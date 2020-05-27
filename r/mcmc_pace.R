@@ -1,16 +1,18 @@
-source('r/functions_mcmc_v12.r')
+source('r/functions_mc
+       mc_v12.r')
 day.lag <- 2
 source('r/pace_data_process.R')
 # packages
 library(doBy)
 library(zoo)
 
-fit.mcmc.pace.func <- function(species.in = 'Luc',prep.in = 'Control', temp.in ='Ambient'){
+fit.mcmc.pace.func <- function(species.in = 'Luc',prep.in = 'Control', temp.in ='Ambient',subplot =NA){
   gcc.met.pace.df.16 <- get.pace.func(gcc.met.pace.df,
                                       species.in =species.in,
                                       prep.in = prep.in,
-                                      temp.in =temp.in)
-  gcc.met.pace.df.16 <- gcc.met.pace.df.16[gcc.met.pace.df.16$Date<as.Date('2019-01-01'),]
+                                      temp.in =temp.in,
+                                      subplot = subplot)
+  gcc.met.pace.df.16 <- gcc.met.pace.df.16[gcc.met.pace.df.16$Date<as.Date('2019-09-01'),]
   gcc.met.pace.df.16$map <- 760
   # para values####
   par.df <- data.frame(#f.h = c(200,220,240,NA,NA),
@@ -27,7 +29,6 @@ fit.mcmc.pace.func <- function(species.in = 'Luc',prep.in = 'Control', temp.in =
   # start mcmc fiting######
   bucket.size <- 300
   # soil.water.var <- quantile(gcc.met.pace.df.16$vwc,c(.1,.99))
-  gcc.met.pace.df.16 <- gcc.met.pace.df.16[(gcc.met.pace.df.16$Date) < as.Date('2018-9-1'),]
   chain.fes = mh.MCMC.func(30000,
                            par.df,
                            gcc.met.pace.df.16,
@@ -41,11 +42,20 @@ fit.mcmc.pace.func <- function(species.in = 'Luc',prep.in = 'Control', temp.in =
   #                           day.lay = 2,
   #                           swc.capacity = 0.38,
   #                           swc.wilt = 0.111)
-  out.name <- sprintf('cache/chain.%s.%s.%s.rds',species.in,prep.in,temp.in)
+  if(is.na(subplot)){
+    out.name <- sprintf('cache/chain.%s.%s.%s.rds',species.in,prep.in,temp.in)
+  }else{
+    out.name <- sprintf('cache/chain.%s.rds',subplot)
+  }
+ 
   saveRDS(chain.fes,out.name)
 }
 # 
+
+# fit.mcmc.pace.func(subplot = 'S3P3B')
+
 fit.mcmc.pace.func(species.in='Luc',prep.in = 'Control', temp.in ='Ambient')
+
 fit.mcmc.pace.func(species.in='Fes',prep.in = 'Control', temp.in ='Ambient')
 fit.mcmc.pace.func(species.in='Rye',prep.in = 'Control', temp.in ='Ambient')
 

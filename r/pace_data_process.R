@@ -12,17 +12,36 @@ get.norm.gcc.func <- function(df){
   return(df)
 }
 
+# 
+get.smooth.gcc.func = function(Date.vec,gcc.vec){
+  library(mgcv)
+  library(lubridate)
+  gam.frdm = round(length(Date.vec)/3)
+  
+  gam.in.df = data.frame(x = as.numeric(Date.vec),
+                         y = gcc.vec)
+  fit.gam <- gam(y~s(x,k = gam.frdm),data = gam.in.df)
+  
+  out.df = predict(fit.gam,gam.in.df)
+  return(out.df)
+}
+
 # get pace data 
 get.pace.func <- function(gcc.met.pace.df,
                           species.in,
                           prep.in,
-                          temp.in){
+                          temp.in,subplot = NA){
   # temp.df <- gcc.met.pace.df[gcc.met.pace.df$Species == 'Luc'&
   #                              gcc.met.pace.df$Precipitation == 'Control'&
   #                              gcc.met.pace.df$Temperature == 'Ambient',]
-  temp.df <- gcc.met.pace.df[gcc.met.pace.df$Species == species.in&
-                               gcc.met.pace.df$Precipitation == prep.in&
-                               gcc.met.pace.df$Temperature == temp.in,]
+  if(is.na(subplot)){
+    temp.df <- gcc.met.pace.df[gcc.met.pace.df$Species == species.in&
+                                 gcc.met.pace.df$Precipitation == prep.in&
+                                 gcc.met.pace.df$Temperature == temp.in,]
+  }else{
+    temp.df <- gcc.met.pace.df[gcc.met.pace.df$SubplotID == subplot,]
+  }
+
   temp.df <- temp.df[!is.na(temp.df$Date),]
   
   if(nrow(temp.df)<2)stop('species/treament incorrect')
@@ -86,6 +105,14 @@ get.pace.func <- function(gcc.met.pace.df,
   gcc.met.pace.df.16$RHmin <- na.locf(gcc.met.pace.df.16$RHmin)
   gcc.met.pace.df.16$Tmax <- na.locf(gcc.met.pace.df.16$Tmax)
   gcc.met.pace.df.16$Tmin <- na.locf(gcc.met.pace.df.16$Tmin)
+  
+  
+  gcc.met.pace.df.16$GCC.smooth = get.smooth.gcc.func(gcc.met.pace.df.16$Date, 
+                                                      gcc.met.pace.df.16$GCC)
+    
+  # tmp.df = get.smooth.gcc.func(y, gcc.met.pace.df.16$GCC)
+  # 
+  # out.df = merge(gcc.met.pace.df.16,tmp.df,by='y',all.x=T)
   
   return(gcc.met.pace.df.16)
 }

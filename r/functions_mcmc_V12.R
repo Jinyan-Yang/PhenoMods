@@ -1,5 +1,6 @@
 source('r/function_hydro.R')
 source('models/hufkens/hufkensV12.R')
+source('models/hufkens/hufkensV11.R')
 # functions#####
 # function to get log likelihood
 logLikelihood.func <- function (model.out){
@@ -69,7 +70,7 @@ mh.MCMC.func <- function(iterations,par.df,
     proposal = proposal.func(chain[i,],par.df)
     
     # prior.prob,data,data.sd,bucket.size = 300,...
-    probab = exp(posterior.func(prior.prob,FUN = phenoGrass.func.v12,
+    probab = exp(posterior.func(prior.prob,FUN = phenoGrass.func.v11,
                                 gcc.df = gcc.met.pace.df.16,
                                 f.h = 222,
                                 f.t.opt = proposal[1],
@@ -81,7 +82,7 @@ mh.MCMC.func <- function(iterations,par.df,
                                 bucket.size = bucket.size,
                                 swc.wilt = swc.wilt ,
                                 swc.capacity = swc.capacity) - 
-                   posterior.func(prior.prob,FUN = phenoGrass.func.v12,
+                   posterior.func(prior.prob,FUN = phenoGrass.func.v11,
                                   gcc.df = gcc.met.pace.df.16,
                                   f.h = 222,
                                   f.t.opt = chain[i,1],

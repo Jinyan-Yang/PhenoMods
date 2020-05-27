@@ -25,6 +25,11 @@ gcc.met.pace.df.in <- readRDS('cache/gcc.met.pace.df.rds')
 gcc.met.pace.df <- 
   gcc.met.pace.df.in[with(gcc.met.pace.df.in,order(Species,Precipitation,Temperature)),]
 
+tmp.df = readRDS('cache/pace.gcc.2018.rds')
+tmp.df.1 = readRDS('cache/pace.gcc.2019.rds')
+gcc.met.pace.df <- rbind(tmp.df,tmp.df.1)
+gcc.met.pace.df$GCC <- gcc.met.pace.df$G / (gcc.met.pace.df$R + gcc.met.pace.df$G + gcc.met.pace.df$B)
+gcc.met.pace.df$Date <- gcc.met.pace.df$DateTime
 # gcc.met.pace.df$SubplotID <- droplevels(gcc.met.pace.df$SubplotID)
 # gcc.met.pace.df$SubplotID <- as.character(gcc.met.pace.df$SubplotID )
 
@@ -240,33 +245,41 @@ for(i in seq_along(species.vec)){
   
 dev.off()
 
-# #########################################################################
+# plot by spec and treat#########################################################################
 library(doBy)
 library(mgcv)
 library(lubridate)
-gcc.met.pace.df.st <- summaryBy(GCC + vwc + irrigsum ~ Species + Date + Precipitation + Temperature + SubplotID,
+gcc.met.pace.df.st <- summaryBy(GCC ~ Species + Date + Precipitation + Temperature + SubplotID,
                                 data = gcc.met.pace.df,FUN=c(mean),na.rm=TRUE,keep.names = T)
+gcc.met.pace.df.st=gcc.met.pace.df.st[!is.na(gcc.met.pace.df.st$Date),]
 gcc.met.pace.df.st$plot.factor <- as.factor(gcc.met.pace.df.st$SubplotID )
+species.vec <- unique(gcc.met.pace.df.st$Species)
 
 plot.st.func <- function(cWaT.df){
   
   # wave.fit.cWaT <- gam(GCC~s(yday(Date),k=20),data = cWaT.df)
   # plot(GCC~Date,data = cWaT.df,col = 'grey',xlab='2018',pch=paste0(facto.vec[plot.factor]))
   # points(wave.fit.cWaT$fitted.values~cWaT.df$Date,type='l',col='black',lwd=3)
-  
+  cWaT.df = cWaT.df[!is.na(cWaT.df$GCC),]
+  cWaT.df$plot.factor = droplevels(cWaT.df$plot.factor)
   plots.vec <- unique(cWaT.df$plot.factor)
   y.min <- floor(min(cWaT.df$GCC,na.rm=T)*1000)/1000
   y.max <- ceiling(max(cWaT.df$GCC,na.rm=T)*1000)/1000
   
   for(plot.num in seq_along(plots.vec)){
     plot.df <- cWaT.df[cWaT.df$plot.factor == plots.vec[plot.num],]
+    plot.df = plot.df[!is.na(plot.df$GCC),]
+    plot.df=plot.df[order(plot.df$Date),]
+    plot.df$time.d = as.numeric(row.names(plot.df))
+    wave.fit.cWaT <- gam(GCC~s(time.d,k=nrow(plot.df)/3),data = plot.df)
     if(plot.num == 1){
-      wave.fit.cWaT <- gam(GCC~s(yday(Date),k=20),data = plot.df)
-      plot(GCC~Date,data = plot.df,col = plot.num,xlab=' ',pch=paste0(facto.vec[plot.factor]),
+      
+      plot(GCC~Date,data = plot.df,col = plot.num,xlab=' ',
+           pch=paste0(facto.vec[plot.factor]),
            cex=0.7,ylim=c(y.min,y.max))
       points(wave.fit.cWaT$fitted.values~plot.df$Date,type='l',col=plot.num,lwd=2)
-    }else{
-      wave.fit.cWaT <- gam(GCC~s(yday(Date),k=20),data = plot.df)
+   
+       }else{
       points(GCC~Date,data = plot.df,col = plot.num,pch=paste0(facto.vec[plot.factor]),cex=0.7)
       points(wave.fit.cWaT$fitted.values~plot.df$Date,type='l',col=plot.num,lwd=2)
     }
@@ -276,10 +289,11 @@ plot.st.func <- function(cWaT.df){
                                    unique(cWaT.df$Temperature)),bty='n')
 }
 
-facto.vec <- rep(1:6,each = 32)
+facto.vec <- rep(1:6)
 
 pdf('pace_gcc_species_treat.pdf',width = 12,height = 12*0.618)
-library("viridisLite")  
+library("viridisLite") 
+library(survival)
 palette(viridis(6))
 par(mar=c(3,5,1,1))
 
@@ -287,7 +301,7 @@ for(i in seq_along(species.vec)){
   
   plot.df <- gcc.met.pace.df.st[gcc.met.pace.df.st$Species == species.vec[i],]
   
-  plot.df <- complete(plot.df,GCC)
+  # plot.df <- complete(plot.df,GCC)
   plot.df <- plot.df[order(plot.df$Date),]
   plot.df$Species <- droplevels(plot.df$Species)
   
@@ -319,18 +333,21 @@ for(i in seq_along(species.vec)){
 dev.off()
 
 # #####################
-vwc.df <- gcc.met.pace.df.st[]
+# vwc.df <- gcc.met.pace.df.st[]
 pdf('pace_vwc_species_treat.pdf',width = 12,height = 12*0.618)
 library("viridisLite")  
 palette(viridis(6))
 par(mar=c(3,5,1,1))
 
+plot(GCC~Date,data = cWaT.df[cWaT.df$SubplotID == 'S3P3B' &
+                               month(cWaT.df$Date) %in% 2:6,])
 
+abline(v = as.Date('2019-4-5'),col='lightgrey')
 for(i in seq_along(species.vec)){
   
   plot.df <- gcc.met.pace.df.st[gcc.met.pace.df.st$Species == species.vec[i],]
   
-  plot.df <- complete(plot.df,GCC)
+  # plot.df <- complete(plot.df,GCC)
   plot.df <- plot.df[order(plot.df$Date),]
   plot.df$Species <- droplevels(plot.df$Species)
   

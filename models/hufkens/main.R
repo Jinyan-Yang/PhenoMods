@@ -77,7 +77,7 @@ data("constants") #this is used for penman et value; data from Adleide
 hufkens.fit <- DEoptim(fn=target.func,lower=lower,upper=upper,
                        dat=gcc.met.df,
                        DEoptim.control(NP = NPmax,itermax=maxiter,
-                                       trace=T,parallelType = 1,
+                                       trace=T,parallelType = 0,
                                        parVar = list("pet.func","scaling.f.func",
                                                      "t.func",'phenoGrass.func','constants')))
 

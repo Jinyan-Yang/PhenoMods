@@ -25,7 +25,7 @@ plot.growth.func=function(plot.in){
     
     tmp.ls[[i]]$days.rained = tmp.ls[[i]]$Date - gcc.met.pace.df.16$Date[index.vec[i]]
     
-    tmp.ls[[i]]$gcc.change = c(0,diff(tmp.ls[[i]]$GCC))
+    tmp.ls[[i]]$gcc.change = c(0,diff(tmp.ls[[i]]$GCC.smooth))
   }
   
   # plot(gcc.change~days.rained,data = tmp.ls[[1]],ylim=c(-0.10,0.1),
@@ -36,9 +36,7 @@ plot.growth.func=function(plot.in){
   # }
   
   growth.df = do.call(rbind,tmp.ls)
-  
 
-  
   # boxplot(gcc.change~days.rained,data = growth.df,notch=TRUE,ylim=c(-0.01,0.01))
   # abline(h=0,lty='dotted')
   
@@ -53,12 +51,12 @@ plot.spec.func = function(spc.in){
   
   grow.ls = lapply(sub.vec,plot.growth.func)
   grow.df = do.call(rbind,grow.ls)
-  boxplot(gcc.change~days.rained,data = grow.df,notch=TRUE,ylim=c(-0.01,0.01))
+  boxplot(gcc.change~days.rained,data = grow.df,notch=TRUE,ylim=c(-0.005,0.005))
   abline(h=0,lty='dotted')
   title(spc.in)
 }
 
-pdf('growth.pdf',width = 10,height = 10*0.618)
+pdf('growth_smooth.pdf',width = 10,height = 10*0.618)
 
 # sub.vec = unique(gcc.met.pace.df$SubplotID[gcc.met.pace.df$Species == 'Luc'& 
 #                                              gcc.met.pace.df$Temperature == 'Ambient' ])

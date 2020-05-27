@@ -11,7 +11,7 @@ plot.mcmc.func = function(species.in,prep.in,temp.in){
   chain.fes <- readRDS(fn)
   # # check acceptance so that the 
   burnIn = 10000
-  acceptance = 1-mean(duplicated(chain.fes[-(1:burnIn),])) #should be >20% but <60%; 20-25% were suggested
+  # acceptance = 1-mean(duplicated(chain.fes[-(1:burnIn),])) #should be >20% but <60%; 20-25% were suggested
   # 
   # # 
   # hist(chain.fes[8000:30000,1])
@@ -31,7 +31,7 @@ plot.mcmc.func = function(species.in,prep.in,temp.in){
   # par.df["fit",] <- colMeans(luc.d.a.df[burnIn:nrow(luc.d.a.df),])
   # 
   bucket.size = 300
-  hufken.pace.pred <- phenoGrass.func.v12(gcc.met.pace.df.16,
+  hufken.pace.pred <- phenoGrass.func.v11(gcc.met.pace.df.16,
                                           f.h = 222,
                                           f.t.opt = par.df["fit",1],
                                           f.extract = par.df["fit",2],
@@ -46,21 +46,27 @@ plot.mcmc.func = function(species.in,prep.in,temp.in){
   library(viridisLite)
   palette(viridis(8))
   par(mar=c(5,5,1,1))
+  par(mfrow=c(1,2))
   plot(cover~Date,data = hufken.pace.pred,type='l',#pch=16,
        xlab=' ',ylab=expression(f[cover]),ylim=c(0,0.8),col = palette()[6])
   
   points(cover.hufken~Date,data = hufken.pace.pred,type='l',col=palette()[8])
   # 
   legend('topleft',legend = paste0(species.in,prep.in,temp.in),bty='n')
+  
+  plot(cover~cover.hufken,data = hufken.pace.pred,pch=16,col='grey',
+       xlab='MOD',ylab='OBS')
+  abline(a=0,b=1)
 }
 
-pdf('PACE.V12.pdf',width = 8,height = 8*0.618)
+pdf('PACE.V11.pdf',width = 8,height =  8*0.618)
 
-plot.mcmc.func('Rye','Control','Ambient')
+# plot.mcmc.func('Rye','Control','Ambient')
 plot.mcmc.func('Luc','Control','Ambient')
 plot.mcmc.func('Fes','Control','Ambient')
 
-plot.mcmc.func('Luc','Drought','Ambient')
-plot.mcmc.func('Fes','Drought','Ambient')
+# plot.mcmc.func('Luc','Drought','Ambient')
+# plot.mcmc.func('Fes','Drought','Ambient')
 
 dev.off()
+
