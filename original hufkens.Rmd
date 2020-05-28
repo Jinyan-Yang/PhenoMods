@@ -1,0 +1,339 @@
+---
+title: "original hufkens"
+output: html_document
+---
+##1. The original Hufken's PhenoGrass Model
+
+```{r setup, include=FALSE}
+# note this model is modified from the evapertranspiration R package
+# THe change is only to simpile the original model since we have spesific inputs 
+library(Evapotranspiration)
+library(doBy)
+library(zoo)
+data("constants") #this is used for penman et value; data from Adleide
+
+pet.func <- function(Date,PPFD,Tair,Tmax,Tmin,RHmax,RHmin,u2,P = 101.3,lat = 33.618891 ){
+  gcc.met.df <- data.frame(Date = as.Date(Date),
+                           PPFD = PPFD,
+                           Tair = Tair,
+                           Tmax = Tmax,
+                           Tmin = Tmin,
+                           RHmax = RHmax,
+                           RHmin = RHmin,
+                           u2=u2)
+  
+  
+  gcc.met.df$J <- lubridate::yday(gcc.met.df$Date)
+  gcc.met.df$n <-  gcc.met.df$PPFD * 10^-6/4.57 * 3600 *24
+  R_s <-  gcc.met.df$PPFD * 10^-6/4.57 * 3600 *24
+  # data <- gcc.met.df
+  
+  Ta <- gcc.met.df$Tair
+  P <- 101.3 
+  delta <- 4098 * (0.6108 * exp((17.27 * Ta)/(Ta + 237.3)))/((Ta + 237.3)^2)
+  gamma <- 0.00163 * P/constants$lambda
+  d_r2 <- 1 + 0.033 * cos(2 * pi/365 * gcc.met.df$J)
+  delta2 <- 0.409 * sin(2 * pi/365 * gcc.met.df$J - 1.39)
+  
+  w_s <- acos(tan(lat * pi /180) * tan(delta2))
+  N <- 24/pi * w_s
+  R_a <- (1440/pi) * d_r2 * constants$Gsc * (w_s * sin(constants$lat_rad) * 
+                                               sin(delta2) + cos(constants$lat_rad) * cos(delta2) * 
+                                               sin(w_s))
+  R_so <- (0.75 + (2 * 10^-5) * constants$Elev) * R_a
+  
+  # R_s <- (constants$as + constants$bs * (gcc.met.df$n/N)) * R_a
+  
+  vs_Tmax <- 0.6108 * exp(17.27 * gcc.met.df$Tmax/(gcc.met.df$Tmax + 
+                                                     237.3))
+  vs_Tmin <- 0.6108 * exp(17.27 * gcc.met.df$Tmin/(gcc.met.df$Tmin + 
+                                                     237.3))
+  vas <- (vs_Tmax + vs_Tmin)/2
+  vabar <- (vs_Tmin * gcc.met.df$RHmax/100 + vs_Tmax * gcc.met.df$RHmin/100)/2
+  
+  R_nl <- constants$sigma * (0.34 - 0.14 * sqrt(vabar)) * 
+    ((gcc.met.df$Tmax + 273.2)^4 + (gcc.met.df$Tmin + 273.2)^4)/2 * 
+    (1.35 * R_s/R_so - 0.35)
+  
+  alpha <- 0.67
+  R_ns <- (1 - alpha) * R_s
+  R_n = R_ns - R_nl
+  # if (windfunction_ver == "1948") {
+  f_u = 2.626 + 1.381 * gcc.met.df$u2
+  #   # else if (windfunction_ver == "1956") {
+  #     f_u = 1.313 + 1.381 * u2
+  
+  Ea = f_u * (vas - vabar)
+  Epenman.Daily <- delta/(delta + gamma) * (R_n/constants$lambda) + 
+    gamma/(delta + gamma) * Ea
+  Epenman.Daily <- max(0,Epenman.Daily)
+  return(Epenman.Daily)
+}
+# pet.func('2017-01-01',PPFD=800,25,30,20,80,20,2)
+
+# get a scaling factor####
+scaling.f.func <- function(map,f.h){
+  # map is input, h should be fitted
+  map / (map + f.h)
+}
+# t response function####
+t.func <- function(t.mean,f.t.opt,t.max){
+  return((t.max-t.mean)/(t.max-f.t.opt)*(t.mean/f.t.opt)^(f.t.opt/(t.max-f.t.opt)))
+}
+# code to test t.func
+# tmean.vec<- seq(0,40)
+# g.vec <- t.func(tmean.vec,33,45)
+# plot(g.vec~tmean.vec)
+
+# read data####
+gcc.met.pace.df <- readRDS('cache/gcc.met.pace.df.processed.rds')
+
+temp.df <- gcc.met.pace.df[gcc.met.pace.df$Species == 'Luc'&
+                                     gcc.met.pace.df$Precipitation == 'Control'&
+                                     gcc.met.pace.df$Temperature == 'Ambient',]
+
+# temp.df <- gcc.met.pace.df[gcc.met.pace.df$SubplotID == 'S1P6A',]
+
+sd.df <- summaryBy(GCC.norm + vwc ~ Date,
+                   data = temp.df,FUN=c(sd),na.rm=TRUE,keep.names = F)
+
+mean.df <- summaryBy(.~ Date,
+                     data = temp.df,FUN=c(mean),na.rm=TRUE,keep.names = T)
+
+test.df <- merge(mean.df,sd.df)
+
+test.df <- test.df[order(test.df$Date),]
+
+test.df$GCC.norm <- na.locf(test.df$GCC.norm,fromLast=F)
+
+test.df$GCC.norm[1:16] <- NA
+test.df$GCC[1:16] <- NA
+
+start.date <- test.df$Date[min(which(!is.na(test.df$GCC.norm)))]
+
+gcc.met.pace.df.na.rm <- test.df[!is.na(test.df$GCC) & test.df$Date > start.date,]
+
+gcc.met.pace.df.16 <- rbind(gcc.met.pace.df.na.rm,
+                            test.df[test.df$Date <= start.date &
+                                      test.df$Date > (start.date-17),])
+
+gcc.met.pace.df.16 <- gcc.met.pace.df.16[order(gcc.met.pace.df.16$Date),]
+
+gcc.met.pace.df.16 <- gcc.met.pace.df.16[!is.na(gcc.met.pace.df.16$Date),]
+
+gcc.met.pace.df.16$GCC.norm <- (gcc.met.pace.df.16$GCC - 0.328) /
+  (max(gcc.met.pace.df.16$GCC,na.rm = T) - 0.328)
+
+```
+Key equations:
+
+$$V_{t+1} = V_{t} + G_{t} - S_{t} $$
+$$ G_{t} = {f_{T,t} W_{lag,t} f_{MAP} r_{growth}} (1 - {V_{t} \over V_{max}})  $$
+fT,t is the temperature dependent fractor; Wlag,t is lagged soil water availability (mm; at 2.5 days ago as Hufkens fitted); fMAP is the mean annual precipitation dependent fractor; rgrowth is the max growth rate; Vmax is the max veg cover. 
+
+
+
+Let's first see how it performs against PACE data with parameter values obtained from his paper (from his github page). I'll use lucerne (control&ambient) as an example.
+
+```{r, echo=FALSE}
+
+# build the pheno grass model as in Hufkens 2016#####
+# the Penman equation is a different version 
+# here used the equation modified from the evapotranspiration R package
+phenoGrass.func <- function(gcc.df,
+                            f.h,
+                            f.t.opt,
+                            f.extract,
+                            f.sec,
+                            f.growth,
+                            swc.wilt ,
+                            swc.capacity ,
+                            t.max){
+  
+  # set the lag factor; in num of days
+  day.lay <- 3
+  sf.value <- scaling.f.func(mean(gcc.df$map,na.rm=TRUE),f.h)
+  
+  gcc.df$cover <-  gcc.df$GCC.norm * sf.value
+  # set up the inital conditions
+  swc.vec <- c()
+  swc.vec[1:16] <- gcc.df$vwc[1:16] * 1 * 1000
+  et <- c()
+  cover.pred.vec <- c()
+  cover.pred.vec[day.lay] <- gcc.df$cover[!is.na(gcc.df$cover)][1]
+  water.avi <- c()
+  water.avi <- swc.vec - swc.wilt
+  water.lag <- c()
+  water.lag <- water.avi
+  t.m <- c()
+
+  # calcualte the par values
+  cover.max <- max(gcc.df$cover,na.rm=TRUE)
+  rad.min <-  min(gcc.df$PPFD,na.rm=TRUE)
+  rad.max <-  max(gcc.df$PPFD,na.rm=TRUE)
+  gcc.df$rad.norm <- (gcc.df$PPFD - rad.min) / (rad.max - rad.min)
+  
+  # model start
+  for (nm.day in day.lay:(nrow(gcc.df)-1)){
+    # plant avialbe water
+    water.avi[nm.day] <- max(0,swc.vec[nm.day]- swc.wilt)
+    
+    # # define the legency effect 
+    i=0
+    while(i+1<day.lay & (nm.day-i)>0){
+      i=i+1
+    }
+    
+    # water.lag[nm.day] <- min(water.avi[(nm.day-i):nm.day],na.rm=TRUE) #note this is different from the Hufkens
+    water.lag[nm.day] <- water.avi[nm.day-i]
+    t.m[nm.day] <- mean(gcc.df$Tair[(nm.day-i):nm.day],na.rm=TRUE) #hufkens used 15 days
+    # hufkens used evaportanspiration from Hargreaves 1985
+    # here is from evapotranspiration R package
+    et[nm.day] <- pet.func(gcc.df$Date[nm.day],gcc.df$PPFD[nm.day],
+                           gcc.df$Tair[nm.day],gcc.df$Tmax[nm.day], gcc.df$Tmin[nm.day],
+                           gcc.df$RHmax[nm.day],gcc.df$RHmin[nm.day], gcc.df$u2[nm.day])
+    
+    # get plant cover
+    # check whether water allow leaf drop
+    if(water.lag[nm.day] <  water.lag[nm.day-1]){
+      d = 1
+    }else{
+      d = 0
+    }
+    
+    # check radiation  for leaf drop
+    if(gcc.df$rad.norm[nm.day] <= gcc.df$rad.norm[nm.day-1]){
+      d=0
+    }else{
+      d=1
+    }
+    
+    # give min
+    cover.pred.vec[nm.day] <- max(0,min(cover.pred.vec[nm.day],
+                                        cover.max))
+    # get g value; t depedence
+    g.value <- t.func(t.m[nm.day],f.t.opt,t.max)
+    # # calculate plant cover
+
+    cover.pred.vec[nm.day+1] <- cover.pred.vec[nm.day] + 
+      g.value * sf.value * f.growth * water.lag[nm.day] * (1 - cover.pred.vec[nm.day] / cover.max) -
+      d * f.sec * (1 - cover.pred.vec[nm.day]) * cover.pred.vec[nm.day]
+    
+    # calculate swc
+    swc.vec[nm.day] <- max(0,min(swc.capacity,swc.vec[nm.day]))
+    
+    swc.vec[nm.day+1] <- swc.vec[nm.day] + gcc.df$Rain[nm.day] -
+      (1 - cover.pred.vec[nm.day]) *
+      (water.avi[nm.day]/(swc.capacity - swc.wilt))^2 * et[nm.day] -
+      g.value * f.extract * water.lag[nm.day] * cover.pred.vec[nm.day]
+
+    
+    swc.vec[nm.day+1] <- max(0,min(swc.capacity,swc.vec[nm.day+1]))
+    
+  }
+  
+  out.df <- data.frame(cover.pred.vec = cover.pred.vec,
+                       swc.pred.vec = swc.vec)
+  
+  return(out.df)
+}
+
+
+hufken.pace.pred <- phenoGrass.func(gcc.met.pace.df.16,
+                                    f.h = 222,
+                                    f.t.opt = 33,
+                                    f.extract = 0.519348383 ,
+                                    f.growth= 0.00227958267,
+                                    f.sec = 0.0755224228 ,
+                                    swc.wilt = 10,
+                                    swc.capacity = 120,
+                                    t.max = 45)
+
+gcc.met.pace.df.16$cover.hufken <- hufken.pace.pred$cover.pred.vec
+gcc.met.pace.df.16$swc.hufken <- hufken.pace.pred$swc.pred.vec
+
+plot(c(GCC.norm*0.783)~Date,data = gcc.met.pace.df.16,ylim=c(0,0.8),type='b',pch=16,
+     xlab='',ylab='cover')
+
+points(cover.hufken~Date,data = gcc.met.pace.df.16,pch=16,col='red')
+
+par(new=T)
+
+plot(vwc~Date,data = gcc.met.pace.df.16,ann=F,axes=F,type='s',col='lightskyblue')
+
+par(new=T)
+
+plot(swc.hufken~Date,data = gcc.met.pace.df.16,ann=F,axes=F,type='l',col='lightskyblue',lty='dashed')
+```
+
+Fig 1. Hufkens model performance in PACE: Lucerne (control). The blue line marks rainfall (irrigation) without showing the axis.
+
+It seems the scale is off. so we can tweek the optimal temperature (from 33 to 17)
+
+```{r, echo=FALSE}
+hufken.pace.pred <- phenoGrass.func(gcc.met.pace.df.16,
+                                    f.h = 222,
+                                    f.t.opt = 5,
+                                    f.extract = 0.519348383 ,
+                                    f.growth= 0.00227958267,
+                                    f.sec = 0.0755224228 ,
+                                    swc.wilt = 10,
+                                    swc.capacity = 120,
+                                    t.max = 45)
+
+gcc.met.pace.df.16$cover.hufken <- hufken.pace.pred$cover.pred.vec
+gcc.met.pace.df.16$swc.hufken <- hufken.pace.pred$swc.pred.vec
+
+plot(c(GCC.norm*0.783)~Date,data = gcc.met.pace.df.16,ylim=c(0,0.8),type='b',pch=16,
+     xlab='',ylab='cover')
+
+points(cover.hufken~Date,data = gcc.met.pace.df.16,pch=16,col='red')
+
+par(new=T)
+
+plot(vwc~Date,data = gcc.met.pace.df.16,ann=F,axes=F,type='s',col='lightskyblue')
+
+par(new=T)
+
+plot(swc.hufken~Date,data = gcc.met.pace.df.16,ann=F,axes=F,type='l',col='lightskyblue',lty='dashed')
+```
+
+Fig 2. Hufekns with optimal temperature of 17 degree C.
+
+It helped and the Hufkens model apears to not being too bad. However, that's because I set the swc.wilt = 10 and swc.capacity = 120. This assumes a soil water content of 1% and 13% with a depth of 1 m. 
+
+Of course we can change the wilting point and capacity but it will dramatically worsen the model performace. Hufken used something like 120 and 400. If we use those numbers we have:
+
+```{r,echo=FALSE}
+hufken.pace.pred <- phenoGrass.func(gcc.met.pace.df.16,
+                                    f.h = 222,
+                                    f.t.opt = 33,
+                                    f.extract = 0.519348383 ,
+                                    f.growth= 0.00227958267,
+                                    f.sec = 0.0755224228 ,
+                                    swc.wilt = 120,
+                                    swc.capacity = 400,
+                                    t.max = 45)
+
+gcc.met.pace.df.16$cover.hufken <- hufken.pace.pred$cover.pred.vec
+gcc.met.pace.df.16$swc.hufken <- hufken.pace.pred$swc.pred.vec
+
+plot(c(GCC.norm*0.783)~Date,data = gcc.met.pace.df.16,ylim=c(0,0.8),type='b',pch=16,
+     xlab='',ylab='cover')
+
+points(cover.hufken~Date,data = gcc.met.pace.df.16,pch=16,col='red')
+
+par(new=T)
+
+plot(vwc~Date,data = gcc.met.pace.df.16,ann=F,axes=F,type='s',col='lightskyblue')
+
+par(new=T)
+
+plot(swc.hufken~Date,data = gcc.met.pace.df.16,ann=F,axes=F,type='l',col='lightskyblue',lty='dashed')
+```
+
+Fig 3. Hufekns with realistic soil moisture capacity and wilting point. 
+
+Note that the issue of the capacity and wilting point also suggests issues with the soil water bucket size. 
+
+
