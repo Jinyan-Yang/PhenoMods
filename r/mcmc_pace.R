@@ -1,12 +1,14 @@
-source('r/functions_mc
-       mc_v12.r')
+source('r/functions_mcmc_v12.r')
 day.lag <- 2
 source('r/pace_data_process.R')
 # packages
 library(doBy)
 library(zoo)
 
-fit.mcmc.pace.func <- function(species.in = 'Luc',prep.in = 'Control', temp.in ='Ambient',subplot =NA){
+fit.mcmc.pace.func <- function(species.in = 'Luc',prep.in = 'Control', 
+                               temp.in ='Ambient',subplot =NA,
+                               my.fun = phenoGrass.func.v11,
+                               out.nm.note = '',use.smooth = FALSE){
   gcc.met.pace.df.16 <- get.pace.func(gcc.met.pace.df,
                                       species.in =species.in,
                                       prep.in = prep.in,
@@ -35,24 +37,31 @@ fit.mcmc.pace.func <- function(species.in = 'Luc',prep.in = 'Control', temp.in =
                            bucket.size = bucket.size,
                            day.lay = day.lag,
                            swc.capacity = 0.13,
-                           swc.wilt = 0.05)
+                           swc.wilt = 0.05,
+                           my.fun = my.fun,
+                           use.smooth = use.smooth)
   
   # chain.INGE = mh.MCMC.func(20000,par.df,gcc.met.df,
   #                           bucket.size = bucket.size,
   #                           day.lay = 2,
   #                           swc.capacity = 0.38,
   #                           swc.wilt = 0.111)
-  if(is.na(subplot)){
-    out.name <- sprintf('cache/chain.%s.%s.%s.rds',species.in,prep.in,temp.in)
+  if(use.smooth==TRUE){
+    smooth.nm='sm'
   }else{
-    out.name <- sprintf('cache/chain.%s.rds',subplot)
+    smooth.nm=''
+  }
+  
+  if(is.na(subplot)){
+    out.name <- sprintf('cache/%s%schain.%s.%s.%s.rds',smooth.nm,out.nm.note,species.in,prep.in,temp.in)
+  }else{
+    out.name <- sprintf('cache/%schain.%s.rds',out.nm.note,subplot)
   }
  
   saveRDS(chain.fes,out.name)
 }
-# 
-
-# fit.mcmc.pace.func(subplot = 'S3P3B')
+# $$$$####
+fit.mcmc.pace.func(subplot = 'S3P3B')
 
 fit.mcmc.pace.func(species.in='Luc',prep.in = 'Control', temp.in ='Ambient')
 
@@ -61,12 +70,60 @@ fit.mcmc.pace.func(species.in='Rye',prep.in = 'Control', temp.in ='Ambient')
 
 fit.mcmc.pace.func(species.in='Luc',prep.in = 'Drought', temp.in ='Ambient')
 fit.mcmc.pace.func(species.in='Fes',prep.in = 'Drought', temp.in ='Ambient')
+# 
+# get fit by species but with original hufkens 
+fit.mcmc.pace.func(species.in='Luc',prep.in = 'Control', temp.in ='Ambient',my.fun = phenoGrass.func.v11,out.nm.note='v10')
+fit.mcmc.pace.func(species.in='Luc',prep.in = 'Control', temp.in ='Ambient',my.fun = phenoGrass.func.v11,out.nm.note='v10',use.smooth = TRUE)
+
+# make the plots
+# fit.mcmc.pace.func(subplot = 'S3P3B',my.fun = phenoGrass.func.v11,out.nm.note='v10')
+luc.c.a.v10.df= readRDS('cache/v10chain.Luc.Control.Ambient.rds')
+
+
+pdf('umsm.v10.pdf',width = 6,height = 3*6*0.618)
+plot.mcmc.func('Luc','Control','Ambient',subplot = NULL,nm.note = 'v10')
+dev.off()
+# 
+# luc.c.a.v10.sm.df= readRDS('cache/smv10chain.Luc.Control.Ambient.rds')
+pdf('sm.v10.pdf',width = 6,height = 3*6*0.618)
+plot.mcmc.func('Luc','Control','Ambient',subplot = NULL,nm.note = 'v10',use.smooth = TRUE)
+dev.off()
+
+hist(s3p3b.v10.df[10000:30000,4])
 
 
 
 
 
-# # 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# # ######
 luc.d.a.df= readRDS('cache/chain.Luc.Control.Ambient.rds')
 gcc.met.pace.df.16 <- get.pace.func(gcc.met.pace.df,
                                     species.in = 'Fes',
@@ -123,6 +180,7 @@ gcc.met.pace.df.16 <- get.pace.func(gcc.met.pace.df,
 gcc.met.pace.df.16 <- gcc.met.pace.df.16[(gcc.met.pace.df.16$Date) < as.Date('2018-9-1'),]
 gcc.met.pace.df.16$map <- 760
 chain.fes <- readRDS('cache/chain.Rye.Control.Ambient.rds')
+
 # 
 # # check acceptance so that the 
 burnIn = 10000
@@ -165,6 +223,9 @@ plot(cover~Date,data = hufken.pace.pred,type='b',pch=16,
      xlab=' ',ylab=expression(f[cover]),ylim=c(0,0.8),col = palette()[6])
 
 points(cover.hufken~Date,data = hufken.pace.pred,type='b',col=palette()[8],pch=16)
+
+
+# 
 # 
 # par(new=T)
 # 

@@ -55,7 +55,9 @@ proposal.func <- function(param,par.df){
 mh.MCMC.func <- function(iterations,par.df,
                          gcc.met.pace.df.16,
                          bucket.size,swc.wilt ,
-                         swc.capacity,day.lay){
+                         swc.capacity,day.lay,
+                         my.fun,
+                         use.smooth){
   
   # get prior 
   prior.prob <- prior.func(par.df)
@@ -70,7 +72,7 @@ mh.MCMC.func <- function(iterations,par.df,
     proposal = proposal.func(chain[i,],par.df)
     
     # prior.prob,data,data.sd,bucket.size = 300,...
-    probab = exp(posterior.func(prior.prob,FUN = phenoGrass.func.v11,
+    probab = exp(posterior.func(prior.prob,FUN = my.fun,
                                 gcc.df = gcc.met.pace.df.16,
                                 f.h = 222,
                                 f.t.opt = proposal[1],
@@ -81,8 +83,9 @@ mh.MCMC.func <- function(iterations,par.df,
                                 day.lay = day.lay,
                                 bucket.size = bucket.size,
                                 swc.wilt = swc.wilt ,
-                                swc.capacity = swc.capacity) - 
-                   posterior.func(prior.prob,FUN = phenoGrass.func.v11,
+                                swc.capacity = swc.capacity,
+                                use.smooth = use.smooth) - 
+                   posterior.func(prior.prob,FUN = my.fun,
                                   gcc.df = gcc.met.pace.df.16,
                                   f.h = 222,
                                   f.t.opt = chain[i,1],
@@ -93,7 +96,8 @@ mh.MCMC.func <- function(iterations,par.df,
                                   day.lay = day.lay,
                                   swc.wilt = swc.wilt ,
                                   swc.capacity = swc.capacity,
-                                  bucket.size = bucket.size))
+                                  bucket.size = bucket.size,
+                                  use.smooth = use.smooth))
     if (runif(1) < probab){
       chain[i+1,] = proposal
     }else{

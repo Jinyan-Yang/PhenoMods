@@ -69,6 +69,7 @@ t.func <- function(t.mean,f.t.opt,t.max){
   return((t.max-t.mean)/(t.max-f.t.opt)*(t.mean/f.t.opt)^(f.t.opt/(t.max-f.t.opt)))
 }
 
+# Hufkens mode####
 phenoGrass.func.v10 <- function(gcc.df,
                                 f.h,
                                 f.t.opt,
@@ -153,8 +154,15 @@ phenoGrass.func.v10 <- function(gcc.df,
     senescence.vec[nm.day] <- d * f.sec * (1 - cover.pred.vec[nm.day-1] )*cover.pred.vec[nm.day-1]
     
     cover.pred.vec[nm.day] <- cover.pred.vec[nm.day-1] + growth.vec[nm.day] - senescence.vec[nm.day]                 
+ 
+    # account for harvest
+    if(gcc.df$harvest[nm.day] == 1){
+      cover.pred.vec[nm.day] <- gcc.df$cover[nm.day+2]
+    }
+    
     # give min
     cover.pred.vec[nm.day] <- max(0,min(cover.pred.vec[nm.day],cover.max))
+    
     
     # calculate swc
     evap.vec[nm.day] <- (1 - cover.pred.vec[nm.day-1]) * 

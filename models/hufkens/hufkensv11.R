@@ -85,7 +85,8 @@ phenoGrass.func.v11 <- function(gcc.df,
                                 swc.capacity ,
                                 bucket.size,
                                 t.max,
-                                day.lay){
+                                day.lay,
+                                use.smooth=FALSE){
   
   # set the lag factor; in num of days
   start.date <- gcc.df$Date[min(which(!is.na(gcc.df$GCC.norm)))]
@@ -93,7 +94,14 @@ phenoGrass.func.v11 <- function(gcc.df,
   gcc.df <- gcc.df[gcc.df$Date > (start.date - day.lay),]
   sf.value <- scaling.f.func(mean(gcc.df$map,na.rm=TRUE),f.h)
   
-  gcc.df$cover <-  gcc.df$GCC.norm * sf.value
+  # decide whether to use smooth gcc
+  if(use.smooth==TRUE){
+    gcc.df$cover <-  gcc.df$GCC.norm.smooth * sf.value
+  }else{
+    gcc.df$cover <-  gcc.df$GCC.norm * sf.value
+  }
+  
+ 
   
   # set up the inital conditions
   swc.vec <- gcc.df$vwc * bucket.size

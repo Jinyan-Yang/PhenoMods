@@ -1,11 +1,42 @@
-plot.mcmc.func = function(species.in,prep.in,temp.in){
-  gcc.met.pace.df.16 <- get.pace.func(gcc.met.pace.df,
-                                      species.in = species.in,
-                                      prep.in = prep.in,
-                                      temp.in =temp.in)
+plot.mcmc.func = function(species.in,prep.in,temp.in,subplot=NULL,nm.note='',use.smooth=FALSE){
+  
+  if(is.null(subplot)){
+    gcc.met.pace.df.16 <- get.pace.func(gcc.met.pace.df,
+                                        species.in = species.in,
+                                        prep.in = prep.in,
+                                        temp.in =temp.in)
+    
+    if(use.smooth){
+      sm.nm='sm'
+    }else{
+      sm.nm=''
+    }
+    
+    fn=paste0('cache/',sm.nm,nm.note,'chain.',species.in,'.',prep.in,'.',temp.in,'.rds')
+    rds.nm = paste0('tmp/pred.',sm.nm,nm.note,'chain.',species.in,'.',prep.in,'.',temp.in,'.rds')
+    # fn=paste0('cache/chain.',species.in,'.',prep.in,'.',temp.in,'.rds')
+    
+    
+  }else{
+    species.in = subplot
+    prep.in = ''
+    temp.in =''
+    gcc.met.pace.df.16 <- get.pace.func(gcc.met.pace.df,subplot = subplot)
+    
+    if(use.smooth){
+      sm.nm='sm'
+    }else{
+      sm.nm=''
+    }
+    
+    fn=paste0('cache/',sm.nm,nm.note,'chain.',subplot,'.rds')
+    rds.nm = paste0('tmp/pred.',sm.nm,nm.note,'chain.',subplot,'.rds')
+  }
+  
+ 
   gcc.met.pace.df.16 <- gcc.met.pace.df.16[(gcc.met.pace.df.16$Date) < as.Date('2019-11-26'),]
   gcc.met.pace.df.16$map <- 760
-  fn=paste0('cache/chain.',species.in,'.',prep.in,'.',temp.in,'.rds')
+ 
   # chain.fes <- readRDS('cache/chain.Rye.Control.Ambient.rds')
   # 
   chain.fes <- readRDS(fn)
@@ -42,24 +73,65 @@ plot.mcmc.func = function(species.in,prep.in,temp.in){
                                           swc.capacity = 0.13 ,
                                           t.max = 45,
                                           day.lay = day.lag)
+  
+  # save prediction for future use
+  
+  saveRDS(hufken.pace.pred,rds.nm)
   # hufken.pace.pred$water.norm <- hufken.pace.pred$water.avi / (0.13-0.05)/300
   library(viridisLite)
   palette(viridis(8))
-  par(mar=c(5,5,1,1))
-  par(mfrow=c(1,2))
-  plot(cover~Date,data = hufken.pace.pred,type='l',#pch=16,
-       xlab=' ',ylab=expression(f[cover]),ylim=c(0,0.8),col = palette()[6])
+  par(mar=c(5,5,1,5))
+  par(mfrow=c(3,1))
   
+  # plot irrig
+  par(mar=c(0,5,1,5))
+  plot(irrig.tot~Date,data = hufken.pace.pred,type='s',
+       ann=F,axes=F,col = 'lightskyblue')
+  max.irrig = round(max(hufken.pace.pred$irrig.tot,na.rm=T))
+  axis(2,at = seq(0,max.irrig,by=10),labels = seq(0,max.irrig,by=10))
+  mtext('irrigation (mm)',side = 2,line = 3)
+  # plot obs cover
+  par(mar=c(5,5,1,5))
+  plot(cover~Date,data = hufken.pace.pred,type='l',#pch=16,
+       xlab=' ',ylab=expression(f[cover]),ylim=c(0,0.8),col = palette()[6],
+       xaxt='n')
+  
+  date.range = range(hufken.pace.pred$Date,na.rm=T)
+  mons.vec =  seq(date.range[1],date.range[2],by='mon')
+  
+  axis(1,at = mons.vec,labels = format(mons.vec,'%m'))
+  mtext('2018',side = 1,adj=0,line = 3)
+  mtext('2019',side = 1,adj=0.5,line = 3)
+    # plot model pred
   points(cover.hufken~Date,data = hufken.pace.pred,type='l',col=palette()[8])
-  # 
+  
+  legend('topright',legend = c('OBS','MOD'),lty = 1,col=palette()[c(6,8)])
   legend('topleft',legend = paste0(species.in,prep.in,temp.in),bty='n')
   
+  clip(min(hufken.pace.pred$Date), max(hufken.pace.pred$Date), 0.0, 0.1)
+  abline(v = hufken.pace.pred$Date[hufken.pace.pred$harvest ==1],lty='dashed')
+  
+  # par(new=T)
+  # 
+  # plot(irrig.tot~Date,data = hufken.pace.pred,type='s',
+  #      ann=F,axes=F,col = 'lightskyblue')
+  # max.irrig = round(max(hufken.pace.pred$irrig.tot,na.rm=T))
+  # axis(4,at = seq(0,max.irrig,by=10),labels = seq(0,max.irrig,by=10))
+  # mtext('irrigation (mm)',side = 4)
+  
+  # 
+  
+  # scatter plot
   plot(cover~cover.hufken,data = hufken.pace.pred,pch=16,col='grey',
        xlab='MOD',ylab='OBS')
   abline(a=0,b=1)
+  
+  
 }
 
-pdf('PACE.V11.pdf',width = 8,height =  8*0.618)
+
+stop('be sure to want to overwite')
+pdf('PACE.V11.pdf',width = 10,height =  10)
 
 # plot.mcmc.func('Rye','Control','Ambient')
 plot.mcmc.func('Luc','Control','Ambient')
@@ -70,3 +142,4 @@ plot.mcmc.func('Fes','Control','Ambient')
 
 dev.off()
 
+plot.mcmc.func('Luc','Control','Ambient',subplot = 'S3P3B')
