@@ -38,8 +38,15 @@ plot.mcmc.func = function(species.in,prep.in,temp.in,subplot=NULL,nm.note='',use
   gcc.met.pace.df.16$map <- 760
  
   # chain.fes <- readRDS('cache/chain.Rye.Control.Ambient.rds')
-  # 
-  chain.fes <- readRDS(fn)
+  # read chains 
+  in.chain =  readRDS(fn)
+  
+  if(is.list(in.chain)){
+    chain.fes <- do.call(rbind,in.chain)
+  }else{
+    chain.fes <-in.chain
+  }
+  
   # # check acceptance so that the 
   burnIn = 10000
   # acceptance = 1-mean(duplicated(chain.fes[-(1:burnIn),])) #should be >20% but <60%; 20-25% were suggested
@@ -81,15 +88,41 @@ plot.mcmc.func = function(species.in,prep.in,temp.in,subplot=NULL,nm.note='',use
   library(viridisLite)
   palette(viridis(8))
   par(mar=c(5,5,1,5))
-  par(mfrow=c(3,1))
+  par(mfrow=c(2,2))
   
+
+  # par(mar=c(0,5,1,5))C
+  # plot(irrig.tot~Date,data = hufken.pace.pred,type='s',
+  #      ann=F,axes=F,col = 'lightskyblue')
+  # max.irrig = round(max(hufken.pace.pred$irrig.tot,na.rm=T))
+  # axis(2,at = seq(0,max.irrig,by=10),labels = seq(0,max.irrig,by=10))
+  # mtext('irrigation (mm)',side = 2,line = 3)
+  
+  # plot swc
+  par(mar=c(5,5,1,5))
+  plot(vwc.hufken~Date,data = hufken.pace.pred,type='s',
+       ann=F,axes=F,col = palette()[8],ylim=c(0,.15))
+  points(vwc~Date,data = hufken.pace.pred,type='s',
+        col = palette()[6])
+  max.irrig = round(max(hufken.pace.pred$irrig.tot,na.rm=T))
+  axis(2,at = seq(0,.15,by=0.03),labels = seq(0,.15,by=.03))
+  mtext('VWC',side = 2,line = 3)
+  
+  date.range = range(hufken.pace.pred$Date,na.rm=T)
+  mons.vec =  seq(date.range[1],date.range[2],by='mon')
+  
+  axis(1,at = mons.vec,labels = format(mons.vec,'%m'))
+  mtext('2018',side = 1,adj=0,line = 3)
+  mtext('2019',side = 1,adj=0.5,line = 3)
   # plot irrig
-  par(mar=c(0,5,1,5))
+  par(new=TRUE)
   plot(irrig.tot~Date,data = hufken.pace.pred,type='s',
        ann=F,axes=F,col = 'lightskyblue')
   max.irrig = round(max(hufken.pace.pred$irrig.tot,na.rm=T))
-  axis(2,at = seq(0,max.irrig,by=10),labels = seq(0,max.irrig,by=10))
-  mtext('irrigation (mm)',side = 2,line = 3)
+  axis(4,at = seq(0,max.irrig,by=10),labels = seq(0,max.irrig,by=10))
+  mtext('irrigation (mm)',side = 4,line = 3)
+  
+  
   # plot obs cover
   par(mar=c(5,5,1,5))
   plot(cover~Date,data = hufken.pace.pred,type='l',#pch=16,
@@ -119,11 +152,14 @@ plot.mcmc.func = function(species.in,prep.in,temp.in,subplot=NULL,nm.note='',use
   # axis(4,at = seq(0,max.irrig,by=10),labels = seq(0,max.irrig,by=10))
   # mtext('irrigation (mm)',side = 4)
   
-  # 
+  # vwc scater
+  plot(vwc~vwc.hufken,data = hufken.pace.pred,pch=16,col='grey',
+       xlab='MOD_VWC',ylab='OBS_VWC')
+  abline(a=0,b=1)
   
   # scatter plot
   plot(cover~cover.hufken,data = hufken.pace.pred,pch=16,col='grey',
-       xlab='MOD',ylab='OBS')
+       xlab='MOD_GCC',ylab='OBS_GCC')
   abline(a=0,b=1)
   
   
