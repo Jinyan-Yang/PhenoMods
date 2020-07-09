@@ -38,8 +38,15 @@ plot.mcmc.func = function(species.in,prep.in,temp.in,subplot=NULL,nm.note='',use
   gcc.met.pace.df.16$map <- 760
  
   # chain.fes <- readRDS('cache/chain.Rye.Control.Ambient.rds')
-  # 
-  chain.fes <- readRDS(fn)
+  # read chains 
+  in.chain =  readRDS(fn)
+  
+  if(is.list(in.chain)){
+    chain.fes <- do.call(rbind,in.chain)
+  }else{
+    chain.fes <-in.chain
+  }
+  
   # # check acceptance so that the 
   burnIn = 10000
   # acceptance = 1-mean(duplicated(chain.fes[-(1:burnIn),])) #should be >20% but <60%; 20-25% were suggested

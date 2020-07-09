@@ -31,21 +31,25 @@ fit.mcmc.pace.func <- function(species.in = 'Luc',prep.in = 'Control',
   # start mcmc fiting######
   bucket.size <- 300
   # soil.water.var <- quantile(gcc.met.pace.df.16$vwc,c(.1,.99))
-  chain.fes = mh.MCMC.func(30000,
-                           par.df,
-                           gcc.met.pace.df.16,
-                           bucket.size = bucket.size,
-                           day.lay = day.lag,
-                           swc.capacity = 0.13,
-                           swc.wilt = 0.05,
-                           my.fun = my.fun,
-                           use.smooth = use.smooth)
+  chain.fes=list()
+  for(n.chain in 1:3){
+    chain.fes[[n.chain]] = mh.MCMC.func(10000,
+                             par.df,
+                             gcc.met.pace.df.16,
+                             bucket.size = bucket.size,
+                             day.lay = day.lag,
+                             swc.capacity = 0.13,
+                             swc.wilt = 0.05,
+                             my.fun = my.fun,
+                             use.smooth = use.smooth)
+  }
   
   # chain.INGE = mh.MCMC.func(20000,par.df,gcc.met.df,
   #                           bucket.size = bucket.size,
   #                           day.lay = 2,
   #                           swc.capacity = 0.38,
   #                           swc.wilt = 0.111)
+  
   if(use.smooth==TRUE){
     smooth.nm='sm'
   }else{
@@ -60,6 +64,7 @@ fit.mcmc.pace.func <- function(species.in = 'Luc',prep.in = 'Control',
  
   saveRDS(chain.fes,out.name)
 }
+
 # $$$$####
 fit.mcmc.pace.func(subplot = 'S3P3B')
 
@@ -72,8 +77,11 @@ fit.mcmc.pace.func(species.in='Luc',prep.in = 'Drought', temp.in ='Ambient')
 fit.mcmc.pace.func(species.in='Fes',prep.in = 'Drought', temp.in ='Ambient')
 # 
 # get fit by species but with original hufkens 
-fit.mcmc.pace.func(species.in='Luc',prep.in = 'Control', temp.in ='Ambient',my.fun = phenoGrass.func.v11,out.nm.note='v10')
-fit.mcmc.pace.func(species.in='Luc',prep.in = 'Control', temp.in ='Ambient',my.fun = phenoGrass.func.v11,out.nm.note='v10',use.smooth = TRUE)
+fit.mcmc.pace.func(species.in='Luc',prep.in = 'Control', temp.in ='Ambient',
+                   my.fun = phenoGrass.func.v11,out.nm.note='v10.test')
+fit.mcmc.pace.func(species.in='Luc',prep.in = 'Control', temp.in ='Ambient',
+                   my.fun = phenoGrass.func.v11,out.nm.note='v10.test',use.smooth = TRUE)
+
 
 # make the plots
 # fit.mcmc.pace.func(subplot = 'S3P3B',my.fun = phenoGrass.func.v11,out.nm.note='v10')
@@ -89,7 +97,26 @@ pdf('sm.v10.pdf',width = 6,height = 3*6*0.618)
 plot.mcmc.func('Luc','Control','Ambient',subplot = NULL,nm.note = 'v10',use.smooth = TRUE)
 dev.off()
 
-hist(s3p3b.v10.df[10000:30000,4])
+pdf('sm.v10.3chain.pdf',width = 6,height = 3*6*0.618)
+plot.mcmc.func('Luc','Control','Ambient',subplot = NULL,nm.note = 'v10.test',use.smooth = TRUE)
+dev.off()
+
+
+pdf('sm.v10.3chain.diag.pdf',width = 6,height = 6*0.618)
+chain.3.ls = readRDS('cache/smv10.testchain.Luc.Control.Ambient.rds')
+
+plot.check.mcmc.func=function(chain.in,burnIn =3000){
+  par(mfrow=c(2,2))
+  for(i in 1:ncol(chain.in)){
+    hist(chain.in[burnIn:nrow(chain.in),i],main = '')
+    title(c('Topt','f.extract','senescence','growth')[i])
+  }
+
+}
+lapply(chain.3.ls, plot.check.mcmc.func)
+
+dev.off()
+# 
 
 
 
@@ -119,18 +146,18 @@ hist(s3p3b.v10.df[10000:30000,4])
 
 
 
-
-
-
+see.df= readRDS('cache/smv10chain.Luc.Control.Ambient.rds')
 
 # # ######
-luc.d.a.df= readRDS('cache/chain.Luc.Control.Ambient.rds')
+luc.d.a.df= readRDS('cache/smv10.testchain.Luc.Control.Ambient.rds')
+
+
 gcc.met.pace.df.16 <- get.pace.func(gcc.met.pace.df,
                                     species.in = 'Fes',
                                     prep.in = 'Drought',
                                     temp.in ='Ambient')
 min(gcc.met.pace.df.16$GCC,na.rm=T)
-gcc.met.pace.df.16 <- gcc.met.pace.df.16[(gcc.met.pace.df.16$Date) < as.Date('2018-9-1'),]
+gcc.met.pace.df.16 <- gcc.met.pace.df.16[(gcc.met.pace.df.16$Date) < as.Date('2019-11-1'),]
 gcc.met.pace.df.16$map <- 760
 # gcc.met.pace.df.16 <- get.pace.func(gcc.met.pace.df,
 #                                     species.in = 'Luc',
@@ -200,8 +227,19 @@ par.df <- data.frame(#f.h = c(200,220,240,NA,NA),
   f.sec = c(0.05,0.1,0.15,NA,NA,NA),
   f.growth = c(0.1,0.2,0.3,NA,NA,NA))
 row.names(par.df) <- c('min','initial','max','fit','stdv','prop')
-par.df["fit",] <- colMeans(chain.fes[burnIn:nrow(chain.fes),])
-par.df["fit",] <- colMeans(luc.d.a.df[burnIn:nrow(luc.d.a.df),])
+burnIn = 3000
+find.mean.func=function(in.ls){
+  tmp.ls=lapply(in.ls, function(df){colMeans(df[burnIn:nrow(df),])})
+  out.m = do.call(rbind,tmp.ls)
+  out.vec = colMeans(out.m)
+  return(out.vec)
+}
+
+colMeans(luc.d.a.df[[1]])
+
+colMeans(see.df)
+# par.df["fit",] <- colMeans(luc.d.a.df[[1]][burnIn:nrow(chain.fes),])
+par.df["fit",] <-find.mean.func(luc.d.a.df)
 # 
 bucket.size = 300
 hufken.pace.pred <- phenoGrass.func.v12(gcc.met.pace.df.16,
