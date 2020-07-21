@@ -1,4 +1,5 @@
 source('r/function_hydro.R')
+source('models/hufkens/pG_v10.R')
 source('models/hufkens/hufkensV12.R')
 source('models/hufkens/hufkensV11.R')
 # functions#####
@@ -39,7 +40,6 @@ posterior.func <- function(prior.prob,bucket.size,swc.wilt,swc.capacity,FUN,...)
 }
 
 ######## Metropolis algorithm ################
-
 # function to generate a radom par value from a normal distribution based on mean and sd
 proposal.func <- function(param,par.df){
   

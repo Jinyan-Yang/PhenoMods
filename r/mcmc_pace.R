@@ -1,5 +1,6 @@
 source('r/functions_mcmc_v12.r')
 source('models/hufkens/pG_v10.R')
+source('r/plot.mcmc.r')
 day.lag <- 2
 source('r/pace_data_process.R')
 # packages
@@ -44,13 +45,7 @@ fit.mcmc.pace.func <- function(species.in = 'Luc',prep.in = 'Control',
                              my.fun = my.fun,
                              use.smooth = use.smooth)
   }
-  
-  # chain.INGE = mh.MCMC.func(20000,par.df,gcc.met.df,
-  #                           bucket.size = bucket.size,
-  #                           day.lay = 2,
-  #                           swc.capacity = 0.38,
-  #                           swc.wilt = 0.111)
-  
+
   if(use.smooth==TRUE){
     smooth.nm='sm'
   }else{
@@ -83,10 +78,6 @@ fit.mcmc.pace.func(species.in='Fes',prep.in = 'Drought', temp.in ='Ambient')
 
 fit.mcmc.pace.func(species.in='Luc',prep.in = 'Control', temp.in ='Ambient',
                    my.fun = phenoGrass.func.v10,out.nm.note='v10.test',use.smooth = TRUE)
-fit.mcmc.pace.func(species.in='Luc',prep.in = 'Control', temp.in ='Ambient',
-                   my.fun = phenoGrass.func.v11,out.nm.note='v10.test')
-fit.mcmc.pace.func(species.in='Luc',prep.in = 'Control', temp.in ='Ambient',
-                   my.fun = phenoGrass.func.v11,out.nm.note='v10.test',use.smooth = TRUE)
 
 
 # make the plots
