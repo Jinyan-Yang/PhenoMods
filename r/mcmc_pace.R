@@ -83,6 +83,10 @@ fit.mcmc.pace.func(species.in='Fes',prep.in = 'Drought', temp.in ='Ambient')
 
 fit.mcmc.pace.func(species.in='Luc',prep.in = 'Control', temp.in ='Ambient',
                    my.fun = phenoGrass.func.v10,out.nm.note='v10.test',use.smooth = TRUE)
+fit.mcmc.pace.func(species.in='Luc',prep.in = 'Control', temp.in ='Ambient',
+                   my.fun = phenoGrass.func.v11,out.nm.note='v10.test')
+fit.mcmc.pace.func(species.in='Luc',prep.in = 'Control', temp.in ='Ambient',
+                   my.fun = phenoGrass.func.v11,out.nm.note='v10.test',use.smooth = TRUE)
 
 
 # make the plots
@@ -94,11 +98,7 @@ plot.mcmc.func('Luc','Control','Ambient',subplot = NULL,nm.note = '')
 pdf('umsm.v10.pdf',width = 6,height = 3*6*0.618)
 plot.mcmc.func('Luc','Control','Ambient',subplot = NULL,nm.note = 'v10')
 dev.off()
-# 
-# luc.c.a.v10.sm.df= readRDS('cache/smv10chain.Luc.Control.Ambient.rds')
-# pdf('sm.v10.pdf',width = 6,height = 3*6*0.618)
-# plot.mcmc.func('Luc','Control','Ambient',subplot = NULL,nm.note = 'v10',use.smooth = TRUE)
-# dev.off()
+
 
 pdf('sm.v10.3chain.pdf',width = 6,height = 3*6*0.618)
 plot.mcmc.func('Luc','Control','Ambient',subplot = NULL,nm.note = 'v10.test',use.smooth = TRUE)
@@ -107,7 +107,6 @@ dev.off()
 
 pdf('sm.v10.3chain.diag.pdf',width = 6,height = 6*0.618)
 chain.3.ls = readRDS('cache/smv10.testchain.Luc.Control.Ambient.rds')
-
 plot.check.mcmc.func=function(chain.in,burnIn =3000){
   par(mfrow=c(2,2))
   for(i in 1:ncol(chain.in)){
@@ -119,7 +118,6 @@ plot.check.mcmc.func=function(chain.in,burnIn =3000){
 lapply(chain.3.ls, plot.check.mcmc.func)
 
 dev.off()
-# 
 
 
 
@@ -147,6 +145,8 @@ dev.off()
 
 
 
+
+see.df= readRDS('cache/smv10chain.Luc.Control.Ambient.rds')
 
 
 see.df= readRDS('cache/smv10chain.Luc.Control.Ambient.rds')
