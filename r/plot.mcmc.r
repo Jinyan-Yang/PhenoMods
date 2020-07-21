@@ -166,16 +166,16 @@ plot.mcmc.func = function(species.in,prep.in,temp.in,subplot=NULL,nm.note='',use
 }
 
 
-stop('be sure to want to overwite')
-pdf('PACE.V11.pdf',width = 10,height =  10)
-
-# plot.mcmc.func('Rye','Control','Ambient')
-plot.mcmc.func('Luc','Control','Ambient')
-plot.mcmc.func('Fes','Control','Ambient')
-
-# plot.mcmc.func('Luc','Drought','Ambient')
-# plot.mcmc.func('Fes','Drought','Ambient')
-
-dev.off()
-
-plot.mcmc.func('Luc','Control','Ambient',subplot = 'S3P3B')
+# stop('be sure to want to overwite')
+# pdf('PACE.V11.pdf',width = 10,height =  10)
+# 
+# # plot.mcmc.func('Rye','Control','Ambient')
+# plot.mcmc.func('Luc','Control','Ambient')
+# plot.mcmc.func('Fes','Control','Ambient')
+# 
+# # plot.mcmc.func('Luc','Drought','Ambient')
+# # plot.mcmc.func('Fes','Drought','Ambient')
+# 
+# dev.off()
+# 
+# plot.mcmc.func('Luc','Control','Ambient',subplot = 'S3P3B')

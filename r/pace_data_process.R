@@ -1,7 +1,7 @@
 gcc.met.pace.df <- readRDS('cache/gcc.met.pace.df.rds')
 # with(gcc.met.pace.df[gcc.met.pace.df$SubplotID == 'S1P1A',],plot(GCC~Date))
 
-# 
+# function to process GCC and met data
 get.norm.gcc.func <- function(df){
   quantiles.5.95 <- quantile(df$GCC[!is.na(df$GCC)],
                              c(.05,.95),an.rm=T)
@@ -12,7 +12,7 @@ get.norm.gcc.func <- function(df){
   return(df)
 }
 
-# 
+# get smooth GCC with GAM
 get.smooth.gcc.func = function(Date.vec,gcc.vec){
   library(mgcv)
   library(lubridate)
@@ -26,7 +26,7 @@ get.smooth.gcc.func = function(Date.vec,gcc.vec){
   return(out.df)
 }
 
-# get pace data 
+# get pace data by species or treatment
 get.pace.func <- function(gcc.met.pace.df,
                           species.in,
                           prep.in,
