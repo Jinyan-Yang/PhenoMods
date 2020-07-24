@@ -114,6 +114,7 @@ phenoGrass.func.v10 <- function(gcc.df,
 
   gcc.df$cover.hufken <- cover.pred.vec
   gcc.df$swc.hufken <- swc.vec
+  gcc.df$vwc.hufken <- swc.vec / bucket.size
   gcc.df$e.soil <- evap.vec
   gcc.df$t.plant <- transp.vec
   # out.df <- data.frame(gcc.df)

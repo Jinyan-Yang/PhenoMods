@@ -82,17 +82,17 @@ fit.mcmc.pace.func(species.in='Luc',prep.in = 'Control', temp.in ='Ambient',
 
 # make the plots
 # fit.mcmc.pace.func(subplot = 'S3P3B',my.fun = phenoGrass.func.v11,out.nm.note='v10')
-luc.c.a.v10.df= readRDS('cache/v10chain.Luc.Control.Ambient.rds')
+# luc.c.a.v10.df= readRDS('cache/v10chain.Luc.Control.Ambient.rds')
 
-plot.mcmc.func('Luc','Control','Ambient',subplot = NULL,nm.note = '')
+# plot.mcmc.func('Luc','Control','Ambient',subplot = NULL,nm.note = '')
 
-pdf('umsm.v10.pdf',width = 6,height = 3*6*0.618)
-plot.mcmc.func('Luc','Control','Ambient',subplot = NULL,nm.note = 'v10')
-dev.off()
+# pdf('umsm.v10.pdf',width = 6,height = 3*6*0.618)
+# plot.mcmc.func('Luc','Control','Ambient',subplot = NULL,nm.note = 'v10')
+# dev.off()
 
 
 pdf('sm.v10.3chain.pdf',width = 6,height = 3*6*0.618)
-plot.mcmc.func('Luc','Control','Ambient',subplot = NULL,nm.note = 'v10.test',use.smooth = TRUE)
+plot.mcmc.func('Luc','Control','Ambient',subplot = NULL,nm.note = 'v10.test',use.smooth = TRUE,my.fun =phenoGrass.func.v10 )
 dev.off()
 
 
@@ -101,8 +101,9 @@ chain.3.ls = readRDS('cache/smv10.testchain.Luc.Control.Ambient.rds')
 plot.check.mcmc.func=function(chain.in,burnIn =3000){
   par(mfrow=c(2,2))
   for(i in 1:ncol(chain.in)){
-    hist(chain.in[burnIn:nrow(chain.in),i],main = '')
-    title(c('Topt','f.extract','senescence','growth')[i])
+    hist(chain.in[burnIn:nrow(chain.in),i],xlab = c('Topt','f.extract','senescence','growth')[i],
+         main='')
+
   }
 
 }
@@ -111,6 +112,9 @@ lapply(chain.3.ls, plot.check.mcmc.func)
 dev.off()
 
 
+pdf('sm.v11.3chain.pdf',width = 6,height = 3*6*0.618)
+plot.mcmc.func('Luc','Control','Ambient',subplot = NULL,nm.note = 'v11.test',use.smooth = TRUE,my.fun =phenoGrass.func.v11 )
+dev.off()
 
 
 
