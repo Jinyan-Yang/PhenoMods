@@ -14,12 +14,15 @@ The issue is related to soil moisture bucket. Since the absolute soil moisture c
 The sensitivity of growth to soil water is assumed to be linear. We know from the plant vulnerability and soil retention curves that the relationship is probably not linear. 
 
 The lagged water availability is also questionable. Plants will almost respond on the next day. Assuming plant only growth for one day is also not ideal. 
+
 The solar radiation based pheno also does not work for winter species. The model also cannot account for C3 C4 to present in the same pasture but different time of year because of the Topt and baseline
 The t dependence is weird.  phenology based on radiation. 
 
 ## Growth and senescense depend on soil mositure (v11)
 
-In the original Hufkens model (V00), growth happens 2-3 days after rainfall but last only for one day. This assumption seems not supported by our PACE data. Instead, we change the growth to the continuous two days after rainfall. In V00, the growth rate is related to the laged water availibility (i.e., that of 3 days ago), and senescense rate is indepedent of growth. In V11,
+In the original Hufkens model (V00), growth happens as long as growth rate is higher than senesence rate. i.e. growth and senescence can happen at the same time. This lead to issueof fitting par values.
+
+This assumption seems not supported by our PACE data. Instead, we change the growth to the continuous two days after rainfall. In V00, the growth rate is related to the laged water availibility (i.e., that of 3 days ago), and senescense rate is indepedent of growth. In V11,
 
 Growth changed to: 
 
