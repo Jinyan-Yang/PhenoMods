@@ -31,7 +31,7 @@ phenoGrass.func.v10 <- function(gcc.df,
   cover.pred.vec <- c()
   cover.pred.vec[day.lay] <- gcc.df$cover[!is.na(gcc.df$cover)][1]
   water.avi <- c()
-  water.avi <- swc.vec - swc.wilt
+  water.avi <-( swc.vec - swc.wilt) * bucket.size
   water.avi[water.avi<0] <- 0
   water.lag <- c()
   water.lag <- water.avi
