@@ -12,9 +12,7 @@ phenoGrass.func.v10 <- function(gcc.df,
                                 t.max,
                                 day.lay = 3,
                                 use.smooth=FALSE){
-  
-  # set the lag factor; in num of days
-  # day.lay <- 16
+  # scaling factor based on map
   sf.value <- scaling.f.func(mean(gcc.df$map,na.rm=TRUE),f.h)
   
   # decide whether to use smooth gcc
@@ -29,11 +27,11 @@ phenoGrass.func.v10 <- function(gcc.df,
   swc.vec[1:day.lay] <- gcc.df$vwc[1:day.lay] * bucket.size
   et <- c()
   cover.pred.vec <- c()
-  cover.pred.vec[day.lay] <- gcc.df$cover[!is.na(gcc.df$cover)][1]
+  cover.pred.vec[1:day.lay] <- gcc.df$cover[!is.na(gcc.df$cover)][1:day.lay]
   water.avi <- c()
-  water.avi <-( swc.vec - swc.wilt) * bucket.size
+  water.avi <-swc.vec - swc.wilt * bucket.size
   water.avi[water.avi<0] <- 0
-  water.lag <- c()
+
   water.lag <- water.avi
   
   t.m <- growth.vec <- senescence.vec <- evap.vec <- transp.vec <- c()
@@ -103,12 +101,12 @@ phenoGrass.func.v10 <- function(gcc.df,
     
     # calculate swc
     evap.vec[nm.day] <- (1 - cover.pred.vec[nm.day-1]) * 
-      (water.lag[nm.day-1] / (swc.capacity-swc.wilt))^2 * et[nm.day]
+      (water.lag[nm.day-1] / (swc.capacity-swc.wilt)/bucket.size)^2 * et[nm.day]
     transp.vec[nm.day] <- f.extract * water.lag[nm.day-1] * cover.pred.vec[nm.day]
     
     swc.vec[nm.day] <- swc.vec[nm.day-1] + gcc.df$Rain[nm.day] - evap.vec[nm.day] - transp.vec[nm.day]
     
-    swc.vec[nm.day] <- max(0,min(swc.capacity,swc.vec[nm.day]))
+    swc.vec[nm.day] <- max(0,min(swc.capacity*bucket.size,swc.vec[nm.day]))
     
   }
 

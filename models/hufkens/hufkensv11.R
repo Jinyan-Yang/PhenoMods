@@ -39,7 +39,7 @@ phenoGrass.func.v11 <- function(gcc.df,
   water.lag <- water.avi
   t.m <- growth.vec <- senescence.vec <- evap.vec <- transp.vec <- c()
   
-  # check whether it rained in the past three days
+  # check whether it rained in the past days
   rained.vec <- c()
   rained.vec[1:day.lay] <- 0
   for(i in (day.lay + 1):nrow(gcc.df)){
@@ -79,13 +79,18 @@ phenoGrass.func.v11 <- function(gcc.df,
                            gcc.df$RHmax[nm.day],gcc.df$RHmin[nm.day], gcc.df$u2[nm.day])
     
     
-    if(rained.vec[nm.day] > 0){
+    # if(rained.vec[nm.day] > 0){
+    #   g = 1
+    #   d = 0
+    # }else{
+    #   g = 0
+    #   d = 1
+    # }
+    
+
       g = 1
       d = 0
-    }else{
-      g = 0
-      d = 1
-    }
+  
     
  
     # # calculate plant cover
