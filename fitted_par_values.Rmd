@@ -1,0 +1,126 @@
+---
+title: "fitted_par_value"
+author: "Jinyan Yang"
+date: "11/08/2020"
+output: html_document
+---
+```{r, echo=FALSE,warning=F,message=F}
+tmp.ls <- list()
+
+tmp.ls[[1]] <- data.frame(model='v00',
+                          f.h = 222,
+                          f.t.opt = 33,
+                          t.max = 45,
+                          f.extract = 0.519348383 ,
+                          f.growth= 0.00227958267,
+                          f.sec = 0.0755224228 ,
+                          
+                          swc.wilt = .12,
+                          swc.capacity = .4,
+                          bucket.size = 1000,
+                          day.lay = 3,
+                          
+                          q=1)
+
+# 
+get.fit.value.func <- function(fn){
+  in.chain =  readRDS(fn)
+  burnIn = 1
+  chain.3.ls.new = lapply(in.chain,function(m.in)m.in[round(nrow(m.in)/3):nrow(m.in),])
+  
+  chain.fes <- do.call(rbind,chain.3.ls.new)
+  
+  return( colMeans(chain.fes[burnIn:nrow(chain.fes),]))
+}
+
+v10.chain <- get.fit.value.func('cache/smv10chain.Luc.Control.Ambient.rds')
+tmp.ls[[2]] <- data.frame(model='v10',
+                          f.h = 222,
+                          f.t.opt = v10.chain[1],
+                          t.max = 45,
+                          
+                          f.extract = v10.chain[2] ,
+                          f.sec = v10.chain[3] ,
+                          f.growth= v10.chain[4],
+                          
+                          
+                          swc.wilt = .05,
+                          swc.capacity = .13,
+                          bucket.size = 300,
+                          day.lay = 3,
+                          q = 1)
+
+v11.chain <- get.fit.value.func('cache/smv11chain.Luc.Control.Ambient.rds')
+tmp.ls[[3]] <- data.frame(model='v11',
+                          f.h = 222,
+                          f.t.opt = v11.chain[1],
+                          t.max = 45,
+                          
+                          f.extract = v11.chain[2] ,
+                          f.sec = v11.chain[3] ,
+                          f.growth= v11.chain[4],
+                          
+                          
+                          swc.wilt = .05,
+                          swc.capacity = .13,
+                          bucket.size = 300,
+                          day.lay = 3,
+                          
+                          q=1)
+# 
+v13.chain <- get.fit.value.func('cache/smv13chain.Luc.Control.Ambient.rds')
+tmp.ls[[4]] <- data.frame(model='v13',
+                          f.h = 222,
+                          f.t.opt = v13.chain[1],
+                          t.max = 45,
+                          
+                          f.extract = v13.chain[2] ,
+                          f.sec = v13.chain[3] ,
+                          f.growth= v13.chain[4],
+                          
+                          
+                          swc.wilt = .05,
+                          swc.capacity = .13,
+                          bucket.size = 300,
+                          day.lay = 3,
+                          
+                          q=v13.chain[5])
+
+out.df = do.call(rbind,tmp.ls)
+library(knitr)
+```
+
+## 
+
+```{r,warning=FALSE,echo=F,message=F}
+kable(t(out.df),caption = 'Table 1. Fitted parameter values')
+```
+
+## 
+
+## keys: 
+
+f.h MAP based scaling factor
+
+f.t.opt optimal temperature for growth
+
+t.max max temperature for growth
+
+f.extract soil water extraction rate
+
+f.growth growth rate
+
+f.sec senescence rate
+
+swc.wilt swc at wilting point
+
+swc.cap soil water holding capacity
+
+bucket.size soil water bucket size
+
+day.lay delay number of days or number of days plant keeps growing after rainfall
+
+q non-linearity factor in beta function
+
+## Note
+Units of parameters can differ by model.
