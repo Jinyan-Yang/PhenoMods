@@ -1,0 +1,17 @@
+---
+title: "hufkens_model_doc_v13"
+author: "Jinyan Yang"
+date: "11/08/2020"
+output: html_document
+---
+
+The v13 model is a directly development of v11. The goal is to address the unanswered issues: 1. What is the senstivity of greening and browning to  swc, and 2. when does greening stop. 
+
+To answer the first question, we introduced the beta function 
+$$ \beta = [{{W_{t} - W_{wilt}} \over {W_{cap} - W_{wilt}}}]^q  $$
+
+where Wwilt and Wcap are the soil water capacity and wilting poit (mm); Wt is the soil water storage at time t (mm); q discribes the non-linearity of the function similar to Drake et al. (2017). When q equals to 1, the function is linear and model v13 and v11 will be the same. when q > 1, model v13 will be more sensitive to soil water than v11. When q<1, v13 will be less senstive to soil water than v11.In other words, larger q suggests great sensitivity of greening and browning to soil water. 
+
+To answer tthe second question, we introduced a new switch. Previously in v11, greening only lasts for three days after rainfall. In v13, that remains the case but the plants are allow to grow as long as beta > 0.9. That is plant should keep growing as long as there's suffiecnt water in the soil. 
+
+The fitted results can be found in the figure folder. 
