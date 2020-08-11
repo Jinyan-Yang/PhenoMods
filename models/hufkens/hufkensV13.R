@@ -1,6 +1,6 @@
 source('models/hufkens/hufkens_common_fun.R')
 # 
-phenoGrass.func.v11 <- function(gcc.df,
+phenoGrass.func.v13 <- function(gcc.df,
                                 f.h,
                                 f.t.opt,
                                 f.extract,
@@ -11,7 +11,8 @@ phenoGrass.func.v11 <- function(gcc.df,
                                 bucket.size,
                                 t.max,
                                 day.lay,
-                                use.smooth=FALSE){
+                                use.smooth=FALSE,
+                                q = 1){
   
   # set the lag factor; in num of days
   start.date <- gcc.df$Date[min(which(!is.na(gcc.df$GCC.norm)))]
@@ -26,15 +27,13 @@ phenoGrass.func.v11 <- function(gcc.df,
     gcc.df$cover <-  gcc.df$GCC.norm * sf.value
   }
   
- 
-  
   # set up the inital conditions
   swc.vec <- gcc.df$vwc * bucket.size
   et <- c()
   cover.pred.vec <- c()
   cover.pred.vec[day.lay] <- gcc.df$cover[!is.na(gcc.df$cover)][1]
   water.avi <- c()
-  water.avi <- swc.vec
+  water.avi <- swc.vec 
   water.lag <- c()
   water.lag <- water.avi
   t.m <- growth.vec <- senescence.vec <- evap.vec <- transp.vec <- c()
@@ -58,27 +57,32 @@ phenoGrass.func.v11 <- function(gcc.df,
   
   # model start
   for (nm.day in (day.lay+1):nrow(gcc.df)){
-
-    water.avi[nm.day] <- max(0,(swc.vec[nm.day-1]- swc.wilt*bucket.size))
     
-    # water.avi[nm.day] <- loss.f
+    water.avi[nm.day] <- max(0,(swc.vec[nm.day-1]- swc.wilt*bucket.size))
+
+    # define water stress using a beta function
+    loss.f <- (water.avi[nm.day] / (swc.capacity - swc.wilt)/bucket.size)^q 
+    loss.f <- min(1,loss.f)
+# assuming soil stress is the same 
+    loss.f.soil<-loss.f
     
     # # define the legency effect 
     i=0
     while(i+1<day.lay & (nm.day-i)>0){
       i=i+1
     }
-    
-    # water.lag[nm.day] <- min(water.avi[(nm.day-i):nm.day],na.rm=TRUE) #note this is different from the Hufkens
-    # water.lag[nm.day] <- water.avi[nm.day-i]
+
     t.m[nm.day] <- gcc.df$Tair[nm.day]#mean(gcc.df$Tair[(nm.day-15):nm.day],na.rm=TRUE) #hufkens used 15 days
     # hufkens used evaportanspiration from Hargreaves 1985
     # here is from evapotranspiration R package
     et[nm.day] <- pet.func(gcc.df$Date[nm.day],gcc.df$PPFD[nm.day],
                            gcc.df$Tair[nm.day],gcc.df$Tmax[nm.day], gcc.df$Tmin[nm.day],
-                           gcc.df$RHmax[nm.day],gcc.df$RHmin[nm.day], gcc.df$u2[nm.day])
+                           gcc.df$RHmax[nm.day],gcc.df$RHmin[nm.day], gcc.df$u2[nm.day])    # Default not growth
+    # default no growth & no sen
+    g = 0
+    d = 0
     
-    
+    # grwoth after rain
     if(rained.vec[nm.day] > 0){
       g = 1
       d = 0
@@ -86,14 +90,16 @@ phenoGrass.func.v11 <- function(gcc.df,
       g = 0
       d = 1
     }
-  
- 
-    # # calculate plant cover
-    # water.lag.norm <- water.lag[nm.day]  / (swc.capacity - swc.wilt)
-    # water.lag.norm <- min(1,water.lag.norm)
-    loss.f <- water.avi[nm.day] / (swc.capacity - swc.wilt) / bucket.size
-    loss.f <- min(1,loss.f)
-    loss.f.soil<-loss.f
+    
+    # growth if soil is really wet
+    if(!is.na(loss.f)){
+      if(loss.f > 0.8){
+        g = 1
+        d = 0
+      }
+    }
+
+
     # plant cover
     g.value <- t.func(t.m[nm.day],f.t.opt,t.max)
     growth.vec[nm.day] <- g * g.value * f.growth * 
@@ -137,6 +143,6 @@ phenoGrass.func.v11 <- function(gcc.df,
   gcc.df$tran <- transp.vec
   # out.df <- data.frame(gcc.df)
   # out.df <- out.df[!is.na(out.df$cover),]
-  
+  print('model worked')
   return(gcc.df)
 }

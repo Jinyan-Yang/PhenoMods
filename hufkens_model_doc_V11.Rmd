@@ -9,20 +9,22 @@ This file documents the application and modification of the Hufken's model to PA
 ## Existing issues of V00
 Evidently in the V00 model, the growth and plant transpiration both depend on the absolute value of soil moisture while senescence is independent of soil moisture. This lead to difficulty when rooting depth is unknown or varying. 
 
-The issue is related to soil moisture bucket. Since the absolute soil moisture can vary from 0 to say 500 mm, assuming a 50% VWC for 1m soil, the range of growth rate thus can vary a lot. Such a large range makes the fitting inefficient and sometimes impossible. The start values and range of those parameters are also hard to guess since they do not carry clear ecological meanings. 
+The issue is also related to soil moisture bucket. Since the absolute soil moisture can vary from 0 to say 500 mm, assuming a 50% VWC for 1m soil, the range of growth rate thus can vary a lot. Such a large range makes the fitting inefficient and sometimes impossible. The start values and range of those parameters are also hard to guess since they do not carry clear ecological meanings. 
+
+In the original Hufkens model, growth happens as long as growth rate is higher than senesence rate. i.e. growth and senescence can happen at the same time. This leads to issue of fitting par values.
 
 The sensitivity of growth to soil water is assumed to be linear. We know from the plant vulnerability and soil retention curves that the relationship is probably not linear. 
 
-The lagged water availability is also questionable. Plants will almost respond on the next day. Assuming plant only growth for one day is also not ideal. 
+The lagged water availability is also questionable. Plants will almost respond on the next day. 
 
 The solar radiation based pheno also does not work for winter species. The model also cannot account for C3 C4 to present in the same pasture but different time of year because of the Topt and baseline
 The t dependence is weird.  phenology based on radiation. 
 
 ## Growth and senescense depend on soil mositure (v11)
 
-In the original Hufkens model (V00), growth happens as long as growth rate is higher than senesence rate. i.e. growth and senescence can happen at the same time. This lead to issueof fitting par values.
+We hypothese that plant growth is ralted to carbon allocation and remobilisation. Both processed may not continue for a very long time considering that the water could be depleted soon. 
 
-This assumption seems not supported by our PACE data. Instead, we change the growth to the continuous two days after rainfall. In V00, the growth rate is related to the laged water availibility (i.e., that of 3 days ago), and senescense rate is indepedent of growth. In V11,
+We change the growth to the continuous two days after rainfall. In V00, the growth rate is related to the laged water availibility (i.e., that of 3 days ago), and senescense rate is indepedent of growth. In V11,
 
 Growth changed to: 
 
@@ -39,67 +41,79 @@ Senescense rate change to:
 $$S_{t} = S_{max}  (1 - f_{w,t}) $$
 
 ### How does V11 work 
-```{r, echo=FALSE,warning=F,message=F}
+```{r, echo=FALSE,warning=F,message=F,fig.height=7,fig.width=12}
 source('r/functions_mcmc_v12.r')
-day.lag <- 2
+source('r/plot.mcmc.r')
+day.lag <- 3
 source('r/pace_data_process.R')
-# packages
-library(doBy)
-library(zoo)
 
-gcc.met.pace.df.16 <- get.pace.func(gcc.met.pace.df,
-                                    species.in = 'Luc',
-                                    prep.in = 'Drought',
-                                    temp.in ='Ambient')
-gcc.met.pace.df.16 = gcc.met.pace.df.16[gcc.met.pace.df.16$Date<
-                                          as.Date('2019-8-31'),]
-gcc.met.pace.df.16$map=760
-chain.fes = readRDS('cache/chain.Luc.Control.Ambient.rds')
+# gcc.met.pace.df.16 <- get.pace.func(gcc.met.pace.df,
+#                                     species.in = 'Luc',
+#                                     prep.in = 'Drought',
+#                                     temp.in ='Ambient')
+# gcc.met.pace.df.16 = gcc.met.pace.df.16[gcc.met.pace.df.16$Date <
+#                                           as.Date('2019-8-31'),]
+# gcc.met.pace.df.16$map=760
+# chain.fes = readRDS('cache/chain.Luc.Control.Ambient.rds')
+# 
+#   # # check acceptance so that the 
+#   burnIn = 10000
+#   acceptance = 1-mean(duplicated(chain.fes[-(1:burnIn),])) 
+#   # # see how it works#####
+#   par.df <- data.frame(#f.h = c(200,220,240,NA,NA),
+#     f.t.opt = c(10,15,20,NA,NA,NA),
+#     f.extract = c(0.05,0.075,0.1,NA,NA,NA),
+#     f.sec = c(0.05,0.1,0.15,NA,NA,NA),
+#     f.growth = c(0.1,0.2,0.3,NA,NA,NA))
+#   row.names(par.df) <- c('min','initial','max','fit','stdv','prop')
+#   par.df["fit",] <- colMeans(chain.fes[burnIn:nrow(chain.fes),])
+# 
+#   bucket.size = 300
+#   
+# hufken.pace.pred <- phenoGrass.func.v11(gcc.met.pace.df.16,
+#                                           f.h = 222,
+#                                           f.t.opt = par.df["fit",1],
+#                                           f.extract = par.df["fit",2],
+#                                           f.sec= par.df["fit",3],
+#                                           f.growth = par.df["fit",4],
+#                                           bucket.size = bucket.size,
+#                                           swc.wilt = 0.05 ,
+#                                           swc.capacity = 0.13 ,
+#                                           t.max = 45,
+#                                           day.lay = day.lag)
+#   # hufken.pace.pred$water.norm <- hufken.pace.pred$water.avi / (0.13-0.05)/300
+#   library(viridisLite)
+#   palette(viridis(8))
+#   par(mar=c(5,5,1,1))
+#   plot(cover~Date,data = hufken.pace.pred,type='b',pch=16,
+#        xlab=' ',ylab=expression(f[cover]),ylim=c(0,0.8),col = palette()[6])
+#   
+#   points(cover.hufken~Date,data = hufken.pace.pred,type='b',col=palette()[8],pch=16)
+#   
+# # par(new=T)
+# # 
+# # plot(vwc~Date,data = gcc.met.pace.df.16,ann=F,axes=F,type='s',col='lightskyblue')
+# # 
+# # par(new=T)
+# # 
+# # plot(swc.hufken~Date,data = gcc.met.pace.df.16, ann=F,axes=F,type='l',col='lightskyblue',lty='dashed')
 
-  # # check acceptance so that the 
-  burnIn = 10000
-  acceptance = 1-mean(duplicated(chain.fes[-(1:burnIn),])) 
-  # # see how it works#####
-  par.df <- data.frame(#f.h = c(200,220,240,NA,NA),
-    f.t.opt = c(10,15,20,NA,NA,NA),
-    f.extract = c(0.05,0.075,0.1,NA,NA,NA),
-    f.sec = c(0.05,0.1,0.15,NA,NA,NA),
-    f.growth = c(0.1,0.2,0.3,NA,NA,NA))
-  row.names(par.df) <- c('min','initial','max','fit','stdv','prop')
-  par.df["fit",] <- colMeans(chain.fes[burnIn:nrow(chain.fes),])
+plot.mcmc.func('Luc','Control','Ambient',subplot = NULL,
+               nm.note = 'v11',use.smooth = TRUE,
+               my.fun =phenoGrass.func.v11 )
 
-  bucket.size = 300
-  
-hufken.pace.pred <- phenoGrass.func.v11(gcc.met.pace.df.16,
-                                          f.h = 222,
-                                          f.t.opt = par.df["fit",1],
-                                          f.extract = par.df["fit",2],
-                                          f.sec= par.df["fit",3],
-                                          f.growth = par.df["fit",4],
-                                          bucket.size = bucket.size,
-                                          swc.wilt = 0.05 ,
-                                          swc.capacity = 0.13 ,
-                                          t.max = 45,
-                                          day.lay = day.lag)
-  # hufken.pace.pred$water.norm <- hufken.pace.pred$water.avi / (0.13-0.05)/300
-  library(viridisLite)
-  palette(viridis(8))
-  par(mar=c(5,5,1,1))
-  plot(cover~Date,data = hufken.pace.pred,type='b',pch=16,
-       xlab=' ',ylab=expression(f[cover]),ylim=c(0,0.8),col = palette()[6])
-  
-  points(cover.hufken~Date,data = hufken.pace.pred,type='b',col=palette()[8],pch=16)
-  
-# par(new=T)
-# 
-# plot(vwc~Date,data = gcc.met.pace.df.16,ann=F,axes=F,type='s',col='lightskyblue')
-# 
-# par(new=T)
-# 
-# plot(swc.hufken~Date,data = gcc.met.pace.df.16, ann=F,axes=F,type='l',col='lightskyblue',lty='dashed')
 ```
 
 Fig 1. V11 fitted to Luc Ambient Control. 
+
+```{r, echo=FALSE,warning=F,message=F,fig.height=7,fig.width=12}
+
+plot.mcmc.func('Fes','Control','Ambient',subplot = NULL,
+               nm.note = 'v11',use.smooth = TRUE,
+               my.fun =phenoGrass.func.v11 )
+```
+
+Fig.2. Same thing for FES. 
 
 ## Known issues of V11
 Realistic represetations of baseline phenology for winter and summer active species are missing.

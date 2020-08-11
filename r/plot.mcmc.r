@@ -33,7 +33,7 @@ plot.mcmc.func = function(species.in,prep.in,temp.in,subplot=NULL,nm.note='',use
     rds.nm = paste0('tmp/pred.',sm.nm,nm.note,'chain.',subplot,'.rds')
   }
   
- 
+ # fn='cache/smv10.testchain.Fes.Control.Ambient.rds'
   gcc.met.pace.df.16 <- gcc.met.pace.df.16[(gcc.met.pace.df.16$Date) < as.Date('2019-11-26'),]
   gcc.met.pace.df.16$map <- 760
  
@@ -46,9 +46,9 @@ plot.mcmc.func = function(species.in,prep.in,temp.in,subplot=NULL,nm.note='',use
   if(is.list(in.chain)){
     # assuming 1/3 burn in
     burnIn = 1
-    chain.3.ls.new = lapply(chain.3.ls,function(m.in)m.in[round(nrow(m.in)/3):nrow(m.in),])
+    chain.3.ls.new = lapply(in.chain,function(m.in)m.in[round(nrow(m.in)/3):nrow(m.in),])
     
-    chain.fes <- do.call(rbind,in.chain)
+    chain.fes <- do.call(rbind,chain.3.ls.new)
   }else{
     burnIn = nrow(in.chain)/3
     chain.fes <-in.chain
@@ -146,7 +146,7 @@ plot.mcmc.func = function(species.in,prep.in,temp.in,subplot=NULL,nm.note='',use
   points(cover.hufken~Date,data = hufken.pace.pred,type='l',col=palette()[8])
   
   legend('topright',legend = c('OBS','MOD'),lty = 1,col=palette()[c(6,8)])
-  legend('topleft',legend = paste0(species.in,prep.in,temp.in),bty='n')
+  # legend('topleft',legend = paste0(species.in,prep.in,temp.in),bty='n')
   
   clip(min(hufken.pace.pred$Date), max(hufken.pace.pred$Date), 0.0, 0.1)
   abline(v = hufken.pace.pred$Date[hufken.pace.pred$harvest ==1],lty='dashed')
