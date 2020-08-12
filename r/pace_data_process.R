@@ -74,7 +74,7 @@ get.pace.func <- function(gcc.met.pace.df,
  
   
   # set the number of lageed days
-  test.df$GCC[1:day.lag] <- NA
+  
   
   # test.df$GCC[1:day.lag] <- NA
   
@@ -105,7 +105,7 @@ get.pace.func <- function(gcc.met.pace.df,
   gcc.met.pace.df.16$RHmin <- na.locf(gcc.met.pace.df.16$RHmin)
   gcc.met.pace.df.16$Tmax <- na.locf(gcc.met.pace.df.16$Tmax)
   gcc.met.pace.df.16$Tmin <- na.locf(gcc.met.pace.df.16$Tmin)
-  
+  gcc.met.pace.df.16$rh <- na.locf(gcc.met.pace.df.16$rh)
   
   gcc.met.pace.df.16$GCC.smooth = get.smooth.gcc.func(gcc.met.pace.df.16$Date, 
                                                       gcc.met.pace.df.16$GCC)
@@ -116,7 +116,13 @@ get.pace.func <- function(gcc.met.pace.df,
   # tmp.df = get.smooth.gcc.func(y, gcc.met.pace.df.16$GCC)
   # 
   # out.df = merge(gcc.met.pace.df.16,tmp.df,by='y',all.x=T)
-  
+  gcc.met.pace.df.16 = gcc.met.pace.df.16[gcc.met.pace.df.16$Date >= as.Date('2018-10-1')&
+                                            gcc.met.pace.df.16$Date <= as.Date('2019-12-1'), ]
+  # gcc.met.pace.df.16$GCC[1:day.lag] <- 
+  #   gcc.met.pace.df.16$GCC.smooth[1:day.lag]<-
+  #   gcc.met.pace.df.16$GCC.norm.smooth[1:day.lag] <- 
+  #   NA
+    
   return(gcc.met.pace.df.16)
 }
 
