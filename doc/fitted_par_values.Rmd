@@ -93,7 +93,7 @@ library(knitr)
 ## 
 
 ```{r,warning=FALSE,echo=F,message=F}
-kable(t(out.df),caption = 'Table 1. Fitted parameter values')
+kable(t(out.df),caption = 'Table 1. Fitted parameter values for Luc.')
 ```
 
 ## 
@@ -124,3 +124,4 @@ q non-linearity factor in beta function
 
 ## Note
 Units of parameters can differ by model.
+
