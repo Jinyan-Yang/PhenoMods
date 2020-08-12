@@ -103,6 +103,8 @@ mh.MCMC.func <- function(iterations,par.df,
     }else{
       chain[i+1,] = chain[i,]
     }
+    
+    print(paste0(i,' / ',iterations))
   }
   return(chain)
 }

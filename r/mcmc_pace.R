@@ -1,7 +1,7 @@
 source('r/functions_mcmc_v12.r')
 source('models/hufkens/pG_v10.R')
 source('r/plot.mcmc.r')
-day.lag <- 2
+day.lag <- 3
 source('r/pace_data_process.R')
 # packages
 library(doBy)
@@ -10,13 +10,15 @@ library(zoo)
 fit.mcmc.pace.func <- function(species.in = 'Luc',prep.in = 'Control', 
                                temp.in ='Ambient',subplot =NA,
                                my.fun = phenoGrass.func.v11,
-                               out.nm.note = '',use.smooth = FALSE){
+                               out.nm.note = '',use.smooth = FALSE,
+                               day.lag = 3){
+  s.time <- Sys.time()
   gcc.met.pace.df.16 <- get.pace.func(gcc.met.pace.df,
                                       species.in =species.in,
                                       prep.in = prep.in,
                                       temp.in =temp.in,
                                       subplot = subplot)
-  gcc.met.pace.df.16 <- gcc.met.pace.df.16[gcc.met.pace.df.16$Date<as.Date('2019-09-01'),]
+  # gcc.met.pace.df.16 <- gcc.met.pace.df.16[gcc.met.pace.df.16$Date<as.Date('2019-09-01'),]
   gcc.met.pace.df.16$map <- 760
   # para values####
   par.df <- data.frame(#f.h = c(200,220,240,NA,NA),
@@ -59,25 +61,45 @@ fit.mcmc.pace.func <- function(species.in = 'Luc',prep.in = 'Control',
   }
  
   saveRDS(chain.fes,out.name)
+  
+  print(Sys.time() - s.time)
 }
 
-# $$$$####
-fit.mcmc.pace.func(subplot = 'S3P3B')
-
-fit.mcmc.pace.func(species.in='Luc',prep.in = 'Control', temp.in ='Ambient')
-
-fit.mcmc.pace.func(species.in='Fes',prep.in = 'Control', temp.in ='Ambient')
-fit.mcmc.pace.func(species.in='Rye',prep.in = 'Control', temp.in ='Ambient')
-
-fit.mcmc.pace.func(species.in='Luc',prep.in = 'Drought', temp.in ='Ambient')
-fit.mcmc.pace.func(species.in='Fes',prep.in = 'Drought', temp.in ='Ambient')
+# # $$$$####
+# fit.mcmc.pace.func(subplot = 'S3P3B')
+# 
+# fit.mcmc.pace.func(species.in='Luc',prep.in = 'Control', temp.in ='Ambient')
+# 
+# fit.mcmc.pace.func(species.in='Fes',prep.in = 'Control', temp.in ='Ambient')
+# fit.mcmc.pace.func(species.in='Rye',prep.in = 'Control', temp.in ='Ambient')
+# 
+# fit.mcmc.pace.func(species.in='Luc',prep.in = 'Drought', temp.in ='Ambient')
+# fit.mcmc.pace.func(species.in='Fes',prep.in = 'Drought', temp.in ='Ambient')
 # 
 # get fit by species but with original hufkens 
 # fit.mcmc.pace.func(species.in='Luc',prep.in = 'Control', temp.in ='Ambient',
 #                    my.fun = phenoGrass.func.v10,out.nm.note='v10.test')
 
+# fit original hufkens
 fit.mcmc.pace.func(species.in='Luc',prep.in = 'Control', temp.in ='Ambient',
-                   my.fun = phenoGrass.func.v10,out.nm.note='v10.test',use.smooth = TRUE)
+                   my.fun = phenoGrass.func.v10,out.nm.note='v10',use.smooth = TRUE)
+
+fit.mcmc.pace.func(species.in='Fes',prep.in = 'Control', temp.in ='Ambient',
+                   my.fun = phenoGrass.func.v10,out.nm.note='v10',use.smooth = TRUE)
+
+
+fit.mcmc.pace.func(species.in='Rye',prep.in = 'Control', temp.in ='Ambient',
+                   my.fun = phenoGrass.func.v10,out.nm.note='v10',use.smooth = TRUE)
+#
+# fit v11
+fit.mcmc.pace.func(species.in='Luc',prep.in = 'Control', temp.in ='Ambient',
+                   my.fun = phenoGrass.func.v11,out.nm.note='v11',use.smooth = TRUE)
+
+fit.mcmc.pace.func(species.in='Fes',prep.in = 'Control', temp.in ='Ambient',
+                   my.fun = phenoGrass.func.v11,out.nm.note='v11',use.smooth = TRUE)
+
+fit.mcmc.pace.func(species.in='Rye',prep.in = 'Control', temp.in ='Ambient',
+                   my.fun = phenoGrass.func.v11,out.nm.note='v11',use.smooth = TRUE)
 
 
 # make the plots
@@ -91,8 +113,8 @@ fit.mcmc.pace.func(species.in='Luc',prep.in = 'Control', temp.in ='Ambient',
 # dev.off()
 
 
-pdf('sm.v10.3chain.pdf',width = 6,height = 3*6*0.618)
-plot.mcmc.func('Luc','Control','Ambient',subplot = NULL,nm.note = 'v10.test',use.smooth = TRUE,my.fun =phenoGrass.func.v10 )
+pdf('sm.v10.3chain.pdf',width = 10,height = 10*0.618)
+plot.mcmc.func('Luc','Control','Ambient',subplot = NULL,nm.note = 'v10',use.smooth = TRUE,my.fun =phenoGrass.func.v10 )
 dev.off()
 
 
@@ -108,13 +130,12 @@ plot.check.mcmc.func=function(chain.in,burnIn =3000){
 
 }
 lapply(chain.3.ls, plot.check.mcmc.func)
-
 dev.off()
 
-
-pdf('sm.v11.3chain.pdf',width = 6,height = 3*6*0.618)
-plot.mcmc.func('Luc','Control','Ambient',subplot = NULL,nm.note = 'v11.test',use.smooth = TRUE,my.fun =phenoGrass.func.v11 )
-dev.off()
+# 
+# pdf('sm.v11.3chain.pdf',width =10,height = 10*0.618)
+# plot.mcmc.func('Luc','Control','Ambient',subplot = NULL,nm.note = 'v11',use.smooth = TRUE,my.fun =phenoGrass.func.v11 )
+# dev.off()
 
 
 

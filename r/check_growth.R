@@ -1,11 +1,11 @@
 #####load required stuff
-day.lag <- 2 #this is a left over from previous model; not use at this moment
+day.lag <- 5
 source('r/pace_data_process.R')
 # packages
 library(doBy)
 library(zoo)
 
-plot.growth.func=function(plot.in){
+plot.growth.func=function(plot.in,nm.days = 5){
   # gcc.met.pace.df.16 <- get.pace.func(gcc.met.pace.df,
   #                                     subplot = 'S3P3B')
   gcc.met.pace.df.16 <- get.pace.func(gcc.met.pace.df,
@@ -13,7 +13,7 @@ plot.growth.func=function(plot.in){
   # gcc.met.pace.df$Rain = gcc.met.pace.df$irrig.tot
   # gcc.met.pace.df.16 <- gcc.met.pace.df
   
-  gcc.met.pace.df.16 = gcc.met.pace.df.16[gcc.met.pace.df.16$Date < as.Date('2019-10-1'),]
+  # gcc.met.pace.df.16 = gcc.met.pace.df.16[gcc.met.pace.df.16$Date < as.Date('2019-10-1'),]
   # plot(Rain~Date,data =gcc.met.pace.df.16[gcc.met.pace.df.16$Date <as.Date('2018-5-1'),])
   
   index.vec= which(gcc.met.pace.df.16$Rain > 0)
@@ -21,7 +21,7 @@ plot.growth.func=function(plot.in){
   tmp.ls = list()
   for(i in seq_along(index.vec)){
     tmp.ls[[i]] = gcc.met.pace.df.16[gcc.met.pace.df.16$Date >= gcc.met.pace.df.16$Date[index.vec[i]] &
-                                       gcc.met.pace.df.16$Date <= (gcc.met.pace.df.16$Date[index.vec[i]] + 5),]
+                                       gcc.met.pace.df.16$Date <= (gcc.met.pace.df.16$Date[index.vec[i]] + nm.days),]
     
     tmp.ls[[i]]$days.rained = tmp.ls[[i]]$Date - gcc.met.pace.df.16$Date[index.vec[i]]
     
@@ -44,12 +44,12 @@ plot.growth.func=function(plot.in){
   
 }
 
-plot.spec.func = function(spc.in){
+plot.spec.func = function(spc.in,nm.days = 5){
   sub.vec = unique(gcc.met.pace.df$SubplotID[gcc.met.pace.df$Species == spc.in& 
                                                gcc.met.pace.df$Temperature == 'Ambient' ])
   sub.vec = sub.vec[!is.na(sub.vec)]
   
-  grow.ls = lapply(sub.vec,plot.growth.func)
+  grow.ls = lapply(sub.vec,plot.growth.func,nm.days =nm.days)
   grow.df = do.call(rbind,grow.ls)
   boxplot(gcc.change~days.rained,data = grow.df,notch=TRUE,ylim=c(-0.005,0.005))
   abline(h=0,lty='dotted')
