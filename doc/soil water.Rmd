@@ -4,7 +4,7 @@ output:
   html_document: default
   pdf_document: default
 ---
-This document shows the adpotation of the maxima E method in Duursama 2008. The goal is to calculate the reduction of plant water avialiability with decreasing soil water content. The advantage of this method is that is is indepedent of phtosytnehsis and environment, and thus can be calcualted daily instead of hourly. 
+This document shows the adpotation of the maxima E method in Duursama 2008. The goal is to calculate the reduction of plant water avialibility with decreasing soil water content. The advantage of this method is that is is indepedent of phtosytnehsis and environment, and thus can be calcualted daily instead of hourly. 
 
 Let the fun begin.
 

@@ -31,7 +31,7 @@ We have harest date for the plants, and thus decided to account for harvest in t
 The following tests use lucerne (control&ambient) as an example.
 
 ```{r, echo=FALSE,warning=F,message=F}
-
+setwd(dirname(getwd()))
 # build the pheno grass model as in Hufkens 2016#####
 # the Penman equation is a different version 
 # here used the equation modified from the evapotranspiration R package

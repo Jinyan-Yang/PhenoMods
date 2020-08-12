@@ -6,7 +6,7 @@ output: html_document
 ---
 ```{r, echo=FALSE,warning=F,message=F}
 tmp.ls <- list()
-
+setwd(dirname(getwd()))
 tmp.ls[[1]] <- data.frame(model='v00',
                           f.h = 222,
                           f.t.opt = 33,

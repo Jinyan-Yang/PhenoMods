@@ -42,6 +42,7 @@ $$S_{t} = S_{max}  (1 - f_{w,t}) $$
 
 ### How does V11 work 
 ```{r, echo=FALSE,warning=F,message=F,fig.height=7,fig.width=12}
+setwd(dirname(getwd()))
 source('r/functions_mcmc_v12.r')
 source('r/plot.mcmc.r')
 day.lag <- 3

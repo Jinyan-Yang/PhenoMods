@@ -5,6 +5,10 @@ date: "11/08/2020"
 output: html_document
 ---
 
+```{r,echo=F}
+setwd(dirname(getwd()))
+```
+
 The v13 model is a directly development of v11. The goal is to address the unanswered issues: 1. What is the senstivity of greening and browning to  swc, and 2. when does greening stop. 
 
 To answer the first question, we introduced the beta function 
