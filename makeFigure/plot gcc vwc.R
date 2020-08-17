@@ -276,7 +276,15 @@ plot.st.func <- function(cWaT.df){
       
       plot(GCC~Date,data = plot.df,col = plot.num,xlab=' ',
            pch=paste0(facto.vec[plot.factor]),
-           cex=0.7,ylim=c(y.min,y.max))
+           cex=0.7,ylim=c(y.min,y.max),xaxt = 'n')
+      
+      date.range = range(plot.df$Date,na.rm=T)
+      mons.vec =  seq(date.range[1],date.range[2],by='mon')
+      
+      axis(1,at = mons.vec,labels = format(mons.vec,'%m'))
+      mtext('2018',side = 1,adj=0.25,line = 3)
+      mtext('2019',side = 1,adj=0.75,line = 3)
+      
       points(wave.fit.cWaT$fitted.values~plot.df$Date,type='l',col=plot.num,lwd=2)
    
        }else{
