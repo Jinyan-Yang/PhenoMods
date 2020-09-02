@@ -56,7 +56,7 @@ plot.spec.func = function(spc.in,nm.days = 5){
   title(spc.in)
 }
 
-pdf('growth_smooth.pdf',width = 10,height = 10*0.618)
+pdf('figures/growth_smooth.pdf',width = 10,height = 10*0.618)
 
 # sub.vec = unique(gcc.met.pace.df$SubplotID[gcc.met.pace.df$Species == 'Luc'& 
 #                                              gcc.met.pace.df$Temperature == 'Ambient' ])
@@ -72,3 +72,4 @@ plot.spec.func('Fes')
 plot.spec.func('Rho')
 plot.spec.func('Rye')
 dev.off()
+
