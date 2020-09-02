@@ -384,6 +384,15 @@ lapply(chain.3.ls, plot.check.mcmc.func,species.in='Fes')
 
 chain.3.ls = readRDS('cache/smv13chain.Rye.Control.Ambient.rds')
 lapply(chain.3.ls, plot.check.mcmc.func,species.in='Rye')
+# 
+species.vec <- c('Bis', 'Dig', 'DigBis', 'Kan', 'KanWal', 
+                 'Pha', 'PhaSub', 'Rho',  'Wal','ym')
+
+for(i in seq_along(species.vec)){
+  fn <- sprintf('cache/smv13chain.%s.Control.Ambient.rds',species.vec[i])
+  chain.3.ls = readRDS(fn)
+  lapply(chain.3.ls, plot.check.mcmc.func,species.in=species.vec[i])
+}
 
 dev.off()
 
