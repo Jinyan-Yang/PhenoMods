@@ -5,7 +5,7 @@ gcc.met.pace.df <- readRDS('cache/gcc.met.pace.df.rds')
 get.norm.gcc.func <- function(df){
   quantiles.5.95 <- quantile(df$GCC[!is.na(df$GCC)],
                              c(.05,.95),an.rm=T)
-  quantiles.5.95[1] = 0.3197
+  # quantiles.5.95[1] = 0.3197
   df$GCC.norm <- (df$GCC - quantiles.5.95[1]) /
     (quantiles.5.95[2] - quantiles.5.95[1])
   
@@ -107,6 +107,12 @@ get.pace.func <- function(gcc.met.pace.df,
   gcc.met.pace.df.16$Tmin <- na.locf(gcc.met.pace.df.16$Tmin)
   gcc.met.pace.df.16$rh <- na.locf(gcc.met.pace.df.16$rh)
   
+  # set plot with no vwv to be 0.08
+  if((sum(gcc.met.pace.df.16$vwc,na.rm=T))==0){
+    gcc.met.pace.df.16$vwc = 0.08
+  }
+
+  # 
   gcc.met.pace.df.16$GCC.smooth = get.smooth.gcc.func(gcc.met.pace.df.16$Date, 
                                                       gcc.met.pace.df.16$GCC)
   
@@ -122,7 +128,7 @@ get.pace.func <- function(gcc.met.pace.df,
   #   gcc.met.pace.df.16$GCC.smooth[1:day.lag]<-
   #   gcc.met.pace.df.16$GCC.norm.smooth[1:day.lag] <- 
   #   NA
-    
+  gcc.met.pace.df.16$harvest = 0
   return(gcc.met.pace.df.16)
 }
 
