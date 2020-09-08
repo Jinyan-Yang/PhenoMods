@@ -120,6 +120,8 @@ get.pace.func <- function(gcc.met.pace.df,
   
   gcc.met.pace.df.16$GCC.norm.smooth = get.smooth.gcc.func(gcc.met.pace.df.16$Date, 
                                                       gcc.met.pace.df.16$GCC.norm)
+  
+  if(sum(gcc.met.pace.df.16$na.))
     
   # tmp.df = get.smooth.gcc.func(y, gcc.met.pace.df.16$GCC)
   # 

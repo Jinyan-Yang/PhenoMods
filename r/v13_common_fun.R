@@ -74,7 +74,6 @@ fit.mcmc.pace.func <- function(df = gcc.met.pace.df,
                                       prep.in = prep.in,
                                       temp.in =temp.in,
                                       subplot = subplot)
-  # gcc.met.pace.df.16 <- gcc.met.pace.df.16[gcc.met.pace.df.16$Date<as.Date('2019-09-01'),]
   gcc.met.pace.df.16$map <- 760
   
   # para values####
@@ -85,11 +84,11 @@ fit.mcmc.pace.func <- function(df = gcc.met.pace.df,
     f.growth = c(0.1,0.2,0.3,NA,NA,NA),
     q = c(0.001,1,2,NA,NA,NA))
   row.names(par.df) <- c('min','initial','max','fit','stdv','prop')
-  
-  # this assume 100% of the data falls into the max min range 
+
+  # this assume 100% of the data falls into the max min range
   # in a normal distribution for proposal.func
   par.df['stdv',] <- ((par.df['max',] - par.df['min',])/10)
-  
+
   # start mcmc fiting######
   bucket.size <- 300
   # soil.water.var <- quantile(gcc.met.pace.df.16$vwc,c(.1,.99))
@@ -105,20 +104,20 @@ fit.mcmc.pace.func <- function(df = gcc.met.pace.df,
                                         my.fun = my.fun,
                                         use.smooth = use.smooth)
   }
-  
+
   if(use.smooth==TRUE){
     smooth.nm='sm'
   }else{
     smooth.nm=''
   }
-  
+
   if(is.na(subplot)){
     out.name <- sprintf('cache/%s%schain.%s.%s.%s.rds',smooth.nm,out.nm.note,species.in,prep.in,temp.in)
   }else{
     out.name <- sprintf('cache/%schain.%s.rds',out.nm.note,subplot)
   }
-  
+
   saveRDS(chain.fes,out.name)
-  
+
   print(Sys.time() - s.time)
 }

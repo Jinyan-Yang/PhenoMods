@@ -1,9 +1,9 @@
-source('r/v13_common_fun.R')
-
 day.lag <- 3
 source('r/pace_data_process.R')
 source('r/ym_data_process.R')
 source('r/process_cw_gcc.R')
+source('r/v13_common_fun.R')
+
 gcc.met.cw.df <- readRDS('cache/gcc.met.cw.df.rds')
 # fit v13
 fit.mcmc.pace.func(species.in='Luc',prep.in = 'Control', temp.in ='Ambient',

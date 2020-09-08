@@ -7,8 +7,16 @@ source('models/hufkens/hufkensV11.R')
 logLikelihood.func <- function (model.out){
   
   obs <- model.out$cover
+  
   mod <- model.out$cover.hufken
-  obs.sd <- model.out$GCC.norm.sd #* 0.8
+  
+  # if sd of obs can be estimated then use it 
+  # otherwise assume a 10% sd
+  if(sum(model.out$GCC.norm.sd,na.rm = T) != 0){
+    obs.sd <- model.out$GCC.norm.sd 
+  }else{
+    obs.sd <- model.out$GCC.norm * 0.1
+  }
   
   logLi <-  - (0.5 * ((mod - obs)/obs.sd)^2 + log(obs.sd) + 0.5*log(2*pi))
   
