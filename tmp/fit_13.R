@@ -1,130 +1,10 @@
-source('r/functions_mcmc_v12.r')
-mh.MCMC.func <- function(iterations,par.df,
-                         gcc.met.pace.df.16,
-                         bucket.size,swc.wilt ,
-                         swc.capacity,day.lay,
-                         my.fun,
-                         use.smooth){
-  
-  # get prior 
-  prior.prob <- prior.func(par.df)
-  
-  # start MC ####
-  # intial
-  chain = array(dim = c(iterations+1,ncol(par.df)))
-  chain[1,] = as.numeric(par.df['initial',])
-  
-  # chain move on
-  for (i in 1:iterations){
-    proposal = proposal.func(chain[i,],par.df)
-    
-    # prior.prob,data,data.sd,bucket.size = 300,...
-    probab = exp(posterior.func(prior.prob,FUN = my.fun,
-                                gcc.df = gcc.met.pace.df.16,
-                                f.h = 222,
-                                f.t.opt = proposal[1],
-                                f.extract = proposal[2],
-                                f.sec = proposal[3],
-                                f.growth = proposal[4] ,
-                                q = proposal[5] ,
-                                t.max = 45,
-                                day.lay = day.lay,
-                                bucket.size = bucket.size,
-                                swc.wilt = swc.wilt ,
-                                swc.capacity = swc.capacity,
-                                use.smooth = use.smooth) - 
-                   posterior.func(prior.prob,FUN = my.fun,
-                                  gcc.df = gcc.met.pace.df.16,
-                                  f.h = 222,
-                                  f.t.opt = chain[i,1],
-                                  f.extract = chain[i,2],
-                                  f.sec = chain[i,3],
-                                  f.growth = chain[i,4] ,
-                                  q = chain[i,5] ,
-                                  t.max = 45,
-                                  day.lay = day.lay,
-                                  swc.wilt = swc.wilt ,
-                                  swc.capacity = swc.capacity,
-                                  bucket.size = bucket.size,
-                                  use.smooth = use.smooth))
-    if (runif(1) < probab){
-      chain[i+1,] = proposal
-    }else{
-      chain[i+1,] = chain[i,]
-    }
-  }
-  return(chain)
-}
-source('models/hufkens/hufkensV13.R')
-source('r/plot.mcmc.r')
+source('r/v13_common_fun.R')
+
 day.lag <- 3
 source('r/pace_data_process.R')
 source('r/ym_data_process.R')
-# packages
-library(doBy)
-library(zoo)
-
-fit.mcmc.pace.func <- function(gcc.met.pace.df = gcc.met.pace.df,
-                               species.in = 'Luc',prep.in = 'Control', 
-                               temp.in ='Ambient',subplot =NA,
-                               my.fun = phenoGrass.func.v11,
-                               out.nm.note = '',use.smooth = FALSE,
-                               day.lag = 3){
-  s.time <- Sys.time()
-  gcc.met.pace.df.16 <- get.pace.func(gcc.met.pace.df,
-                                      species.in =species.in,
-                                      prep.in = prep.in,
-                                      temp.in =temp.in,
-                                      subplot = subplot)
-  # gcc.met.pace.df.16 <- gcc.met.pace.df.16[gcc.met.pace.df.16$Date<as.Date('2019-09-01'),]
-  gcc.met.pace.df.16$map <- 760
-
-  # para values####
-  par.df <- data.frame(#f.h = c(200,220,240,NA,NA),
-    f.t.opt = c(10,15,20,NA,NA,NA),
-    f.extract = c(0.05,0.075,0.1,NA,NA,NA),
-    f.sec = c(0.05,0.1,0.15,NA,NA,NA),
-    f.growth = c(0.1,0.2,0.3,NA,NA,NA),
-    q = c(0.001,1,2,NA,NA,NA))
-  row.names(par.df) <- c('min','initial','max','fit','stdv','prop')
-  
-  # this assume 100% of the data falls into the max min range 
-  # in a normal distribution for proposal.func
-  par.df['stdv',] <- ((par.df['max',] - par.df['min',])/10)
-  
-  # start mcmc fiting######
-  bucket.size <- 300
-  # soil.water.var <- quantile(gcc.met.pace.df.16$vwc,c(.1,.99))
-  chain.fes=list()
-  for(n.chain in 1:3){
-    chain.fes[[n.chain]] = mh.MCMC.func(10000,
-                                        par.df,
-                                        gcc.met.pace.df.16,
-                                        bucket.size = bucket.size,
-                                        day.lay = day.lag,
-                                        swc.capacity = 0.13,
-                                        swc.wilt = 0.05,
-                                        my.fun = my.fun,
-                                        use.smooth = use.smooth)
-  }
-  
-  if(use.smooth==TRUE){
-    smooth.nm='sm'
-  }else{
-    smooth.nm=''
-  }
-  
-  if(is.na(subplot)){
-    out.name <- sprintf('cache/%s%schain.%s.%s.%s.rds',smooth.nm,out.nm.note,species.in,prep.in,temp.in)
-  }else{
-    out.name <- sprintf('cache/%schain.%s.rds',out.nm.note,subplot)
-  }
-  
-  saveRDS(chain.fes,out.name)
-  
-  print(Sys.time() - s.time)
-}
-
+source('r/process_cw_gcc.R')
+gcc.met.cw.df <- readRDS('cache/gcc.met.cw.df.rds')
 # fit v13
 fit.mcmc.pace.func(species.in='Luc',prep.in = 'Control', temp.in ='Ambient',
                    my.fun = phenoGrass.func.v13,out.nm.note='v13',use.smooth = TRUE)
@@ -147,20 +27,36 @@ for(i in seq_along(species.vec)){
 
 }
 
+# fit to cw sites
+for (i in seq_along(site.vec)) {
+  fit.mcmc.pace.func(df=gcc.met.cw.df,
+                     species.in=site.vec[i],prep.in = 'Control', temp.in ='Ambient',
+                     my.fun = phenoGrass.func.v13,out.nm.note='v13',use.smooth = TRUE)
+}
+
+# # 
+# species.vec <- c('Kan', 'KanWal', 'Rho',  'Wal')
+# 
+# for(i in seq_along(species.vec)){
+#   fit.mcmc.pace.func(species.in=species.vec[i],prep.in = 'Control', temp.in ='Ambient',
+#                      my.fun = phenoGrass.func.v13,out.nm.note='v13',use.smooth = TRUE)
+#   
+# }
+
 # fit ym data
 ym.con.df <- get.ym.func('Control')
 
-fit.mcmc.pace.func(gcc.met.pace.df=ym.con.df,
+fit.mcmc.pace.func(df=ym.con.df,
                    species.in='ym',prep.in = 'Control', temp.in ='Ambient',
                    my.fun = phenoGrass.func.v13,out.nm.note='v13',use.smooth = TRUE)
 
 
 # plot v13
-plot.mcmc.func = function(gcc.met.pace.df = gcc.met.pace.df,
+plot.mcmc.func = function(df = gcc.met.pace.df,
                           species.in,prep.in,temp.in,subplot=NULL,nm.note='',use.smooth=FALSE,my.fun = phenoGrass.func.v11){
   
   if(is.null(subplot)){
-    gcc.met.pace.df.16 <- get.pace.func(gcc.met.pace.df,
+    gcc.met.pace.df.16 <- get.pace.func(df,
                                         species.in = species.in,
                                         prep.in = prep.in,
                                         temp.in =temp.in)
@@ -360,10 +256,11 @@ for(i in seq_along(species.vec)){
 # plot ym
 ym.con.df <- get.ym.func('Control')
 ym.pred.df <- readRDS('tmp/pred.smv13chain.ym.Control.Ambient.rds')
-plot.mcmc.func(gcc.met.pace.df=ym.con.df,'ym','Control','Ambient',subplot = NULL,nm.note = 'v13',use.smooth = TRUE,my.fun =phenoGrass.func.v13 )
+plot.mcmc.func(df=ym.con.df,'ym','Control','Ambient',subplot = NULL,nm.note = 'v13',use.smooth = TRUE,my.fun =phenoGrass.func.v13 )
 plot.title.func('YM')
 
 dev.off()
+
 
 pdf('figures/plot.diag.v13.pdf',width = 6,height = 9*0.618)
 

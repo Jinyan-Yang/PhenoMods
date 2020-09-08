@@ -1,4 +1,6 @@
 gcc.met.pace.df <- readRDS('cache/gcc.met.pace.df.rds')
+gcc.met.pace.df = gcc.met.pace.df[gcc.met.pace.df$Date >= as.Date('2018-10-1')&
+                                    gcc.met.pace.df$Date <= as.Date('2019-12-1'), ]
 # with(gcc.met.pace.df[gcc.met.pace.df$SubplotID == 'S1P1A',],plot(GCC~Date))
 
 # function to process GCC and met data
@@ -122,13 +124,13 @@ get.pace.func <- function(gcc.met.pace.df,
   # tmp.df = get.smooth.gcc.func(y, gcc.met.pace.df.16$GCC)
   # 
   # out.df = merge(gcc.met.pace.df.16,tmp.df,by='y',all.x=T)
-  gcc.met.pace.df.16 = gcc.met.pace.df.16[gcc.met.pace.df.16$Date >= as.Date('2018-10-1')&
-                                            gcc.met.pace.df.16$Date <= as.Date('2019-12-1'), ]
+
   # gcc.met.pace.df.16$GCC[1:day.lag] <- 
   #   gcc.met.pace.df.16$GCC.smooth[1:day.lag]<-
   #   gcc.met.pace.df.16$GCC.norm.smooth[1:day.lag] <- 
   #   NA
   gcc.met.pace.df.16$harvest = 0
+  print('data processed')
   return(gcc.met.pace.df.16)
 }
 
