@@ -1,0 +1,53 @@
+# process ym data
+source('r/pace_data_process.R')
+
+get.ym.func <- function(treat){
+ # get gcc for specific treat
+  if(treat == 'Control'){
+    df.45 <- readRDS('cache/ym/gcc_45.rds')
+    df.45$SubplotID <- 45
+    df.18 <- readRDS('cache/ym/gcc_18.rds')
+    df.18$SubplotID <- 18
+    
+    tmp.gcc.df <- rbind(df.18,df.45)
+    tmp.gcc.df$Precipitation <- 'Control'
+  }
+  if(treat == 'Drought'){
+    df.14 <- readRDS('cache/ym/gcc_14.rds')
+    df.14$SubplotID <- 14
+    df.27 <- readRDS('cache/ym/gcc_27.rds')
+    df.27$SubplotID <- 27
+    df.38 <- readRDS('cache/ym/gcc_38.rds')
+    df.38$SubplotID <- 38
+    
+    tmp.gcc.df <-do.call(rbind,list(df.14,df.27,df.38))
+    tmp.gcc.df$Precipitation <- 'Drought'
+  }
+  if(treat == 'up'){
+    tmp.gcc.df <- readRDS('cache/ym/gcc_up.rds')
+    tmp.gcc.df$Precipitation <- 'up'
+    tmp.gcc.df$SubplotID <- 'up'
+  }
+  tmp.gcc.df$Temperature <- 'Ambient'
+  tmp.gcc.df$Species <- 'ym'
+  
+  # get met
+  ym.met.df <- readRDS('cache/ym/ym.met.rds')
+  ym.met.df$SubplotID <- ym.met.df$plot.no
+  gcc.met.ym.df <- merge(tmp.gcc.df,ym.met.df,by=c('Date','SubplotID'))
+  
+  # get names to  be the same
+  gcc.met.ym.df$vwc <- gcc.met.ym.df$swc
+  gcc.met.ym.df$PAR.ros <- gcc.met.ym.df$PAR
+  gcc.met.ym.df$rh <- gcc.met.ym.df$RH
+  gcc.met.ym.df$irrig.tot <- gcc.met.ym.df$Rain
+  gcc.met.ym.df$WS_ms_Avg <- gcc.met.ym.df$u2
+  # # use the pace function to get standard gcc and met
+  # gcc.met.ym.processed.df <- get.pace.func(gcc.met.ym.df,
+  #                                  species.in = 'ym',
+  #                                  prep.in = treat,
+  #                                  temp.in = 'Ambient',
+  #                                  subplot = NA)
+  
+  return(gcc.met.ym.df)
+}
