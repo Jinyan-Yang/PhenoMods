@@ -128,36 +128,50 @@ Units of parameters can differ by model.
 
 get.chain.table.func <- function(spceis.in){
   fn <- sprintf('cache/smv13chain.%s.Control.Ambient.rds',spceis.in)
-  v10.chain <- get.fit.value.func(fn)
   
-  tmp.df <- data.frame(model='v10',
+  if(file.exists(fn)){
+      v10.chain <- get.fit.value.func(fn)
+  
+  tmp.df <- data.frame(#model='v10',
                           spceies = spceis.in,
-                          f.h = 222,
+                          # f.h = 222,
                           f.t.opt = v10.chain[1],
-                          t.max = 45,
+                          # t.max = 45,
                           
                           f.extract = v10.chain[2] ,
                           f.sec = v10.chain[3] ,
                           f.growth= v10.chain[4],
                           
                           
-                          swc.wilt = .05,
-                          swc.capacity = .13,
-                          bucket.size = 300,
-                          day.lay = 3,
+                          # swc.wilt = .05,
+                          # swc.capacity = .13,
+                          # bucket.size = 300,
+                          # day.lay = 3,
                           q = v10.chain[5])
+  }else{
+    tmp.df <- NA
+  }
+
   
   return(tmp.df)
 }
+# 
+gcc.met.cw.df <- readRDS('cache/gcc.met.cw.df.rds')
+
+site.vec <- unique(gcc.met.cw.df$Code)
+site.vec <- as.character(site.vec)
+
 tmp.ls <- list()
-tmp.ls <- lapply(c('Luc','Fes','Rye'),get.chain.table.func)
+tmp.ls <- lapply(c('Luc','Fes','Rye','Bis','Dig','DigBis',
+                   'Pha','PhaSub','Kan','KanWal','Rho','Wal',
+                   'ym',site.vec),get.chain.table.func)
 
 
 out.df.2 = do.call(rbind,tmp.ls)
 ```
 
 ```{r,warning=FALSE,echo=F,message=F}
-kable(t(out.df.2),format = 'html',digits = 4,caption = 'Table 2. Fitted v13 parameter values for Luc, Fes, and Rye. ')
+kable((out.df.2),format = 'html',digits = 4,caption = 'Table 2. Fitted v13 parameter values for Luc, Fes, and Rye. ')
 
 
 beta.func <- function(x,a=0.05,b=0.13,q=5){
@@ -169,6 +183,7 @@ swc.vec <- seq(0.05,0.13,by=0.001)
 beta.luc = beta.func(x=swc.vec,q=6.1)
 beta.fes = beta.func(swc.vec,q=1.1)
 beta.rye = beta.func(swc.vec,q=1.6)
+beta.SCOT = beta.func(swc.vec,q=0.67)
 
 plot(beta.luc~swc.vec,type='l',col='navy',
      xlab='VWC',ylab=expression(beta))
@@ -177,9 +192,10 @@ abline(a = -5/8,b=1/0.08,col='grey20')
 
 points(beta.fes~swc.vec,type='l',col='coral')
 points(beta.rye~swc.vec,type='l',col='darkseagreen')
+points(beta.SCOT~swc.vec,type='l',col='lightskyblue')
 
-legend('topleft',legend = c("Luc","Fes","Rye","Linear"),
-       lty=1,col=c("navy","coral","darkseagreen","grey20"),
+legend('topleft',legend = c("Luc","Fes","Rye","SCOT","Linear"),
+       lty=1,col=c("navy","coral","darkseagreen","lightskyblue","grey20"),
        bty='n')
 
 ```

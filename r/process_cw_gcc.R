@@ -49,6 +49,6 @@ gcc.met.cw.df$PAR.ros <- gcc.met.cw.df$PPFD
 gcc.met.cw.df$WS_ms_Avg <- gcc.met.cw.df$u2
 gcc.met.cw.df$irrig.tot <- gcc.met.cw.df$Rain
 gcc.met.cw.df$rh <- gcc.met.cw.df$RH
-# gcc.met.cw.df$harvest <- 0
+gcc.met.cw.df$harvest <- 0
 
 saveRDS(gcc.met.cw.df,'cache/gcc.met.cw.df.rds')

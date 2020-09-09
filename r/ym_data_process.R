@@ -42,6 +42,8 @@ get.ym.func <- function(treat){
   gcc.met.ym.df$rh <- gcc.met.ym.df$RH
   gcc.met.ym.df$irrig.tot <- gcc.met.ym.df$Rain
   gcc.met.ym.df$WS_ms_Avg <- gcc.met.ym.df$u2
+  
+  gcc.met.ym.df$harvest = 0
   # # use the pace function to get standard gcc and met
   # gcc.met.ym.processed.df <- get.pace.func(gcc.met.ym.df,
   #                                  species.in = 'ym',

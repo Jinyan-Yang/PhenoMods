@@ -51,7 +51,7 @@ fit.mcmc.pace.func(df=ym.con.df,
                    my.fun = phenoGrass.func.v13,out.nm.note='v13',use.smooth = TRUE)
 
 
-# plot v13
+# plot v13####
 plot.mcmc.func = function(df = gcc.met.pace.df,
                           species.in,prep.in,temp.in,subplot=NULL,nm.note='',use.smooth=FALSE,my.fun = phenoGrass.func.v11){
   
@@ -259,9 +259,21 @@ ym.pred.df <- readRDS('tmp/pred.smv13chain.ym.Control.Ambient.rds')
 plot.mcmc.func(df=ym.con.df,'ym','Control','Ambient',subplot = NULL,nm.note = 'v13',use.smooth = TRUE,my.fun =phenoGrass.func.v13 )
 plot.title.func('YM')
 
+# CW
+for(i in seq_along(site.vec)){
+  fn <- sprintf('cache/smv13chain.%s.Control.Ambient.rds',site.vec[i])
+  if(file.exists(fn)){
+      
+  plot.mcmc.func(gcc.met.cw.df,site.vec[i],'Control','Ambient',subplot = NULL,nm.note = 'v13',use.smooth = TRUE,my.fun =phenoGrass.func.v13 )
+  plot.title.func(site.vec[i]) 
+  }
+
+}
+
+
 dev.off()
 
-
+# plot diag####
 pdf('figures/plot.diag.v13.pdf',width = 6,height = 9*0.618)
 
 plot.check.mcmc.func=function(chain.in,burnIn =3000,species.in=''){
@@ -284,11 +296,25 @@ lapply(chain.3.ls, plot.check.mcmc.func,species.in='Rye')
 # 
 species.vec <- c('Bis', 'Dig', 'DigBis', 'Kan', 'KanWal', 
                  'Pha', 'PhaSub', 'Rho',  'Wal','ym')
-
 for(i in seq_along(species.vec)){
   fn <- sprintf('cache/smv13chain.%s.Control.Ambient.rds',species.vec[i])
   chain.3.ls = readRDS(fn)
   lapply(chain.3.ls, plot.check.mcmc.func,species.in=species.vec[i])
+}
+
+# ym
+chain.3.ls <- readRDS('tmp/pred.smv13chain.ym.Control.Ambient.rds')
+lapply(chain.3.ls, plot.check.mcmc.func,species.in='ym')
+
+# cw
+
+for(i in seq_along(site.vec)){
+  fn <- sprintf('cache/smv13chain.%s.Control.Ambient.rds',site.vec[i])
+  if(file.exists(fn)){
+    chain.3.ls = readRDS(fn)
+    lapply(chain.3.ls, plot.check.mcmc.func,species.in=site.vec[i])
+  }
+
 }
 
 dev.off()

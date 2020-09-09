@@ -131,7 +131,9 @@ get.pace.func <- function(gcc.met.pace.df,
   #   gcc.met.pace.df.16$GCC.smooth[1:day.lag]<-
   #   gcc.met.pace.df.16$GCC.norm.smooth[1:day.lag] <- 
   #   NA
-  gcc.met.pace.df.16$harvest = 0
+    
+  # gcc.met.pace.df.16$harvest = 0
+  
   print('data processed')
   return(gcc.met.pace.df.16)
 }
