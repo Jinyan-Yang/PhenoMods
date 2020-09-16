@@ -4,21 +4,19 @@ source('r/ym_data_process.R')
 source('r/process_cw_gcc.R')
 source('r/v13_common_fun.R')
 
-gcc.met.cw.df <- readRDS('cache/gcc.met.cw.df.rds')
 # fit v13
-fit.mcmc.pace.func(species.in='Luc',prep.in = 'Control', temp.in ='Ambient',
-                   my.fun = phenoGrass.func.v13,out.nm.note='v13',use.smooth = TRUE)
-
-fit.mcmc.pace.func(species.in='Fes',prep.in = 'Control', temp.in ='Ambient',
-                   my.fun = phenoGrass.func.v13,out.nm.note='v13',use.smooth = TRUE)
-
-fit.mcmc.pace.func(species.in='Rye',prep.in = 'Control', temp.in ='Ambient',
-                   my.fun = phenoGrass.func.v13,out.nm.note='v13',use.smooth = TRUE)
-
+# fit.mcmc.pace.func(species.in='Luc',prep.in = 'Control', temp.in ='Ambient',
+#                    my.fun = phenoGrass.func.v13,out.nm.note='v13',use.smooth = TRUE)
+# 
+# fit.mcmc.pace.func(species.in='Fes',prep.in = 'Control', temp.in ='Ambient',
+#                    my.fun = phenoGrass.func.v13,out.nm.note='v13',use.smooth = TRUE)
+# 
 # fit.mcmc.pace.func(species.in='Rye',prep.in = 'Control', temp.in ='Ambient',
 #                    my.fun = phenoGrass.func.v13,out.nm.note='v13',use.smooth = TRUE)
 
-species.vec <- c('Dig', 'DigBis', 'Kan', 'KanWal', 
+# fit pace ####
+species.vec <- c('Luc','Fes','Rye',
+                 'Dig', 'DigBis', 'Kan', 'KanWal', 
                  'Pha', 'PhaSub', 'Rho',  'Wal')
 
 for(i in seq_along(species.vec)){
@@ -27,29 +25,28 @@ for(i in seq_along(species.vec)){
 
 }
 
-# fit to cw sites
+# fit to cw sites####
+gcc.met.cw.df <- readRDS('cache/gcc.met.cw.df.rds')
 for (i in seq_along(site.vec)) {
   fit.mcmc.pace.func(df=gcc.met.cw.df,
                      species.in=site.vec[i],prep.in = 'Control', temp.in ='Ambient',
-                     my.fun = phenoGrass.func.v13,out.nm.note='v13',use.smooth = TRUE)
+                     my.fun = phenoGrass.func.v13,out.nm.note='v13',use.smooth = TRUE,
+                     swc.capacity = 0.3,swc.wilt = 0.03)
 }
 
-# # 
-# species.vec <- c('Kan', 'KanWal', 'Rho',  'Wal')
-# 
-# for(i in seq_along(species.vec)){
-#   fit.mcmc.pace.func(species.in=species.vec[i],prep.in = 'Control', temp.in ='Ambient',
-#                      my.fun = phenoGrass.func.v13,out.nm.note='v13',use.smooth = TRUE)
-#   
-# }
-
-# fit ym data
+# fit ym data####
 ym.con.df <- get.ym.func('Control')
 
 fit.mcmc.pace.func(df=ym.con.df,
                    species.in='ym',prep.in = 'Control', temp.in ='Ambient',
-                   my.fun = phenoGrass.func.v13,out.nm.note='v13',use.smooth = TRUE)
+                   my.fun = phenoGrass.func.v13,out.nm.note='v13',use.smooth = TRUE,
+                   swc.capacity = 0.3,swc.wilt = 0.03)
 
+ym.18.df <- get.ym.func(18)
+fit.mcmc.pace.func(df=ym.18.df,
+                   species.in='ym',prep.in = 'Control', temp.in ='Ambient',
+                   my.fun = phenoGrass.func.v13,out.nm.note='v13',use.smooth = TRUE,
+                   swc.capacity = 0.3,swc.wilt = 0.03)
 
 # plot v13####
 plot.mcmc.func = function(df = gcc.met.pace.df,
@@ -89,7 +86,7 @@ plot.mcmc.func = function(df = gcc.met.pace.df,
   }
   
   # fn='cache/smv10.testchain.Fes.Control.Ambient.rds'
-  gcc.met.pace.df.16 <- gcc.met.pace.df.16[(gcc.met.pace.df.16$Date) < as.Date('2019-11-26'),]
+  # gcc.met.pace.df.16 <- gcc.met.pace.df.16[(gcc.met.pace.df.16$Date) < as.Date('2019-11-26'),]
   gcc.met.pace.df.16$map <- 760
   
   # chain.fes <- readRDS('cache/chain.Rye.Control.Ambient.rds')
@@ -175,9 +172,14 @@ plot.mcmc.func = function(df = gcc.met.pace.df,
   date.range = range(hufken.pace.pred$Date,na.rm=T)
   mons.vec =  seq(date.range[1],date.range[2],by='mon')
   
-  axis(1,at = mons.vec,labels = format(mons.vec,'%m'))
-  mtext('2018',side = 1,adj=0,line = 3)
-  mtext('2019',side = 1,adj=0.5,line = 3)
+  mon.c <- format(mons.vec,'%m')
+  axis(1,at = mons.vec,labels = mon.c)
+  # mtext('2018',side = 1,adj=0,line = 3)
+  # mtext('2019',side = 1,adj=0.5,line = 3)
+  yr.vec <- unique(year(hufken.pace.pred$Date))
+  where.c <-which(mon.c =='01') / length(mon.c)
+  num.yr <- length(where.c)
+  mtext(yr.vec[(length(yr.vec) - num.yr + 1):length(yr.vec)],side = 1,adj = where.c,line = 3)
   # plot irrig
   par(new=TRUE)
   plot(irrig.tot~Date,data = hufken.pace.pred,type='s',
@@ -186,6 +188,9 @@ plot.mcmc.func = function(df = gcc.met.pace.df,
   axis(4,at = seq(0,max.irrig,by=10),labels = seq(0,max.irrig,by=10))
   mtext('irrigation (mm)',side = 4,line = 3)
   
+  # hufken.pace.pred <- readRDS('tmp/pred.smv13chain.ym.Control.Ambient.rds')
+  # min(hufken.pace.pred$swc)
+  # max(hufken.pace.pred$swc)
   
   # plot obs cover
   par(mar=c(5,5,1,5))
@@ -196,9 +201,15 @@ plot.mcmc.func = function(df = gcc.met.pace.df,
   date.range = range(hufken.pace.pred$Date,na.rm=T)
   mons.vec =  seq(date.range[1],date.range[2],by='mon')
   
-  axis(1,at = mons.vec,labels = format(mons.vec,'%m'))
-  mtext('2018',side = 1,adj=0,line = 3)
-  mtext('2019',side = 1,adj=0.5,line = 3)
+  mon.c <- format(mons.vec,'%m')
+  axis(1,at = mons.vec,labels = mon.c)
+  # mtext('2018',side = 1,adj=0,line = 3)
+  # mtext('2019',side = 1,adj=0.5,line = 3)
+  yr.vec <- unique(year(hufken.pace.pred$Date))
+  where.c <-which(mon.c =='01') / length(mon.c)
+  num.yr <- length(where.c)
+  mtext(yr.vec[(length(yr.vec) - num.yr + 1):length(yr.vec)],side = 1,adj = where.c,line = 3)
+  
   # plot model pred
   points(cover.hufken~Date,data = hufken.pace.pred,type='l',col=palette()[8])
   
@@ -255,7 +266,6 @@ for(i in seq_along(species.vec)){
 
 # plot ym
 ym.con.df <- get.ym.func('Control')
-ym.pred.df <- readRDS('tmp/pred.smv13chain.ym.Control.Ambient.rds')
 plot.mcmc.func(df=ym.con.df,'ym','Control','Ambient',subplot = NULL,nm.note = 'v13',use.smooth = TRUE,my.fun =phenoGrass.func.v13 )
 plot.title.func('YM')
 
@@ -269,7 +279,6 @@ for(i in seq_along(site.vec)){
   }
 
 }
-
 
 dev.off()
 
@@ -303,11 +312,10 @@ for(i in seq_along(species.vec)){
 }
 
 # ym
-chain.3.ls <- readRDS('tmp/pred.smv13chain.ym.Control.Ambient.rds')
+chain.3.ls <- readRDS('cache/smv13chain.ym.Control.Ambient.rds')
 lapply(chain.3.ls, plot.check.mcmc.func,species.in='ym')
 
 # cw
-
 for(i in seq_along(site.vec)){
   fn <- sprintf('cache/smv13chain.%s.Control.Ambient.rds',site.vec[i])
   if(file.exists(fn)){

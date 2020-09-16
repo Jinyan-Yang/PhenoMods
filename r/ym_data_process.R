@@ -28,6 +28,18 @@ get.ym.func <- function(treat){
     tmp.gcc.df$Precipitation <- 'up'
     tmp.gcc.df$SubplotID <- 'up'
   }
+  if(is.numeric(treat)){
+    fn <- sprintf('cache/ym/gcc_%s.rds',treat)
+    tmp.gcc.df <- readRDS(fn)
+    if(treat %in% c(14,27,38)){
+      prep <- 'Drought'
+    }else{
+      prep <- 'Control'
+    }
+    tmp.gcc.df$Precipitation <- prep
+    
+    tmp.gcc.df$SubplotID <- treat
+  }
   tmp.gcc.df$Temperature <- 'Ambient'
   tmp.gcc.df$Species <- 'ym'
   

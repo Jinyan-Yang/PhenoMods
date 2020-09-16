@@ -67,7 +67,10 @@ fit.mcmc.pace.func <- function(df = gcc.met.pace.df,
                                temp.in ='Ambient',subplot =NA,
                                my.fun = phenoGrass.func.v11,
                                out.nm.note = '',use.smooth = FALSE,
-                               day.lag = 3){
+                               day.lag = 3,
+                               bucket.size = 300,
+                               swc.capacity = 0.13,
+                               swc.wilt = 0.05){
   s.time <- Sys.time()
   gcc.met.pace.df.16 <- get.pace.func(df,
                                       species.in =species.in,
@@ -90,7 +93,7 @@ fit.mcmc.pace.func <- function(df = gcc.met.pace.df,
   par.df['stdv',] <- ((par.df['max',] - par.df['min',])/10)
 
   # start mcmc fiting######
-  bucket.size <- 300
+
   # soil.water.var <- quantile(gcc.met.pace.df.16$vwc,c(.1,.99))
   chain.fes=list()
   for(n.chain in 1:3){
@@ -99,8 +102,8 @@ fit.mcmc.pace.func <- function(df = gcc.met.pace.df,
                                         gcc.met.pace.df.16,
                                         bucket.size = bucket.size,
                                         day.lay = day.lag,
-                                        swc.capacity = 0.13,
-                                        swc.wilt = 0.05,
+                                        swc.capacity = swc.capacity,
+                                        swc.wilt = swc.wilt,
                                         my.fun = my.fun,
                                         use.smooth = use.smooth)
   }
