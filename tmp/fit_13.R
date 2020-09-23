@@ -43,14 +43,17 @@ fit.mcmc.pace.func(df=ym.con.df,
                    swc.capacity = 0.3,swc.wilt = 0.03)
 
 ym.18.df <- get.ym.func(18)
-fit.mcmc.pace.func(df=ym.18.df,
+fit.mcmc.pace.func(df=ym.18.df,n.iter = 20000,
                    species.in='ym',prep.in = 'Control', temp.in ='Ambient',
                    my.fun = phenoGrass.func.v13,out.nm.note='v13',use.smooth = TRUE,
-                   swc.capacity = 0.3,swc.wilt = 0.03)
+                   swc.capacity = 0.3,swc.wilt = 0.05)
 
 # plot v13####
 plot.mcmc.func = function(df = gcc.met.pace.df,
-                          species.in,prep.in,temp.in,subplot=NULL,nm.note='',use.smooth=FALSE,my.fun = phenoGrass.func.v11){
+                          species.in,prep.in,temp.in,subplot=NULL,
+                          nm.note='',use.smooth=FALSE,
+                          my.fun = phenoGrass.func.v11,
+                          swc.in.cap = 0.13,swc.in.wilt = 0.05){
   
   if(is.null(subplot)){
     gcc.met.pace.df.16 <- get.pace.func(df,
@@ -64,7 +67,8 @@ plot.mcmc.func = function(df = gcc.met.pace.df,
       sm.nm=''
     }
     
-    fn=paste0('cache/',sm.nm,nm.note,'chain.',species.in,'.',prep.in,'.',temp.in,'.rds')
+    fn=paste0('cache/',sm.nm,nm.note,'chain.',
+              species.in,'.',prep.in,'.',temp.in,'.rds')
     rds.nm = paste0('tmp/pred.',sm.nm,nm.note,'chain.',species.in,'.',prep.in,'.',temp.in,'.rds')
     # fn=paste0('cache/chain.',species.in,'.',prep.in,'.',temp.in,'.rds')
     
@@ -137,14 +141,15 @@ plot.mcmc.func = function(df = gcc.met.pace.df,
                              f.growth = par.df["fit",4],
                              q =  par.df["fit",5],
                              bucket.size = bucket.size,
-                             swc.wilt = 0.05 ,
-                             swc.capacity = 0.13 ,
+                             swc.wilt = swc.in.wilt ,
+                             swc.capacity = swc.in.cap ,
                              t.max = 45,
                              day.lay = day.lag)
   
   # save prediction for future use
   
   saveRDS(hufken.pace.pred,rds.nm)
+  # hufken.pace.pred <- readRDS('tmp/pred.smv13chain.ym.Control.Ambient.rds')
   # hufken.pace.pred$water.norm <- hufken.pace.pred$water.avi / (0.13-0.05)/300
   library(viridisLite)
   palette(viridis(8))
@@ -162,11 +167,12 @@ plot.mcmc.func = function(df = gcc.met.pace.df,
   # plot swc
   par(mar=c(5,5,1,5))
   plot(vwc.hufken~Date,data = hufken.pace.pred,type='s',
-       ann=F,axes=F,col = palette()[8],ylim=c(0,.15))
+       ann=F,axes=F,col = palette()[8],ylim=c(0,swc.in.cap))
   points(vwc~Date,data = hufken.pace.pred,type='s',
          col = palette()[6])
   max.irrig = round(max(hufken.pace.pred$irrig.tot,na.rm=T))
-  axis(2,at = seq(0,.15,by=0.03),labels = seq(0,.15,by=.03))
+  step.tmp <- floor((swc.in.cap /5)*100)/100
+  axis(2,at = seq(0,swc.in.cap,by=step.tmp),labels = seq(0,swc.in.cap,by=step.tmp))
   mtext('VWC',side = 2,line = 3)
   
   date.range = range(hufken.pace.pred$Date,na.rm=T)
@@ -184,13 +190,16 @@ plot.mcmc.func = function(df = gcc.met.pace.df,
   par(new=TRUE)
   plot(irrig.tot~Date,data = hufken.pace.pred,type='s',
        ann=F,axes=F,col = 'lightskyblue')
-  max.irrig = round(max(hufken.pace.pred$irrig.tot,na.rm=T))
+  max.irrig = ceiling(max(hufken.pace.pred$irrig.tot,na.rm=T))
   axis(4,at = seq(0,max.irrig,by=10),labels = seq(0,max.irrig,by=10))
   mtext('irrigation (mm)',side = 4,line = 3)
   
   # hufken.pace.pred <- readRDS('tmp/pred.smv13chain.ym.Control.Ambient.rds')
   # min(hufken.pace.pred$swc)
   # max(hufken.pace.pred$swc)
+  
+  # plot(irrig.tot~Date,data = hufken.pace.pred,type='s',
+  #      col = 'lightskyblue')
   
   # plot obs cover
   par(mar=c(5,5,1,5))
@@ -265,8 +274,10 @@ for(i in seq_along(species.vec)){
 }
 
 # plot ym
-ym.con.df <- get.ym.func('Control')
-plot.mcmc.func(df=ym.con.df,'ym','Control','Ambient',subplot = NULL,nm.note = 'v13',use.smooth = TRUE,my.fun =phenoGrass.func.v13 )
+ym.con.df <- get.ym.func(18)
+plot.mcmc.func(df=ym.con.df,'ym','Control','Ambient',
+               subplot = NULL,nm.note = 'v13',use.smooth = TRUE,
+               my.fun =phenoGrass.func.v13 ,swc.in.wilt = 0.05,swc.in.cap = 0.3)
 plot.title.func('YM')
 
 # CW
@@ -313,6 +324,7 @@ for(i in seq_along(species.vec)){
 
 # ym
 chain.3.ls <- readRDS('cache/smv13chain.ym.Control.Ambient.rds')
+# plot(chain.3.ls[[2]][,4])
 lapply(chain.3.ls, plot.check.mcmc.func,species.in='ym')
 
 # cw

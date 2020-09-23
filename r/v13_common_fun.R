@@ -52,6 +52,7 @@ mh.MCMC.func <- function(iterations,par.df,
     }else{
       chain[i+1,] = chain[i,]
     }
+    print(paste0(i,' / ',iterations))
   }
   return(chain)
 }
@@ -70,7 +71,8 @@ fit.mcmc.pace.func <- function(df = gcc.met.pace.df,
                                day.lag = 3,
                                bucket.size = 300,
                                swc.capacity = 0.13,
-                               swc.wilt = 0.05){
+                               swc.wilt = 0.05,
+                               n.iter = 10000){
   s.time <- Sys.time()
   gcc.met.pace.df.16 <- get.pace.func(df,
                                       species.in =species.in,
@@ -97,7 +99,7 @@ fit.mcmc.pace.func <- function(df = gcc.met.pace.df,
   # soil.water.var <- quantile(gcc.met.pace.df.16$vwc,c(.1,.99))
   chain.fes=list()
   for(n.chain in 1:3){
-    chain.fes[[n.chain]] = mh.MCMC.func(10000,
+    chain.fes[[n.chain]] = mh.MCMC.func(n.iter,
                                         par.df,
                                         gcc.met.pace.df.16,
                                         bucket.size = bucket.size,

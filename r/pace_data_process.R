@@ -6,7 +6,7 @@ gcc.met.pace.df = gcc.met.pace.df[gcc.met.pace.df$Date >= as.Date('2018-10-1')&
 # function to process GCC and met data
 get.norm.gcc.func <- function(df){
   quantiles.5.95 <- quantile(df$GCC[!is.na(df$GCC)],
-                             c(.05,.95),an.rm=T)
+                             c(.01,.99),na.rm=T)
   # quantiles.5.95[1] = 0.3197
   df$GCC.norm <- (df$GCC - quantiles.5.95[1]) /
     (quantiles.5.95[2] - quantiles.5.95[1])
@@ -113,6 +113,11 @@ get.pace.func <- function(gcc.met.pace.df,
   if((sum(gcc.met.pace.df.16$vwc,na.rm=T))==0){
     gcc.met.pace.df.16$vwc = 0.08
   }
+  
+  
+  if(sum(gcc.met.pace.df.16$GCC.norm.sd,na.rm=T) == 0){
+    gcc.met.pace.df.16$GCC.norm.sd = abs( gcc.met.pace.df.16$GCC.norm * 0.1)
+  }
 
   # 
   gcc.met.pace.df.16$GCC.smooth = get.smooth.gcc.func(gcc.met.pace.df.16$Date, 
@@ -120,8 +125,7 @@ get.pace.func <- function(gcc.met.pace.df,
   
   gcc.met.pace.df.16$GCC.norm.smooth = get.smooth.gcc.func(gcc.met.pace.df.16$Date, 
                                                       gcc.met.pace.df.16$GCC.norm)
-  
-  if(sum(gcc.met.pace.df.16$na.))
+ 
     
   # tmp.df = get.smooth.gcc.func(y, gcc.met.pace.df.16$GCC)
   # 

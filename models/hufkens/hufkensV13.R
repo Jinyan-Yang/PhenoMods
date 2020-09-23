@@ -143,6 +143,6 @@ phenoGrass.func.v13 <- function(gcc.df,
   gcc.df$tran <- transp.vec
   # out.df <- data.frame(gcc.df)
   # out.df <- out.df[!is.na(out.df$cover),]
-  print('model worked')
+  # print('model worked')
   return(gcc.df)
 }

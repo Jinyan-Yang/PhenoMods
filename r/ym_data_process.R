@@ -43,10 +43,18 @@ get.ym.func <- function(treat){
   tmp.gcc.df$Temperature <- 'Ambient'
   tmp.gcc.df$Species <- 'ym'
   
+  library(doBy)
+  tmp.gcc.df.daily <- summaryBy(.~Date +SubplotID +Temperature +
+                            Precipitation+ Species,data = tmp.gcc.df,
+                            FUN=mean,na.rm=T,keep.names = T)
+  
   # get met
   ym.met.df <- readRDS('cache/ym/ym.met.rds')
+  ym.met.df <- subset(ym.met.df,select = -c(sensor.no,position))
+  ym.met.df <- ym.met.df[!duplicated(ym.met.df),]
+  
   ym.met.df$SubplotID <- ym.met.df$plot.no
-  gcc.met.ym.df <- merge(tmp.gcc.df,ym.met.df,by=c('Date','SubplotID'))
+  gcc.met.ym.df <- merge(tmp.gcc.df.daily,ym.met.df,by=c('Date','SubplotID'))
   
   # get names to  be the same
   gcc.met.ym.df$vwc <- gcc.met.ym.df$swc
