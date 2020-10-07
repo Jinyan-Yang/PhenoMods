@@ -93,7 +93,7 @@ phenoGrass.func.v13 <- function(gcc.df,
     
     # growth if soil is really wet
     if(!is.na(loss.f)){
-      if(loss.f > 0.8){
+      if(loss.f > 0.7){
         g = 1
         d = 0
       }

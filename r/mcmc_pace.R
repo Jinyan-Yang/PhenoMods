@@ -1,7 +1,7 @@
 source('r/functions_mcmc_v12.r')
 source('models/hufkens/pG_v10.R')
 source('r/plot.mcmc.r')
-day.lag <- 3
+day.lag <- 1
 source('r/pace_data_process.R')
 # packages
 library(doBy)

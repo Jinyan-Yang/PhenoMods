@@ -31,16 +31,16 @@ for (i in seq_along(site.vec)) {
   fit.mcmc.pace.func(df=gcc.met.cw.df,
                      species.in=site.vec[i],prep.in = 'Control', temp.in ='Ambient',
                      my.fun = phenoGrass.func.v13,out.nm.note='v13',use.smooth = TRUE,
-                     swc.capacity = 0.3,swc.wilt = 0.03)
+                     swc.capacity = 0.3,swc.wilt = 0.05,n.iter = 20000)
 }
 
 # fit ym data####
-ym.con.df <- get.ym.func('Control')
-
-fit.mcmc.pace.func(df=ym.con.df,
-                   species.in='ym',prep.in = 'Control', temp.in ='Ambient',
-                   my.fun = phenoGrass.func.v13,out.nm.note='v13',use.smooth = TRUE,
-                   swc.capacity = 0.3,swc.wilt = 0.03)
+# ym.con.df <- get.ym.func('Control')
+# 
+# fit.mcmc.pace.func(df=ym.con.df,
+#                    species.in='ym',prep.in = 'Control', temp.in ='Ambient',
+#                    my.fun = phenoGrass.func.v13,out.nm.note='v13',use.smooth = TRUE,
+#                    swc.capacity = 0.3,swc.wilt = 0.03)
 
 ym.18.df <- get.ym.func(18)
 fit.mcmc.pace.func(df=ym.18.df,n.iter = 20000,
@@ -290,6 +290,16 @@ for(i in seq_along(site.vec)){
   }
 
 }
+
+dev.off()
+
+pdf('figures/plot.v13.ym.0.7.pdf',width = 8,height = 8*0.618)
+# plot ym
+ym.con.df <- get.ym.func(18)
+plot.mcmc.func(df=ym.con.df,'ym','Control','Ambient',
+               subplot = NULL,nm.note = 'v13',use.smooth = TRUE,
+               my.fun =phenoGrass.func.v13 ,swc.in.wilt = 0.05,swc.in.cap = 0.3)
+plot.title.func('YM0.7')
 
 dev.off()
 
