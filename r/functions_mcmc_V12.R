@@ -54,9 +54,12 @@ proposal.func <- function(param,par.df){
   prop.vec <- c()
   
   for(i in 1:ncol(par.df)){
-    prop.vec[i] <- rnorm(1,mean = as.numeric(param[i]), sd = par.df['stdv',i])
+    # prop.vec[i] <- rnorm(1,mean = as.numeric(param[i]), sd = par.df['stdv',i])
+    
+    prop.vec[i] <- rgamma(1,shape = as.numeric(param[i]))+0.001
   }
-  return(abs(prop.vec))
+  # return(abs(prop.vec))
+  return((prop.vec))
 }
 
 # prior.prob,data,data.sd,model.form,pars.ls

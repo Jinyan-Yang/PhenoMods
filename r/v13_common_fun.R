@@ -87,12 +87,12 @@ fit.mcmc.pace.func <- function(df = gcc.met.pace.df,
     f.extract = c(0.05,0.075,0.1,NA,NA,NA),
     f.sec = c(0.05,0.1,0.15,NA,NA,NA),
     f.growth = c(0.1,0.2,0.3,NA,NA,NA),
-    q = c(0.001,1,2,NA,NA,NA))
+    q = c(0.5,1,2,NA,NA,NA))
   row.names(par.df) <- c('min','initial','max','fit','stdv','prop')
 
   # this assume 100% of the data falls into the max min range
   # in a normal distribution for proposal.func
-  par.df['stdv',] <- ((par.df['max',] - par.df['min',])/10)
+  par.df['stdv',] <- ((par.df['max',] - par.df['min',])/50)
 
   # start mcmc fiting######
 

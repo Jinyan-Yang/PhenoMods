@@ -112,10 +112,10 @@ for (i in seq_along(site.vec)) {
                      swc.capacity = 0.3,swc.wilt = 0.05,n.iter = 20000)
 }
 
-# ####plot outcome#####
+# plot outcome#####
 pdf('figures/plot.v10.pdf',width = 8,height = 8*0.618)
-species.vec <- c('Luc','Fes','Rye',
-                 'Bis', 'Dig', 'DigBis', 'Kan', 'KanWal', 
+species.vec <- c('Luc','Fes','Rye','Bis',
+                 'Dig', 'DigBis', 'Kan', 'KanWal', 
                  'Pha', 'PhaSub', 'Rho',  'Wal')
 
 for(i in seq_along(species.vec)){

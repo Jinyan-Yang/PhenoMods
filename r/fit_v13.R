@@ -1,4 +1,4 @@
-day.lag <- 3
+day.lag <- 1
 source('r/pace_data_process.R')
 source('r/ym_data_process.R')
 source('r/process_cw_gcc.R')
@@ -46,7 +46,7 @@ ym.18.df <- get.ym.func(18)
 fit.mcmc.pace.func(df=ym.18.df,n.iter = 20000,
                    species.in='ym',prep.in = 'Control', temp.in ='Ambient',
                    my.fun = phenoGrass.func.v13,out.nm.note='v13',use.smooth = TRUE,
-                   swc.capacity = 0.3,swc.wilt = 0.05)
+                   swc.capacity = 0.3,swc.wilt = 0.05,day.lag=5)
 
 # plot v13####
 plot.mcmc.func = function(df = gcc.met.pace.df,
@@ -255,7 +255,7 @@ plot.title.func=function(species.in){
 }
 
 pdf('figures/plot.v13.pdf',width = 8,height = 8*0.618)
-plot.mcmc.func(gcc.met.pace.df,'Luc','Control','Ambient',subplot = NULL,nm.note = 'v13',use.smooth = TRUE,my.fun =phenoGrass.func.v13 )
+plot.mcmc.func(gcc.met.pace.df,'Luc','Control','Ambient',subplot = NULL,nm.note = 'v13',use.smooth = TRUE,my.fun =phenoGrass.func.v13)
 plot.title.func('Luc')
 
 
@@ -334,7 +334,9 @@ for(i in seq_along(species.vec)){
 
 # ym
 chain.3.ls <- readRDS('cache/smv13chain.ym.Control.Ambient.rds')
-# plot(chain.3.ls[[2]][,4])
+# burnIn = 20000/3
+# acceptance = 1-mean(duplicated(chain.3.ls[[3]][-(1:burnIn),]))
+# plot(chain.3.ls[[2]][,1])
 lapply(chain.3.ls, plot.check.mcmc.func,species.in='ym')
 
 # cw
