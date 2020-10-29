@@ -98,7 +98,7 @@ phenoGrass.func.v13 <- function(gcc.df,
                            gcc.df$RHmax[nm.day],gcc.df$RHmin[nm.day], gcc.df$u2[nm.day])    # Default not growth
     # default no growth & no sen
     g = 1
-    d = 0
+    d = 1
 
     # # grwoth after rain
     # if(rained.vec[nm.day] > 0){
@@ -131,7 +131,8 @@ phenoGrass.func.v13 <- function(gcc.df,
       loss.f *
       #water.avi.norm*
       (1 - cover.pred.vec[nm.day-1] / cover.max)
-    senescence.vec[nm.day] <- d *# f.sec * (1 - loss.f) *
+    
+    senescence.vec[nm.day] <- d * f.sec * (1 - loss.f) *
       (1 - cover.pred.vec[nm.day-1] )*cover.pred.vec[nm.day-1]
 
     cover.pred.vec[nm.day] <- cover.pred.vec[nm.day-1] + growth.vec[nm.day] - senescence.vec[nm.day]
@@ -167,6 +168,7 @@ phenoGrass.func.v13 <- function(gcc.df,
   gcc.df$water.avi <- water.avi
   gcc.df$evap <- evap.vec
   gcc.df$tran <- transp.vec
+  gcc.df$pet <- et
   # out.df <- data.frame(gcc.df)
   # out.df <- out.df[!is.na(out.df$cover),]
   # print('model worked')

@@ -43,17 +43,17 @@ for (i in seq_along(site.vec)) {
 #                    swc.capacity = 0.3,swc.wilt = 0.03)
 
 ym.18.df <- get.ym.func(18)
-fit.mcmc.pace.func(df=ym.18.df,n.iter = 20000,
+fit.mcmc.pace.func(df=ym.18.df,n.iter = 10000,
                    species.in='ym',prep.in = 'Control', temp.in ='Ambient',
                    my.fun = phenoGrass.func.v13,out.nm.note='v13',use.smooth = TRUE,
-                   swc.capacity = 0.3,swc.wilt = 0.05,day.lag=5)
+                   swc.capacity = 0.3,swc.wilt = 0.05,day.lag=5,bucket.size = 150)
 
 # plot v13####
 plot.mcmc.func = function(df = gcc.met.pace.df,
                           species.in,prep.in,temp.in,subplot=NULL,
                           nm.note='',use.smooth=FALSE,
                           my.fun = phenoGrass.func.v11,
-                          swc.in.cap = 0.13,swc.in.wilt = 0.05){
+                          swc.in.cap = 0.13,swc.in.wilt = 0.05,bucket.size =300){
   
   if(is.null(subplot)){
     gcc.met.pace.df.16 <- get.pace.func(df,
@@ -132,7 +132,7 @@ plot.mcmc.func = function(df = gcc.met.pace.df,
   par.df["fit",] <- colMeans(chain.fes[burnIn:nrow(chain.fes),])
   # par.df["fit",] <- colMeans(luc.d.a.df[burnIn:nrow(luc.d.a.df),])
   # 
-  bucket.size = 300
+  # bucket.size = 300
   hufken.pace.pred <- my.fun(gcc.met.pace.df.16,
                              f.h = 222,
                              f.t.opt = par.df["fit",1],
@@ -254,6 +254,10 @@ plot.title.func=function(species.in){
   title(main = species.in,line = 0)
 }
 
+# hufken.ym18.pred.df <- readRDS('tmp/pred.smv13chain.ym.Control.Ambient.rds')
+# plot(pet~Date,data = hufken.ym18.pred.df)
+# plot(c(evap +tran)~Date,data = hufken.ym18.pred.df)
+
 pdf('figures/plot.v13.pdf',width = 8,height = 8*0.618)
 plot.mcmc.func(gcc.met.pace.df,'Luc','Control','Ambient',subplot = NULL,nm.note = 'v13',use.smooth = TRUE,my.fun =phenoGrass.func.v13)
 plot.title.func('Luc')
@@ -277,7 +281,7 @@ for(i in seq_along(species.vec)){
 ym.con.df <- get.ym.func(18)
 plot.mcmc.func(df=ym.con.df,'ym','Control','Ambient',
                subplot = NULL,nm.note = 'v13',use.smooth = TRUE,
-               my.fun =phenoGrass.func.v13 ,swc.in.wilt = 0.05,swc.in.cap = 0.3)
+               my.fun =phenoGrass.func.v13 ,swc.in.wilt = 0.05,swc.in.cap = 0.3,bucket.size=150)
 plot.title.func('YM')
 
 # CW
@@ -293,20 +297,20 @@ for(i in seq_along(site.vec)){
 
 dev.off()
 
-pdf('figures/plot.v13.ym.0.7.pdf',width = 8,height = 8*0.618)
+pdf('figures/plot.v13.ym.new.pdf',width = 8,height = 8*0.618)
 # plot ym
 ym.con.df <- get.ym.func(18)
 plot.mcmc.func(df=ym.con.df,'ym','Control','Ambient',
                subplot = NULL,nm.note = 'v13',use.smooth = TRUE,
-               my.fun =phenoGrass.func.v13 ,swc.in.wilt = 0.05,swc.in.cap = 0.3)
-plot.title.func('YM0.7')
+               my.fun =phenoGrass.func.v13 ,swc.in.wilt = 0.05,swc.in.cap = 0.3,bucket.size = 150)
+plot.title.func('YM')
 
 dev.off()
 
 # plot diag####
 pdf('figures/plot.diag.v13.pdf',width = 6,height = 9*0.618)
 
-plot.check.mcmc.func=function(chain.in,burnIn =3000,species.in=''){
+plot.check.mcmc.func=function(chain.in,burnIn =100,species.in=''){
   par(mfrow=c(3,2),mar=c(5,5,1,1))
   for(i in 1:ncol(chain.in)){
     hist(chain.in[burnIn:nrow(chain.in),i],xlab = c('Topt','f.extract','senescence','growth','q')[i],
@@ -334,9 +338,10 @@ for(i in seq_along(species.vec)){
 
 # ym
 chain.3.ls <- readRDS('cache/smv13chain.ym.Control.Ambient.rds')
-# burnIn = 20000/3
-# acceptance = 1-mean(duplicated(chain.3.ls[[3]][-(1:burnIn),]))
-# plot(chain.3.ls[[2]][,1])
+
+# nAccepted <- length(unique(chain.3.ls[[3]][,2])) / 5000
+# 
+# plot(chain.3.ls[[2]][,2])
 lapply(chain.3.ls, plot.check.mcmc.func,species.in='ym')
 
 # cw
@@ -346,8 +351,15 @@ for(i in seq_along(site.vec)){
     chain.3.ls = readRDS(fn)
     lapply(chain.3.ls, plot.check.mcmc.func,species.in=site.vec[i])
   }
-
 }
+
+dev.off()
+
+
+pdf('figures/plot.diag.v13.ym18.pdf',width = 6,height = 9*0.618)
+chain.3.ls <- readRDS('cache/smv13chain.ym.Control.Ambient.rds')
+
+lapply(chain.3.ls, plot.check.mcmc.func,species.in='ym')
 
 dev.off()
 

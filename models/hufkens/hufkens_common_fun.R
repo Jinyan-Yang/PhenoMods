@@ -69,11 +69,11 @@ scaling.f.func <- function(map,f.h){
 
 # t response function####
 t.func <- function(t.mean,f.t.opt,t.max){
-  # return((t.max-t.mean)/(t.max-f.t.opt)*(t.mean/f.t.opt)^(f.t.opt/(t.max-f.t.opt)))
-  
-  h.val <- pnorm(t.mean,mean=f.t.opt,sd = 10,lower.tail = F)
-  l.val <- pnorm(t.mean,mean=f.t.opt,sd = 10,lower.tail = T)
-  
-  return(min(h.val,l.val)*2)
+  return((t.max-t.mean)/(t.max-f.t.opt)*(t.mean/f.t.opt)^(f.t.opt/(t.max-f.t.opt)))
+  # 
+  # h.val <- pnorm(t.mean,mean=f.t.opt,sd = 10,lower.tail = F)
+  # l.val <- pnorm(t.mean,mean=f.t.opt,sd = 10,lower.tail = T)
+  # 
+  # return(min(h.val,l.val)*2)
 }
 
