@@ -46,7 +46,7 @@ ym.18.df <- get.ym.func(18)
 fit.mcmc.pace.func(df=ym.18.df,n.iter = 10000,
                    species.in='ym',prep.in = 'Control', temp.in ='Ambient',
                    my.fun = phenoGrass.func.v13,out.nm.note='v13',use.smooth = TRUE,
-                   swc.capacity = 0.3,swc.wilt = 0.05,day.lag=5,bucket.size = 150)
+                   swc.capacity = 0.3,swc.wilt = 0.05,day.lag=5,bucket.size = 1000)
 
 # plot v13####
 plot.mcmc.func = function(df = gcc.met.pace.df,
@@ -281,7 +281,7 @@ for(i in seq_along(species.vec)){
 ym.con.df <- get.ym.func(18)
 plot.mcmc.func(df=ym.con.df,'ym','Control','Ambient',
                subplot = NULL,nm.note = 'v13',use.smooth = TRUE,
-               my.fun =phenoGrass.func.v13 ,swc.in.wilt = 0.05,swc.in.cap = 0.3,bucket.size=150)
+               my.fun =phenoGrass.func.v13 ,swc.in.wilt = 0.05,swc.in.cap = 0.3,bucket.size=1000)
 plot.title.func('YM')
 
 # CW
@@ -302,7 +302,7 @@ pdf('figures/plot.v13.ym.new.pdf',width = 8,height = 8*0.618)
 ym.con.df <- get.ym.func(18)
 plot.mcmc.func(df=ym.con.df,'ym','Control','Ambient',
                subplot = NULL,nm.note = 'v13',use.smooth = TRUE,
-               my.fun =phenoGrass.func.v13 ,swc.in.wilt = 0.05,swc.in.cap = 0.3,bucket.size = 150)
+               my.fun =phenoGrass.func.v13 ,swc.in.wilt = 0.05,swc.in.cap = 0.3,bucket.size = 300)
 plot.title.func('YM')
 
 dev.off()
@@ -310,7 +310,10 @@ dev.off()
 # plot diag####
 pdf('figures/plot.diag.v13.pdf',width = 6,height = 9*0.618)
 
-plot.check.mcmc.func=function(chain.in,burnIn =100,species.in=''){
+plot.check.mcmc.func=function(chain.in,species.in=''){
+  
+  burnIn = round(nrow(chain.in) / 3)
+  
   par(mfrow=c(3,2),mar=c(5,5,1,1))
   for(i in 1:ncol(chain.in)){
     hist(chain.in[burnIn:nrow(chain.in),i],xlab = c('Topt','f.extract','senescence','growth','q')[i],

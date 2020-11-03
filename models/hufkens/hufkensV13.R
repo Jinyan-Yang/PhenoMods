@@ -54,16 +54,16 @@ phenoGrass.func.v13 <- function(gcc.df,
   water.lag <- water.avi
   t.m <- growth.vec <- senescence.vec <- evap.vec <- transp.vec <- c()
 
-  # check whether it rained in the past days
-  rained.vec <- c()
-  rained.vec[1:day.lay] <- 0
-  for(i in (day.lay + 1):nrow(gcc.df)){
-    if(sum(gcc.df$Rain[(i-day.lay):i],na.rm=T)>0){
-      rained.vec[i] <- sum(gcc.df$Rain[(i-day.lay):i],na.rm=T)
-    }else{
-      rained.vec[i] <- 0
-    }
-  }
+  # # check whether it rained in the past days
+  # rained.vec <- c()
+  # rained.vec[1:day.lay] <- 0
+  # for(i in (day.lay + 1):nrow(gcc.df)){
+  #   if(sum(gcc.df$Rain[(i-day.lay):i],na.rm=T)>0){
+  #     rained.vec[i] <- sum(gcc.df$Rain[(i-day.lay):i],na.rm=T)
+  #   }else{
+  #     rained.vec[i] <- 0
+  #   }
+  # }
 
   # calcualte the par values
   cover.max <- max(gcc.df$cover,na.rm=TRUE)
@@ -158,6 +158,10 @@ phenoGrass.func.v13 <- function(gcc.df,
 
     swc.vec[nm.day] <- swc.vec[nm.day-1] + gcc.df$Rain[nm.day] - evap.vec[nm.day] - transp.vec[nm.day]
 
+    # apply drainage
+    if(swc.vec[nm.day] > 0.13 * bucket.size){
+      swc.vec[nm.day] <- swc.vec[nm.day] - 0.01 * bucket.size
+    }
     swc.vec[nm.day] <- max(0,min(swc.capacity * bucket.size,swc.vec[nm.day]))
 
   }
