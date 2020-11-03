@@ -159,7 +159,7 @@ phenoGrass.func.v13 <- function(gcc.df,
     swc.vec[nm.day] <- swc.vec[nm.day-1] + gcc.df$Rain[nm.day] - evap.vec[nm.day] - transp.vec[nm.day]
 
     # apply drainage
-    if(swc.vec[nm.day] > 0.13 * bucket.size){
+    if(swc.vec[nm.day] > swc.wilt * bucket.size){
       swc.vec[nm.day] <- swc.vec[nm.day] - 0.01 * bucket.size
     }
     swc.vec[nm.day] <- max(0,min(swc.capacity * bucket.size,swc.vec[nm.day]))
