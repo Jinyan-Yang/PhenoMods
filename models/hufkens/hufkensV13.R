@@ -1,4 +1,7 @@
 source('models/hufkens/hufkens_common_fun.R')
+
+
+
 #
 phenoGrass.func.v13 <- function(gcc.df,
                                 f.h,
@@ -52,7 +55,7 @@ phenoGrass.func.v13 <- function(gcc.df,
   water.avi <- swc.vec
   water.lag <- c()
   water.lag <- water.avi
-  t.m <- growth.vec <- senescence.vec <- evap.vec <- transp.vec <- c()
+  t.m <- growth.vec <- senescence.vec <- evap.vec <- transp.vec <- runOff <-drain.vec <-  c()
 
   # # check whether it rained in the past days
   # rained.vec <- c()
@@ -73,7 +76,6 @@ phenoGrass.func.v13 <- function(gcc.df,
 
   # model start
   for (nm.day in (day.lay+1):nrow(gcc.df)){
-
     water.avi[nm.day] <- max(0,(swc.vec[nm.day-1]- swc.wilt*bucket.size))
 
     # define water stress using a beta function
@@ -81,7 +83,7 @@ phenoGrass.func.v13 <- function(gcc.df,
     loss.f <- swc.norm^q
     loss.f <- min(1,loss.f)
 # assuming soil stress is the same
-    loss.f.soil<-swc.norm
+    loss.f.soil <- swc.norm
 
     # # define the legency effect
     i=0
@@ -151,19 +153,22 @@ phenoGrass.func.v13 <- function(gcc.df,
       # ((swc.vec[nm.day-1]/bucket.size - swc.wilt)/(swc.capacity-swc.wilt))^2 *
       et[nm.day]
     transp.vec[nm.day] <- f.extract *
-      # swc.vec[nm.day-1] *
+      swc.vec[nm.day-1] *
       # water.avi.norm*
-      loss.f.soil *
       cover.pred.vec[nm.day] / cover.max
 
     swc.vec[nm.day] <- swc.vec[nm.day-1] + gcc.df$Rain[nm.day] - evap.vec[nm.day] - transp.vec[nm.day]
 
+    # assuming runoff  = whatever is over the capacity
+    runOff[nm.day] <- max(0,(swc.vec[nm.day] - swc.capacity * bucket.size))
+    
+    swc.vec[nm.day] <- min(swc.capacity * bucket.size,swc.vec[nm.day])
+    
     # apply drainage
-    if(swc.vec[nm.day] > swc.wilt * bucket.size){
-      swc.vec[nm.day] <- swc.vec[nm.day] - 0.01 * bucket.size
-    }
-    swc.vec[nm.day] <- max(0,min(swc.capacity * bucket.size,swc.vec[nm.day]))
+    drain.vec[nm.day] <- drainage.func(swc.vec[nm.day] / bucket.size)
+    swc.vec[nm.day] <- swc.vec[nm.day] - drain.vec[nm.day]
 
+    swc.vec[nm.day] <- max(0,swc.vec[nm.day])
   }
   gcc.df$ppt <- gcc.df$Rain
   gcc.df$cover.hufken <- cover.pred.vec
@@ -173,6 +178,8 @@ phenoGrass.func.v13 <- function(gcc.df,
   gcc.df$evap <- evap.vec
   gcc.df$tran <- transp.vec
   gcc.df$pet <- et
+  gcc.df$runOff <- runOff
+  gcc.df$drainage <- drain.vec
   # out.df <- data.frame(gcc.df)
   # out.df <- out.df[!is.na(out.df$cover),]
   # print('model worked')

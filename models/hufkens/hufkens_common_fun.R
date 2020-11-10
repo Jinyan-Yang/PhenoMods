@@ -1,8 +1,8 @@
 library(Evapotranspiration)
 library(doBy)
 library(zoo)
+# pet fucntion####
 data("constants") #this is used for penman et value; data from Adleide
-
 pet.func <- function(Date,PPFD,Tair,Tmax,Tmin,RHmax,RHmin,u2,P = 101.3,lat = 33.618891 ){
   gcc.met.df <- data.frame(Date = as.Date(Date),
                            PPFD = PPFD,
@@ -75,5 +75,12 @@ t.func <- function(t.mean,f.t.opt,t.max){
   # l.val <- pnorm(t.mean,mean=f.t.opt,sd = 10,lower.tail = T)
   # 
   # return(min(h.val,l.val)*2)
+}
+# drainage
+drainage.func <- function(theta,theta.sat  = 0.3,sigma = 23.3,k.sat = 0.15 #mm d-1
+){
+  # taken from SGS, Johnson 2005
+  q = k.sat*(theta/theta.sat)^sigma * 1000
+  return(q)
 }
 
