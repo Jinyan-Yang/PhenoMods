@@ -22,7 +22,7 @@ get.wue.func <- function(gcc.met.pace.df.luc){
   gcc.met.pace.df.luc.sum$water.use <- -(gcc.met.pace.df.luc.sum$delta.vwc * 300 - gcc.met.pace.df.luc.sum$Rain)
   # get wue
   gcc.met.pace.df.luc.sum$wue <- gcc.met.pace.df.luc.sum$delta.gcc / gcc.met.pace.df.luc.sum$water.use
-  
+  gcc.met.pace.df.luc.sum$row.nm <- rownames(gcc.met.pace.df.luc.sum)
   return(gcc.met.pace.df.luc.sum)
 }
 
@@ -51,14 +51,20 @@ gcc.met.pace.df.ym18.sum <- get.wue.func(gcc.met.pace.df.ym18)
 
 pdf('figures/wue.pdf',width = 6,height = 6*3*.617)
 par(mfrow=c(3,1),mar=c(3,5,3,1))
-plot(wue~mon.year,data = gcc.met.pace.df.luc.sum,main='Luc',xlab='')
-abline(h=0,lty='dashed',col='grey',lwd=3)
 
-plot(wue~mon.year,data = gcc.met.pace.df.rye.sum,main='Rye',xlab='')
-abline(h=0,lty='dashed',col='grey',lwd=3)
+plot.wue.func <- function(gcc.met.pace.df.luc.sum,plot.nm ){
+  barplot(gcc.met.pace.df.luc.sum$Rain,col='lightskyblue',ann=F,axes=F,xlab='',ylab='')
+  par(new=T)
+  plot(wue~mon.year,data = gcc.met.pace.df.luc.sum,main=plot.nm,xlab='')
+  abline(h=0,lty='dashed',col='grey',lwd=3)
+  
+  legend('topright',legend = c('WUE','Rainfall'),pch=15,col=c('black','lightskyblue'),bty='n')
+}
 
-plot(wue~mon.year,data = gcc.met.pace.df.ym18.sum,main='YM 18 control',xlab='')
-abline(h=0,lty='dashed',col='grey',lwd=3)
+plot.wue.func(gcc.met.pace.df.luc.sum,plot.nm = 'LUC')
+plot.wue.func(gcc.met.pace.df.rye.sum,plot.nm = 'RYE')
+plot.wue.func(gcc.met.pace.df.ym18.sum,plot.nm = 'YM')
+
 dev.off()
 # 
 # 
