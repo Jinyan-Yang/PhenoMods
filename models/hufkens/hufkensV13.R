@@ -15,7 +15,7 @@ phenoGrass.func.v13 <- function(gcc.df,
                                 t.max,
                                 day.lay,
                                 use.smooth=FALSE,
-                                q = 1){
+                                q = 1,q.s=1){
 
   # if(f.t.opt < 0){
   #   f.t.opt = 0
@@ -37,7 +37,7 @@ phenoGrass.func.v13 <- function(gcc.df,
   start.date <- gcc.df$Date[min(which(!is.na(gcc.df$GCC.norm)))]
 
   gcc.df <- gcc.df[gcc.df$Date > (start.date - day.lay),]
-  sf.value <- scaling.f.func(mean(gcc.df$map,na.rm=TRUE),f.h)
+  sf.value <- 1#scaling.f.func(mean(gcc.df$map,na.rm=TRUE),f.h)
 
   # decide whether to use smooth gcc
   if(use.smooth==TRUE){
@@ -80,11 +80,15 @@ phenoGrass.func.v13 <- function(gcc.df,
 
     # define water stress using a beta function
     swc.norm <- water.avi[nm.day] / (swc.capacity - swc.wilt) / bucket.size
+    swc.norm <- max(0,min(1,swc.norm))
     loss.f <- swc.norm^q
     loss.f <- min(1,loss.f)
-# assuming soil stress is the same
+# assuming sene stress is the not same
+    loss.f.s <- swc.norm^q.s
+    loss.f.s <- min(1,loss.f.s)
+    # assume soil evap is linear to swc
     loss.f.soil <- swc.norm
-
+    
     # # define the legency effect
     i=0
     while(i+1<day.lay & (nm.day-i)>0){
@@ -134,7 +138,7 @@ phenoGrass.func.v13 <- function(gcc.df,
       #water.avi.norm*
       (1 - cover.pred.vec[nm.day-1] / cover.max)
     
-    senescence.vec[nm.day] <- d * f.sec * (1 - loss.f) *
+    senescence.vec[nm.day] <- d * f.sec * (1 - loss.f.s) *
       (1 - cover.pred.vec[nm.day-1] )*cover.pred.vec[nm.day-1]
 
     cover.pred.vec[nm.day] <- cover.pred.vec[nm.day-1] + growth.vec[nm.day] - senescence.vec[nm.day]
