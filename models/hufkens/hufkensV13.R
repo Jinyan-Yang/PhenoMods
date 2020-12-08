@@ -96,7 +96,7 @@ phenoGrass.func.v13 <- function(gcc.df,
     }
 
     days.past <- max(c(1,(nm.day-15)))
-    t.m[nm.day] <- mean(gcc.df$Tair[days.past:nm.day],na.rm=TRUE) #hufkens used 15 days
+    t.m[nm.day] <- mean(gcc.df$Tmax[days.past:nm.day],na.rm=TRUE) #hufkens used 15 days
     # hufkens used evaportanspiration from Hargreaves 1985
     # here is from evapotranspiration R package
     et[nm.day] <- pet.func(gcc.df$Date[nm.day],gcc.df$PPFD[nm.day],

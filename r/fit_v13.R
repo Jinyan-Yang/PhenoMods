@@ -20,9 +20,21 @@ species.vec <- c('Luc','Fes','Rye',
                  'Pha', 'PhaSub', 'Rho',  'Wal')
 
 for(i in seq_along(species.vec)){
-  fit.mcmc.pace.func(species.in=species.vec[i],prep.in = 'Control', temp.in ='Ambient',
-                     my.fun = phenoGrass.func.v13,out.nm.note='v13',use.smooth = TRUE)
+  fit.mcmc.2q.func(df = gcc.met.pace.df,
+                   species.in=species.vec[i],prep.in = 'Control', temp.in ='Ambient',
+                  my.fun = phenoGrass.func.v13,out.nm.note='v13',use.smooth = TRUE)
 
+}
+
+species.vec <- c('Luc','Fes','Rye',
+                 'Dig', 'DigBis', 'Kan', 'KanWal', 
+                 'Pha', 'PhaSub', 'Rho',  'Wal')
+
+for(i in seq_along(species.vec)){
+  fit.mcmc.pace.func(df = gcc.met.pace.df,
+                     species.in=species.vec[i],prep.in = 'Control', temp.in ='Ambient',
+                     my.fun = phenoGrass.func.v13,out.nm.note='v13.2q',use.smooth = TRUE)
+  
 }
 
 # fit to cw sites####
@@ -31,7 +43,7 @@ for (i in seq_along(site.vec)) {
   fit.mcmc.pace.func(df=gcc.met.cw.df,
                      species.in=site.vec[i],prep.in = 'Control', temp.in ='Ambient',
                      my.fun = phenoGrass.func.v13,out.nm.note='v13',use.smooth = TRUE,
-                     swc.capacity = 0.3,swc.wilt = 0.05,n.iter = 20000)
+                     swc.capacity = 0.3,swc.wilt = 0.05,n.iter = 10000,bucket.size = 1000)
 }
 
 # fit ym data####
@@ -204,7 +216,7 @@ plot.mcmc.func = function(df = gcc.met.pace.df,
   # plot obs cover
   par(mar=c(5,5,1,5))
   plot(cover~Date,data = hufken.pace.pred,type='l',#pch=16,
-       xlab=' ',ylab=expression(f[cover]),ylim=c(0,0.8),col = palette()[6],
+       xlab=' ',ylab=expression(f[cover]),ylim=c(0,1),col = palette()[6],
        xaxt='n')
   
   date.range = range(hufken.pace.pred$Date,na.rm=T)
@@ -222,7 +234,7 @@ plot.mcmc.func = function(df = gcc.met.pace.df,
   # plot model pred
   points(cover.hufken~Date,data = hufken.pace.pred,type='l',col=palette()[8])
   
-  legend('topright',legend = c('OBS','MOD'),lty = 1,col=palette()[c(6,8)])
+  legend('topleft',legend = c('OBS','MOD'),lty = 1,col=palette()[c(6,8)])
   # legend('topleft',legend = paste0(species.in,prep.in,temp.in),bty='n')
   
   clip(min(hufken.pace.pred$Date), max(hufken.pace.pred$Date), 0.0, 0.1)
@@ -259,21 +271,12 @@ plot.title.func=function(species.in){
 # plot(c(evap +tran)~Date,data = hufken.ym18.pred.df)
 
 pdf('figures/plot.v13.pdf',width = 8,height = 8*0.618)
-plot.mcmc.func(gcc.met.pace.df,'Luc','Control','Ambient',subplot = NULL,nm.note = 'v13',use.smooth = TRUE,my.fun =phenoGrass.func.v13)
-plot.title.func('Luc')
-
-
-plot.mcmc.func(gcc.met.pace.df,'Fes','Control','Ambient',subplot = NULL,nm.note = 'v13',use.smooth = TRUE,my.fun =phenoGrass.func.v13 )
-plot.title.func('Fes')
-
-plot.mcmc.func(gcc.met.pace.df,'Rye','Control','Ambient',subplot = NULL,nm.note = 'v13',use.smooth = TRUE,my.fun =phenoGrass.func.v13 )
-plot.title.func('Rye')
-
-species.vec <- c('Bis', 'Dig', 'DigBis', 'Kan', 'KanWal', 
+species.vec <- c('Luc','Fes','Rye',
+                 'Dig', 'DigBis', 'Kan', 'KanWal', 
                  'Pha', 'PhaSub', 'Rho',  'Wal')
 
 for(i in seq_along(species.vec)){
-  plot.mcmc.func(gcc.met.pace.df,species.vec[i],'Control','Ambient',subplot = NULL,nm.note = 'v13',use.smooth = TRUE,my.fun =phenoGrass.func.v13 )
+  plot.mcmc.func(df=gcc.met.pace.df,species.vec[i],'Control','Ambient',subplot = NULL,nm.note = 'v13',use.smooth = TRUE,my.fun =phenoGrass.func.v13 )
   plot.title.func(species.vec[i]) 
 }
 
@@ -289,10 +292,10 @@ for(i in seq_along(site.vec)){
   fn <- sprintf('cache/smv13chain.%s.Control.Ambient.rds',site.vec[i])
   if(file.exists(fn)){
       
-  plot.mcmc.func(gcc.met.cw.df,site.vec[i],'Control','Ambient',subplot = NULL,nm.note = 'v13',use.smooth = TRUE,my.fun =phenoGrass.func.v13 )
+  plot.mcmc.func(gcc.met.cw.df,site.vec[i],'Control','Ambient',subplot = NULL,nm.note = 'v13',use.smooth = TRUE,my.fun =phenoGrass.func.v13,
+                 swc.in.wilt = 0.05,swc.in.cap = 0.3,bucket.size=1000)
   plot.title.func(site.vec[i]) 
   }
-
 }
 
 dev.off()
@@ -302,7 +305,7 @@ pdf('figures/plot.v13.ym.new.pdf',width = 8,height = 8*0.618)
 ym.con.df <- get.ym.func(18)
 plot.mcmc.func(df=ym.con.df,'ym','Control','Ambient',
                subplot = NULL,nm.note = 'v13',use.smooth = TRUE,
-               my.fun =phenoGrass.func.v13 ,swc.in.wilt = 0.05,swc.in.cap = 0.3,bucket.size = 300)
+               my.fun =phenoGrass.func.v13 ,swc.in.wilt = 0.05,swc.in.cap = 0.3,bucket.size = 1000)
 plot.title.func('YM')
 
 dev.off()
@@ -312,7 +315,7 @@ pdf('figures/plot.diag.v13.pdf',width = 6,height = 9*0.618)
 
 plot.check.mcmc.func=function(chain.in,species.in=''){
   
-  burnIn = round(nrow(chain.in) / 3)
+  burnIn = round(nrow(chain.in) / 5)
   
   par(mfrow=c(3,2),mar=c(5,5,1,1))
   for(i in 1:ncol(chain.in)){
