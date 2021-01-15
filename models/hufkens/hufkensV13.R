@@ -1,7 +1,5 @@
 source('models/hufkens/hufkens_common_fun.R')
 
-
-
 #
 phenoGrass.func.v13 <- function(gcc.df,
                                 f.h,
@@ -69,7 +67,7 @@ phenoGrass.func.v13 <- function(gcc.df,
   # }
 
   # calcualte the par values
-  cover.max <- max(gcc.df$cover,na.rm=TRUE)
+  cover.max <- 1#max(gcc.df$cover,na.rm=TRUE)
   rad.min <-  min(gcc.df$PPFD,na.rm=TRUE)
   rad.max <-  max(gcc.df$PPFD,na.rm=TRUE)
   gcc.df$rad.norm <- (gcc.df$PPFD - rad.min) / (rad.max - rad.min)

@@ -65,7 +65,7 @@ plot.mcmc.func = function(df = gcc.met.pace.df,
                           species.in,prep.in,temp.in,subplot=NULL,
                           nm.note='',use.smooth=FALSE,
                           my.fun = phenoGrass.func.v11,
-                          swc.in.cap = 0.13,swc.in.wilt = 0.05,bucket.size =300){
+                          swc.in.cap = 0.13,swc.in.wilt = 0.05,bucket.size =300,day.lag=5){
   
   if(is.null(subplot)){
     gcc.met.pace.df.16 <- get.pace.func(df,

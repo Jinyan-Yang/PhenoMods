@@ -129,15 +129,15 @@ fit.mcmc.pace.func <- function(df = gcc.met.pace.df,
 
 
 fit.mcmc.2q.func <- function(df = gcc.met.pace.df,
-                               species.in = 'Luc',prep.in = 'Control', 
-                               temp.in ='Ambient',subplot =NA,
-                               my.fun = phenoGrass.func.v11,
-                               out.nm.note = '',use.smooth = FALSE,
-                               day.lag = 3,
-                               bucket.size = 300,
-                               swc.capacity = 0.13,
-                               swc.wilt = 0.05,
-                               n.iter = 10000){
+                             species.in = 'Luc',prep.in = 'Control', 
+                             temp.in ='Ambient',subplot =NA,
+                             my.fun = phenoGrass.func.v11,
+                             out.nm.note = '',use.smooth = FALSE,
+                             day.lag = 3,
+                             bucket.size = 300,
+                             swc.capacity = 0.13,
+                             swc.wilt = 0.05,
+                             n.iter = 10000){
   s.time <- Sys.time()
   gcc.met.pace.df.16 <- get.pace.func(df,
                                       species.in =species.in,
@@ -166,14 +166,14 @@ fit.mcmc.2q.func <- function(df = gcc.met.pace.df,
   chain.fes=list()
   for(n.chain in 1:3){
     chain.fes[[n.chain]] = mh.MCMC.func.2q(n.iter,
-                                        par.df,
-                                        gcc.met.pace.df.16,
-                                        bucket.size = bucket.size,
-                                        day.lay = day.lag,
-                                        swc.capacity = swc.capacity,
-                                        swc.wilt = swc.wilt,
-                                        my.fun = my.fun,
-                                        use.smooth = use.smooth)
+                                           par.df,
+                                           gcc.met.pace.df.16,
+                                           bucket.size = bucket.size,
+                                           day.lay = day.lag,
+                                           swc.capacity = swc.capacity,
+                                           swc.wilt = swc.wilt,
+                                           my.fun = my.fun,
+                                           use.smooth = use.smooth)
   }
   
   if(use.smooth==TRUE){

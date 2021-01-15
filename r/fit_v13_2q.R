@@ -6,7 +6,7 @@ source('r/v13_common_fun.R')
 
 library(zoo)
 
-# 
+# fit pace
 species.vec <- c('Luc','Fes','Rye',
                  'Dig', 'DigBis', 'Kan', 'KanWal', 
                  'Pha', 'PhaSub', 'Rho',  'Wal')
@@ -18,14 +18,14 @@ for(i in c(1,2,3)){
   
 }
 
-# 
+# fit YM
 ym.18.df <- get.ym.func(18)
 fit.mcmc.2q.func(df=ym.18.df,n.iter = 10000,
                    species.in='ym',prep.in = 'Control', temp.in ='Ambient',
                    my.fun = phenoGrass.func.v13,out.nm.note='v13.2q',use.smooth = TRUE,
                    swc.capacity = 0.3,swc.wilt = 0.05,day.lag=5,bucket.size = 1000)
 
-# 
+# make plots
 plot.mcmc.func.2q = function(df = gcc.met.pace.df,
                           species.in,prep.in,temp.in,subplot=NULL,
                           nm.note='',use.smooth=FALSE,
