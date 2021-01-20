@@ -3,7 +3,8 @@ source('r/pace_data_process.R')
 source('r/ym_data_process.R')
 source('r/process_cw_gcc.R')
 source('r/v13_common_fun.R')
-
+source('models/hufkens/hufkensV13.R')
+devtools::source_url("https://github.com/Jinyan-Yang/colors/blob/master/R/col.R?raw=TRUE")
 library(zoo)
 
 # fit pace
@@ -20,7 +21,7 @@ for(i in c(1,2,3)){
 
 # fit YM
 ym.18.df <- get.ym.func(18)
-fit.mcmc.2q.func(df=ym.18.df,n.iter = 10000,
+fit.mcmc.2q.func(df=ym.18.df,n.iter = 20000,
                    species.in='ym',prep.in = 'Control', temp.in ='Ambient',
                    my.fun = phenoGrass.func.v13,out.nm.note='v13.2q',use.smooth = TRUE,
                    swc.capacity = 0.3,swc.wilt = 0.05,day.lag=5,bucket.size = 1000)
@@ -244,18 +245,25 @@ for (i in c(1,2,3)) {
                     my.fun = phenoGrass.func.v13,
                     nm.note='v13.2q',use.smooth = TRUE)
   
-  plot.mcmc.func.2q(ym.18.df,'ym','Control','Ambient',
-                    my.fun = phenoGrass.func.v13,
-                    nm.note='v13.2q',use.smooth = TRUE)
 }
+
+
 dev.off()
 
+# plot ym only
+pdf('figures/v13.ym.2q.pdf',width = 8,height = 8*0.618)
+plot.mcmc.func.2q(ym.18.df,'ym','Control','Ambient',
+                  my.fun = phenoGrass.func.v13,
+                  nm.note='v13.2q',use.smooth = TRUE,swc.in.cap = 0.13,swc.in.wilt = 0.05,bucket.size = 1000)
+
+dev.off()
 
 plot.check.mcmc.func=function(chain.in,species.in='',nm.vec = c('Topt','f.extract','senescence','growth','q','qs')){
   
   burnIn = round(nrow(chain.in) / 5)
   
   par(mfrow=c(3,2),mar=c(5,5,1,1))
+  
   for(i in 1:ncol(chain.in)){
     hist(chain.in[burnIn:nrow(chain.in),i],xlab = nm.vec[i],
          main='')
@@ -263,6 +271,7 @@ plot.check.mcmc.func=function(chain.in,species.in='',nm.vec = c('Topt','f.extrac
   }
   plot.title.func(species.in = species.in)
 }
+
 pdf('figures/v13.2q.diag.pdf',width = 8,height = 8*0.618)
 for(i in c(1,2,3)){
   fn <- sprintf('cache/smv13.2qchain.%s.Control.Ambient.rds',species.vec[i])
@@ -270,8 +279,12 @@ for(i in c(1,2,3)){
   lapply(chain.3.ls, plot.check.mcmc.func,species.in=species.vec[i])
 }
 
+dev.off()
 
+# 
+
+pdf('figures/v13.ym.2q.diag.pdf',width = 8,height = 8*0.618)
 fn <- sprintf('cache/smv13.2qchain.%s.Control.Ambient.rds','ym')
 chain.3.ls = readRDS(fn)
-lapply(chain.3.ls, plot.check.mcmc.func,species.in=species.vec[i])
+lapply(chain.3.ls, plot.check.mcmc.func,species.in='ym')
 dev.off()

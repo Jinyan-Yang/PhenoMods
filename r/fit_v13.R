@@ -3,6 +3,7 @@ source('r/pace_data_process.R')
 source('r/ym_data_process.R')
 source('r/process_cw_gcc.R')
 source('r/v13_common_fun.R')
+source('models/hufkens/hufkensV13.R')
 
 # fit v13
 # fit.mcmc.pace.func(species.in='Luc',prep.in = 'Control', temp.in ='Ambient',
@@ -26,16 +27,6 @@ for(i in seq_along(species.vec)){
 
 }
 
-species.vec <- c('Luc','Fes','Rye',
-                 'Dig', 'DigBis', 'Kan', 'KanWal', 
-                 'Pha', 'PhaSub', 'Rho',  'Wal')
-
-for(i in seq_along(species.vec)){
-  fit.mcmc.pace.func(df = gcc.met.pace.df,
-                     species.in=species.vec[i],prep.in = 'Control', temp.in ='Ambient',
-                     my.fun = phenoGrass.func.v13,out.nm.note='v13.2q',use.smooth = TRUE)
-  
-}
 
 # fit to cw sites####
 gcc.met.cw.df <- readRDS('cache/gcc.met.cw.df.rds')
@@ -45,7 +36,10 @@ for (i in seq_along(site.vec)) {
                      my.fun = phenoGrass.func.v13,out.nm.note='v13',use.smooth = TRUE,
                      swc.capacity = 0.3,swc.wilt = 0.05,n.iter = 10000,bucket.size = 1000)
 }
-
+gcc.met.pace.df.16 <- get.pace.func(df=gcc.met.cw.df,
+                                    species.in =site.vec[],
+                                    prep.in = 'Control', temp.in ='Ambient',
+                                    subplot = NA)
 # fit ym data####
 # ym.con.df <- get.ym.func('Control')
 # 
@@ -58,7 +52,7 @@ ym.18.df <- get.ym.func(18)
 fit.mcmc.pace.func(df=ym.18.df,n.iter = 10000,
                    species.in='ym',prep.in = 'Control', temp.in ='Ambient',
                    my.fun = phenoGrass.func.v13,out.nm.note='v13',use.smooth = TRUE,
-                   swc.capacity = 0.3,swc.wilt = 0.05,day.lag=5,bucket.size = 1000)
+                   swc.capacity = 0.3,swc.wilt = 0.05,bucket.size = 1000)
 
 # plot v13####
 plot.mcmc.func = function(df = gcc.met.pace.df,

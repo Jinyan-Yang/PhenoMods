@@ -8,7 +8,7 @@ get.norm.gcc.func <- function(df){
   # quantiles.5.95 <- quantile(df$GCC[!is.na(df$GCC)],
   #                            c(.01,.99),na.rm=T)
   
-  quantiles.5.95 <- c(0.3,0.42)
+  quantiles.5.95 <- c(0.3,0.4)
   
   # quantiles.5.95[1] = 0.3197
   df$GCC.norm <- (df$GCC - quantiles.5.95[1]) /

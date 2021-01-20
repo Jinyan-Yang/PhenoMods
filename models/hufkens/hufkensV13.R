@@ -87,14 +87,14 @@ phenoGrass.func.v13 <- function(gcc.df,
     # assume soil evap is linear to swc
     loss.f.soil <- swc.norm
     
-    # # define the legency effect
-    i=0
-    while(i+1<day.lay & (nm.day-i)>0){
-      i=i+1
-    }
+    # # # define the legency effect
+    # i=0
+    # while(i+1<day.lay & (nm.day-i)>0){
+    #   i=i+1
+    # }
 
-    days.past <- max(c(1,(nm.day-15)))
-    t.m[nm.day] <- mean(gcc.df$Tmax[days.past:nm.day],na.rm=TRUE) #hufkens used 15 days
+    days.past <- max(c(1,(nm.day-15))) #hufkens used 15 days
+    t.m[nm.day] <- mean(gcc.df$Tmax[days.past:nm.day],na.rm=TRUE) 
     # hufkens used evaportanspiration from Hargreaves 1985
     # here is from evapotranspiration R package
     et[nm.day] <- pet.func(gcc.df$Date[nm.day],gcc.df$PPFD[nm.day],

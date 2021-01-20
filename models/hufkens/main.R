@@ -8,10 +8,10 @@ if(!dir.exists("download"))dir.create("download")
 source('models/hufkens/phenoGrass.R')
 source('models/hufkens/pen_mon.R')
 
-if(!file.exists('gcc.met.df.rds')){
+if(!file.exists('cache/gcc.met.df.rds')){
   source('models/hufkens/get_gcc_met_Euc.R')
 }else{
-  gcc.met.df <- readRDS('gcc.met.df.rds')
+  gcc.met.df <- readRDS('cache/gcc.met.df.rds')
 }
 
 # # to be fitted
