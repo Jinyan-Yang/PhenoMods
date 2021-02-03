@@ -85,7 +85,7 @@ plot.mcmc.func.2q = function(df = gcc.met.pace.df,
     chain.fes <- do.call(rbind,chain.3.ls.new)
   }else{
     burnIn = nrow(in.chain)/3
-    chain.fes <-in.chain
+    chain.fes <- in.chain
   }
   
   # # check acceptance so that the 
@@ -254,7 +254,7 @@ dev.off()
 pdf('figures/v13.ym.2q.pdf',width = 8,height = 8*0.618)
 plot.mcmc.func.2q(ym.18.df,'ym','Control','Ambient',
                   my.fun = phenoGrass.func.v13,
-                  nm.note='v13.2q',use.smooth = TRUE,swc.in.cap = 0.13,swc.in.wilt = 0.05,bucket.size = 1000)
+                  nm.note='v13.2q',use.smooth = TRUE,swc.in.cap = 0.3,swc.in.wilt = 0.05,bucket.size = 1000)
 
 dev.off()
 

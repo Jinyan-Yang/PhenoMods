@@ -36,10 +36,13 @@ for (i in seq_along(site.vec)) {
                      my.fun = phenoGrass.func.v13,out.nm.note='v13',use.smooth = TRUE,
                      swc.capacity = 0.3,swc.wilt = 0.05,n.iter = 10000,bucket.size = 1000)
 }
-gcc.met.pace.df.16 <- get.pace.func(df=gcc.met.cw.df,
-                                    species.in =site.vec[],
-                                    prep.in = 'Control', temp.in ='Ambient',
-                                    subplot = NA)
+
+# #code to check processed data
+# gcc.met.pace.df.16 <- get.pace.func(gcc.met.cw.df,
+#                                     species.in =site.vec[6],
+#                                     prep.in = 'Control', temp.in ='Ambient',
+#                                     subplot = NA)
+
 # fit ym data####
 # ym.con.df <- get.ym.func('Control')
 # 

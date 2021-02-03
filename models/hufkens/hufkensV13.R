@@ -70,7 +70,7 @@ phenoGrass.func.v13 <- function(gcc.df,
   cover.max <- 1#max(gcc.df$cover,na.rm=TRUE)
   rad.min <-  min(gcc.df$PPFD,na.rm=TRUE)
   rad.max <-  max(gcc.df$PPFD,na.rm=TRUE)
-  gcc.df$rad.norm <- (gcc.df$PPFD - rad.min) / (rad.max - rad.min)
+  gcc.df$rad.norm <- 1#(gcc.df$PPFD - rad.min) / (rad.max - rad.min)
 
   # model start
   for (nm.day in (day.lay+1):nrow(gcc.df)){
@@ -81,8 +81,8 @@ phenoGrass.func.v13 <- function(gcc.df,
     swc.norm <- max(0,min(1,swc.norm))
     loss.f <- swc.norm^q
     loss.f <- min(1,loss.f)
-# assuming sene stress is the not same
-    loss.f.s <- swc.norm^q.s
+    # assuming sene stress is the not same
+    loss.f.s <- (1-swc.norm)^q.s
     loss.f.s <- min(1,loss.f.s)
     # assume soil evap is linear to swc
     loss.f.soil <- swc.norm
@@ -136,8 +136,8 @@ phenoGrass.func.v13 <- function(gcc.df,
       #water.avi.norm*
       (1 - cover.pred.vec[nm.day-1] / cover.max)
     
-    senescence.vec[nm.day] <- d * f.sec * (1 - loss.f.s) *
-      (1 - cover.pred.vec[nm.day-1] )*cover.pred.vec[nm.day-1]
+    senescence.vec[nm.day] <- d * f.sec * (loss.f.s) *
+      (1 - cover.pred.vec[nm.day-1])*cover.pred.vec[nm.day-1]
 
     cover.pred.vec[nm.day] <- cover.pred.vec[nm.day-1] + growth.vec[nm.day] - senescence.vec[nm.day]
 

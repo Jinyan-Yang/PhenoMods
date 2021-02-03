@@ -56,7 +56,7 @@ mh.MCMC.func <- function(iterations,par.df,
   }
   return(chain)
 }
-source('models/hufkens/hufkensV13.R')
+
 source('r/plot.mcmc.r')
 
 # packages
