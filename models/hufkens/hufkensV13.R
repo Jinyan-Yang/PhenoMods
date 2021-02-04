@@ -137,7 +137,8 @@ phenoGrass.func.v13 <- function(gcc.df,
       (1 - cover.pred.vec[nm.day-1] / cover.max)
     
     senescence.vec[nm.day] <- d * f.sec * (loss.f.s) *
-      (1 - cover.pred.vec[nm.day-1])*cover.pred.vec[nm.day-1]
+      # (1 - cover.pred.vec[nm.day-1])*
+      cover.pred.vec[nm.day-1]
 
     cover.pred.vec[nm.day] <- cover.pred.vec[nm.day-1] + growth.vec[nm.day] - senescence.vec[nm.day]
 
@@ -172,6 +173,8 @@ phenoGrass.func.v13 <- function(gcc.df,
 
     swc.vec[nm.day] <- max(0,swc.vec[nm.day])
   }
+  
+  # organise output
   gcc.df$ppt <- gcc.df$Rain
   gcc.df$cover.hufken <- cover.pred.vec
   gcc.df$swc.hufken <- swc.vec
@@ -182,6 +185,10 @@ phenoGrass.func.v13 <- function(gcc.df,
   gcc.df$pet <- et
   gcc.df$runOff <- runOff
   gcc.df$drainage <- drain.vec
+  gcc.df$growth <- growth.vec
+  gcc.df$senescence <- senescence.vec
+  
+  gcc.df$senescence <- senescence.vec
   # out.df <- data.frame(gcc.df)
   # out.df <- out.df[!is.na(out.df$cover),]
   # print('model worked')
