@@ -12,8 +12,7 @@ The are documentations as .rmd files explaining how th model work in doc folder;
 An example is given as r/example.r to allow exploration of model behaviour.
 
 A documentation of method can be found:
-https://docs.google.com/document/d/1wqyVGuYsU_ZSDgT9xcDzg_S8fTt8w-9Sdbijjbama5I/edit?usp=sharing
-
+https://drive.google.com/drive/folders/17l_nHmRqlOWO22gjySFGjvNQFSC5xOo8?usp=sharing
 
 
 ### Note
