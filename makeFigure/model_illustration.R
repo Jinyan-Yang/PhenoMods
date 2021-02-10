@@ -1,9 +1,16 @@
+# code to show how the model works#######################################################
+#########################################################################################
+
+# not to use for now
 # ym.18.df <- get.ym.func(18)
 # with(ym.18.df,plot(swc~Date))
 # tmp.df <- get.pace.func(ym.18.df,
 #                         species.in ='ym',
 #                         prep.in = 'Control', temp.in ='Ambient',
                         # subplot = NA)
+
+# load functions and packages
+source('models/hufkens/hufkensV13.R')
 
 # contructe a df to plot ###########
 tmp.df <- data.frame(Date = seq(as.Date('2019-6-1'),
@@ -47,7 +54,7 @@ abline(h=0)
 plot(cover.hufken~vwc.hufken,data = optimal.drought.pred.df,pch=16,col=col.df$flower[5])
 
 
-# set raib scenario
+# set rain scenario
 tmp.df$vwc <- 0.3
 tmp.df$GCC.norm.smooth <- 0
 
