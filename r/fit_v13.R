@@ -153,6 +153,7 @@ plot.mcmc.func = function(df = gcc.met.pace.df,
                              swc.wilt = swc.in.wilt ,
                              swc.capacity = swc.in.cap ,
                              t.max = 45,
+                             use.smooth = use.smooth,
                              day.lay = day.lag)
   
   # save prediction for future use

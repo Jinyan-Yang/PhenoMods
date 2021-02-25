@@ -137,14 +137,16 @@ fit.mcmc.2q.func <- function(df = gcc.met.pace.df,
                              bucket.size = 300,
                              swc.capacity = 0.13,
                              swc.wilt = 0.05,
-                             n.iter = 10000){
+                             n.iter = 10000,
+                             norm.min.max=NULL){
   s.time <- Sys.time()
   gcc.met.pace.df.16 <- get.pace.func(df,
                                       species.in =species.in,
                                       prep.in = prep.in,
                                       temp.in =temp.in,
-                                      subplot = subplot)
-  gcc.met.pace.df.16$map <- 760
+                                      subplot = subplot,
+                                      norm.min.max = norm.min.max)
+  # gcc.met.pace.df.16$map <- 760
   
   # para values####
   par.df <- data.frame(#f.h = c(200,220,240,NA,NA),

@@ -4,11 +4,14 @@ gcc.met.pace.df = gcc.met.pace.df[gcc.met.pace.df$Date >= as.Date('2018-10-1')&
 # with(gcc.met.pace.df[gcc.met.pace.df$SubplotID == 'S1P1A',],plot(GCC~Date))
 
 # function to process GCC and met data
-get.norm.gcc.func <- function(df){
-  # quantiles.5.95 <- quantile(df$GCC[!is.na(df$GCC)],
-  #                            c(.01,.99),na.rm=T)
-  
-  quantiles.5.95 <- c(0.3,0.4)
+get.norm.gcc.func <- function(df,norm.min.max){
+  if(is.null(norm.min.max)){
+    # quantiles.5.95 <- quantile(df$GCC[!is.na(df$GCC)],
+    #                            c(.01,.99),na.rm=T)
+    quantiles.5.95 <- c(0.3,0.43)
+  }else{
+    quantiles.5.95 <- norm.min.max
+  }
   
   # quantiles.5.95[1] = 0.3197
   df$GCC.norm <- (df$GCC - quantiles.5.95[1]) /
@@ -21,21 +24,32 @@ get.norm.gcc.func <- function(df){
 get.smooth.gcc.func = function(Date.vec,gcc.vec){
   library(mgcv)
   library(lubridate)
-  gam.frdm = round(length(Date.vec)/3)
+ 
+  gam.out.df = data.frame(x = seq_along((Date.vec)),
+                          y = gcc.vec)
+ 
+  gam.in.df <- gam.out.df[!is.na(gam.out.df$y),]
   
-  gam.in.df = data.frame(x = as.numeric(Date.vec),
-                         y = gcc.vec)
+  gam.frdm = round(length(gam.in.df$x)/3)
+  
+ 
   fit.gam <- gam(y~s(x,k = gam.frdm),data = gam.in.df)
   
-  out.df = predict(fit.gam,gam.in.df)
-  return(out.df)
+  gam.in.df$fitted.val = fit.gam$fitted.values#predict(fit.gam,gam.in.df)
+  
+  gam.df <- merge(gam.out.df,gam.in.df,all=T)
+  
+  # gam.df$fitted.val <- na.fill(gam.df$fitted.val,fill='extend')
+  
+  return(gam.df$fitted.val)
 }
 
 # get pace data by species or treatment
 get.pace.func <- function(gcc.met.pace.df,
                           species.in,
                           prep.in,
-                          temp.in,subplot = NA){
+                          temp.in,subplot = NA,
+                          norm.min.max=NULL){
   # temp.df <- gcc.met.pace.df[gcc.met.pace.df$Species == 'Luc'&
   #                              gcc.met.pace.df$Precipitation == 'Control'&
   #                              gcc.met.pace.df$Temperature == 'Ambient',]
@@ -57,7 +71,7 @@ get.pace.func <- function(gcc.met.pace.df,
   
   temp.ls <- split(temp.df,temp.df$SubplotID)
   
-  result.ls <- lapply(temp.ls,get.norm.gcc.func)
+  result.ls <- lapply(temp.ls,get.norm.gcc.func,norm.min.max=norm.min.max)
   
   # quantiles.5.95 <- quantile(temp.df$GCC[!is.na(temp.df$GCC)],
   #                            c(.05,.95),an.rm=T)
@@ -66,6 +80,7 @@ get.pace.func <- function(gcc.met.pace.df,
   temp.norm.df <- do.call(rbind,result.ls)
   
   library(doBy)
+  library(zoo)
   sd.df <- summaryBy(GCC.norm + vwc ~ Date,
                      data = temp.norm.df,FUN=c(sd),na.rm=TRUE,keep.names = F)
   
@@ -87,7 +102,7 @@ get.pace.func <- function(gcc.met.pace.df,
   
   gcc.met.pace.df.na.rm <- test.df[test.df$Date > start.date,]
   
-  gcc.met.pace.df.na.rm$GCC.norm <- na.locf(gcc.met.pace.df.na.rm$GCC.norm)
+  # gcc.met.pace.df.na.rm$GCC.norm <- na.fill(gcc.met.pace.df.na.rm$GCC.norm,fill='extend')
   
   gcc.met.pace.df.16 <- rbind(gcc.met.pace.df.na.rm,
                               test.df[test.df$Date <= start.date &
@@ -115,21 +130,27 @@ get.pace.func <- function(gcc.met.pace.df,
   # set plot with no vwv to be 0.08
   if((sum(gcc.met.pace.df.16$vwc,na.rm=T))==0){
     gcc.met.pace.df.16$vwc = 0.08
+    warning('VWC not given')
   }
   
   
   if(sum(gcc.met.pace.df.16$GCC.norm.sd,na.rm=T) == 0){
     gcc.met.pace.df.16$GCC.norm.sd = abs( gcc.met.pace.df.16$GCC.norm * 0.1)
+    warning('SD of GCC not given')
   }
 
   # 
-  gcc.met.pace.df.16$GCC.smooth = get.smooth.gcc.func(gcc.met.pace.df.16$Date, 
-                                                      gcc.met.pace.df.16$GCC)
+  # gcc.met.pace.df.16$GCC.smooth = get.smooth.gcc.func(gcc.met.pace.df.16$Date, 
+  #                                                     gcc.met.pace.df.16$GCC)
   
-  gcc.met.pace.df.16$GCC.norm.smooth = get.smooth.gcc.func(gcc.met.pace.df.16$Date, 
-                                                      gcc.met.pace.df.16$GCC.norm)
+  # none.na.df <- gcc.met.pace.df.16[!is.na(gcc.met.pace.df.16$GCC.norm),]
+  
+  gcc.met.pace.df.16$GCC.norm.smooth = get.smooth.gcc.func(Date.vec = gcc.met.pace.df.16$Date, 
+                                                           gcc.vec = gcc.met.pace.df.16$GCC.norm)
+  
  
-    
+  gcc.met.pace.df.16$GCC.norm.smooth[gcc.met.pace.df.16$GCC.norm.smooth<0] <- 0
+  gcc.met.pace.df.16$GCC.norm.smooth[gcc.met.pace.df.16$GCC.norm.smooth>1] <- 1
   # tmp.df = get.smooth.gcc.func(y, gcc.met.pace.df.16$GCC)
   # 
   # out.df = merge(gcc.met.pace.df.16,tmp.df,by='y',all.x=T)
