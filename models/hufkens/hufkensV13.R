@@ -82,7 +82,7 @@ phenoGrass.func.v13 <- function(gcc.df,
     loss.f <- swc.norm^q
     loss.f <- min(1,loss.f)
     # assuming sene stress is the not same
-    loss.f.s <- (1-swc.norm)^q.s
+    loss.f.s <- 1-(swc.norm)^q.s
     loss.f.s <- min(1,loss.f.s)
     # assume soil evap is linear to swc
     loss.f.soil <- swc.norm

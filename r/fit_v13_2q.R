@@ -6,6 +6,8 @@ source('r/v13_common_fun.R')
 source('models/hufkens/hufkensV13.R')
 devtools::source_url("https://github.com/Jinyan-Yang/colors/blob/master/R/col.R?raw=TRUE")
 library(zoo)
+library(foreach)
+library(doParallel)
 
 # fit pace####
 species.vec <- c('Luc','Fes','Rye',
@@ -29,7 +31,6 @@ fit.mcmc.2q.func(df=ym.18.df,n.iter = 20000,
                    my.fun = phenoGrass.func.v13,out.nm.note='v13.2q',use.smooth = TRUE,
                    swc.capacity = 0.3,swc.wilt = 0.05,day.lag=1,bucket.size = 1000)
 
-
 # fit to cw sites####
 gcc.met.cw.df <- readRDS('cache/gcc.met.cw.df.rds')
 for (i in seq_along(site.vec)){
@@ -44,15 +45,18 @@ for (i in seq_along(site.vec)){
 gcc.met.modis.df <- readRDS('cache/modis/modis.ndvi.met.rds')
 limits.vec <- as.vector(quantile(gcc.met.modis.df$GCC,na.rm=T,probs = c(.01,.99)))
 gcc.met.modis.df <- gcc.met.modis.df[gcc.met.modis.df$Species != 'tussock<1100',]
+gcc.met.modis.df$Species <- gsub('<','_',gcc.met.modis.df$Species)
 modis.sites.vec <- unique(gcc.met.modis.df$Species)
+modis.sites.vec <- modis.sites.vec[11:20]
 for (i in seq_along(modis.sites.vec)){
   fit.mcmc.2q.func(df=gcc.met.modis.df,
                    species.in=modis.sites.vec[i],prep.in = 'Control', temp.in ='Ambient',
-                   my.fun = phenoGrass.func.v13,out.nm.note='v13.2q',use.smooth = FALSE,
+                   my.fun = phenoGrass.func.v13,out.nm.note='v13.2q',use.smooth = TRUE,
                    swc.capacity = 0.3,swc.wilt = 0.05,n.iter = 10000,bucket.size = 1000,
                    norm.min.max = limits.vec)
 }
-  
+
+
 # make plots####
 plot.mcmc.func.2q = function(df = gcc.met.pace.df,
                              species.in,prep.in,temp.in,subplot=NULL,
@@ -213,7 +217,7 @@ plot.mcmc.func.2q = function(df = gcc.met.pace.df,
   
   # plot obs cover
   par(mar=c(5,5,1,5))
-  plot(cover~Date,data = hufken.pace.pred,type='l',lwd='2',#pch=16,
+  plot(cover~Date,data = hufken.pace.pred,type='p',pch=16,#lwd='2',
        xlab=' ',ylab=expression(f[cover]),ylim=c(0,1),col = col.df$iris[4],
        xaxt='n')
   
@@ -292,12 +296,20 @@ for(i in seq_along(site.vec[1:7])){
   }
 }
 # plot modis
+
+gcc.met.modis.df <- readRDS('cache/modis/modis.ndvi.met.rds')
+limits.vec <- as.vector(quantile(gcc.met.modis.df$GCC,na.rm=T,probs = c(.01,.99)))
+gcc.met.modis.df <- gcc.met.modis.df[gcc.met.modis.df$Species != 'tussock<1100',]
+gcc.met.modis.df$Species <- gsub('<','_',gcc.met.modis.df$Species)
+modis.sites.vec <- unique(gcc.met.modis.df$Species)
+
 plot.mcmc.func.2q(df=gcc.met.modis.df,
                   species.in=modis.sites.vec[1],
                   prep.in='Control',
                   temp.in='Ambient',
                   my.fun = phenoGrass.func.v13,
-                  nm.note='v13.2q',use.smooth = FALSE,swc.in.cap = 0.3,swc.in.wilt = 0.05,bucket.size = 1000)
+                  nm.note='v13.2q',use.smooth = TRUE,norm.min.max = limits.vec,
+                  swc.in.cap = 0.3,swc.in.wilt = 0.05,bucket.size = 1000)
 
 plot.title.func(modis.sites.vec[1])
 dev.off()
