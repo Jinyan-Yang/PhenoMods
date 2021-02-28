@@ -254,11 +254,14 @@ for (i in seq_along(cover.vec)){
   threshold.vec.tmp.2[i] <- uniroot(solve.intersect.func,interval = c(0.05,0.3))$root
 }
 # make plot
+# load color
+devtools::source_url("https://github.com/Jinyan-Yang/colors/blob/master/R/col.R?raw=TRUE")
+# 
 plot(threshold.vec.tmp.2~cover.vec,ylim=c(0.05,0.3),
      xlab = 'Initial cover',ylab = 'SWC threshold',
      type='l',lwd=2,col = 'coral')
 points(threshold.vec.tmp~cover.vec,
-     type='l',lwd=2,col = 'grey')
+     type='l',lwd=2,col = 'grey10')
 
 abline(v=0.2,lty=3,col='grey')
 abline(v=0.4,lty=3,col='grey')
@@ -270,7 +273,7 @@ abline(h=0.15,lty=3,col='grey')
 abline(h=0.2,lty=3,col='grey')
 abline(h=0.25,lty=3,col='grey')
 
-legend('topleft',legend = c('q = 0.5; q.s = 2','q = 2;    q.s = 0.5'),lty=1,col=c('coral','grey'),lwd=2)
+legend('topleft',legend = c('q = 0.5; q.s = 2','q = 2;    q.s = 0.5'),lty=1,col=c('coral','grey10'),lwd=2)
 
 # plot q value
 beta.func <- function(x,a=0.05,b=0.3,q=5,deficit =FALSE){
@@ -291,18 +294,29 @@ beta.q.2 = beta.func(x=swc.vec,q=2)
 beta.qs.0.5 = beta.func(x=swc.vec,q=0.5,deficit=T)
 
 # 
-plot(beta.q.0.5~swc.vec,type='l',col='navy',
-     xlab='VWC',ylab=expression(beta))
+plot(beta.q.0.5~swc.vec,type='l',col=col.df$iris[5],
+     xlab='SWC',ylab=expression(beta),lty=1,lwd=3)
 
-points(beta.qs.2~swc.vec,type='l',col='lightskyblue',lty=2)
+points(beta.qs.2~swc.vec,type='l',col=col.df$iris[1],lty=1,lwd=3)
 
-points(beta.q.2~swc.vec,type='l',col='coral')
+points(beta.q.2~swc.vec,type='l',col=col.df$iris[5],lty=2,lwd=3)
 
-points(beta.qs.0.5~swc.vec,type='l',col='darkseagreen',lty=2)
+points(beta.qs.0.5~swc.vec,type='l',col=col.df$iris[1],lty=2,lwd=3)
+
+# 
+abline(v=0.1,lty=3,col='grey')
+abline(v=0.15,lty=3,col='grey')
+abline(v=0.2,lty=3,col='grey')
+abline(v=0.25,lty=3,col='grey')
+
+abline(h=0.2,lty=3,col='grey')
+abline(h=0.4,lty=3,col='grey')
+abline(h=0.6,lty=3,col='grey')
+abline(h=0.8,lty=3,col='grey')
 
 legend('top',legend = c("q = 0.5","q = 2","q.s = 0.5","q.s = 2"),
-       lty=c(1,1,2,2),col=c("navy","coral","darkseagreen","lightskyblue"),
-       bty='n')
+       lty=c(1,2,1,2),col=(col.df$iris[c(5,5,1,1)]),
+       bty='n',lwd=3)
 
 dev.off()
 # 
