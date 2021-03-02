@@ -48,27 +48,57 @@ posterior.func <- function(prior.prob,bucket.size,swc.wilt,swc.capacity,FUN,...)
 }
 
 ######## Metropolis algorithm ################
-# function to generate a radom par value from a normal distribution based on mean and sd
+# # function to generate a radom par value from a normal distribution based on mean and sd
+# proposal.func <- function(param,par.df){
+#   
+#   prop.vec <- c()
+#   
+#   for(i in 1:ncol(par.df)){
+#     prop.vec[i] <- rnorm(1,mean = as.numeric(param[i]), sd = par.df['stdv',i])
+#     
+#     # prop.vec[i] <- rgamma(1,shape = as.numeric(param[i]))+0.001
+#   }
+#   return(abs(prop.vec))
+#   
+#   # while(any(prop.vec <= 0)){
+#   #   
+#   #   for(i in 1:ncol(par.df)){
+#   #     prop.vec[i] <- rnorm(1,mean = as.numeric(param[i]), sd = par.df['stdv',i])
+#   # 
+#   #   }
+#   # }
+#   
+# }
 proposal.func <- function(param,par.df){
   
-  prop.vec <- c()
-  
-  for(i in 1:ncol(par.df)){
-    prop.vec[i] <- rnorm(1,mean = as.numeric(param[i]), sd = par.df['stdv',i])
-    
-    # prop.vec[i] <- rgamma(1,shape = as.numeric(param[i]))+0.001
+  vcovProposal <- (0.005*(par.df['max',]-par.df['min',]))^2
+  candidatepValues = c()
+  no.var <- ncol(par.df)
+  for (i in 1:no.var) {
+    candidatepValues[i] = rmvnorm(n=1, mean=params[1,i],
+                                  sigma=diag(vcovProposal[[i]],1)) 
   }
-  return(abs(prop.vec))
   
-  # while(any(prop.vec <= 0)){
-  #   
-  #   for(i in 1:ncol(par.df)){
-  #     prop.vec[i] <- rnorm(1,mean = as.numeric(param[i]), sd = par.df['stdv',i])
+  # make sure the proposed values are over 0
+  while (min(candidatepValues)<=0){
+    for (i in 1:no.var) {
+      candidatepValues[i] = rmvnorm(n=1, mean=params[1,i],
+                                    sigma=diag(vcovProposal[[i]],1)) 
+    }
+    
+  }
+  
+  # ### Reflected back to generate another candidate value
+  # reflectionFromMin = pmin( unlist(matrix(0,nrow=1,ncol=no.var)), 
+  #                           unlist(candidatepValues-par.df['min',]) )
+  # reflectionFromMax = pmax( unlist(list(rep(0, 1))), 
+  #                           unlist(candidatepValues-par.df['max',]) )
+  # candidatepValues = candidatepValues - 2 * reflectionFromMin - 2 * reflectionFromMax 
   # 
-  #   }
-  # }
-  
+  return((candidatepValues))
+
 }
+# proposal.func(rep(0,6),par.df)
 
 # prior.prob,data,data.sd,model.form,pars.ls
 mh.MCMC.func <- function(iterations,par.df,
