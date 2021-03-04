@@ -15,22 +15,6 @@ phenoGrass.func.v13 <- function(gcc.df,
                                 use.smooth=FALSE,
                                 q = 1,q.s=1){
 
-  # if(f.t.opt < 0){
-  #   f.t.opt = 0
-  # }
-  # if(f.extract < 0){
-  #   f.extract = 0
-  # }
-  # if(f.sec < 0){
-  #   f.sec = 0
-  # }
-  # if(f.growth < 0){
-  #   f.growth = 0
-  # }
-  # if(q < 0){
-  #   q = 0
-  # }
-
   # set the lag factor; in num of days
   start.date <- gcc.df$Date[min(which(!is.na(gcc.df$GCC.norm)))]
 
@@ -77,7 +61,7 @@ phenoGrass.func.v13 <- function(gcc.df,
     water.avi[nm.day] <- max(0,(swc.vec[nm.day-1]- swc.wilt*bucket.size))
 
     # define water stress using a beta function
-    swc.norm <- water.avi[nm.day] / (swc.capacity - swc.wilt) / bucket.size
+    swc.norm <-( water.avi[nm.day] / (swc.capacity - swc.wilt) / bucket.size)^2
     swc.norm <- max(0,min(1,swc.norm))
     loss.f <- swc.norm^q
     loss.f <- min(1,loss.f)
@@ -152,12 +136,12 @@ phenoGrass.func.v13 <- function(gcc.df,
     # calculate swc
     evap.vec[nm.day] <- (1 - cover.pred.vec[nm.day-1]) *
       # loss.f^2*
-      loss.f.soil*#^2*
+      loss.f.soil^2*#^2*
       # ((swc.vec[nm.day-1]/bucket.size - swc.wilt)/(swc.capacity-swc.wilt))^2 *
       et[nm.day]
     transp.vec[nm.day] <- f.extract *
-      swc.vec[nm.day-1] *
-      # water.avi.norm*
+      # swc.vec[nm.day-1] *
+      loss.f.soil*
       cover.pred.vec[nm.day] / cover.max
 
     swc.vec[nm.day] <- swc.vec[nm.day-1] + gcc.df$Rain[nm.day] - evap.vec[nm.day] - transp.vec[nm.day]
