@@ -721,6 +721,49 @@ plot.mcmc.func.2q.modis = function(df = gcc.met.pace.df,
   # }
   
 }
+
+plot.check.mcmc.func=function(chain.in,species.in='',nm.vec = c('Topt','f.extract','senescence','growth','q','qs')){
+  
+  burnIn = round(nrow(chain.in) / 2)
+  
+  par(mfrow=c(3,2),mar=c(5,5,1,1))
+  
+  for(i in 1:ncol(chain.in)){
+    hist(chain.in[burnIn:nrow(chain.in),i],xlab = nm.vec[i],
+         main='')
+    
+  }
+  plot.title.func(species.in = species.in)
+}
+
+# 
+acceptance.func <- function(vec){
+  sum(!duplicated(vec)) / length(vec)
+}
+
+# 
+plot.line.mcmc.func <- function(chain.3.ls,val.nm,
+                                nm.vec = c('Topt','f.extract','senescence','growth','q','qs'),
+                                range.iter = NULL){
+  
+  # 
+  n.iter <- nrow(chain.3.ls[[1]])
+  
+  if(is.null(range.iter)){
+    range.iter <- round(0.75*n.iter):n.iter
+  }
+  
+  # 
+  min.val <- min(min(chain.3.ls[[1]][range.iter,val.nm]),min(chain.3.ls[[3]][range.iter,val.nm]),min(chain.3.ls[[2]][range.iter,val.nm]))
+  
+  max.val <- max(max(chain.3.ls[[1]][range.iter,val.nm]),max(chain.3.ls[[3]][range.iter,val.nm]),max(chain.3.ls[[2]][range.iter,val.nm]))
+  # 
+  plot(chain.3.ls[[1]][range.iter,val.nm],pch=16,ylim=c(min.val,max.val),ylab=nm.vec[val.nm],xlab='Iteration')
+  print(acceptance.func(chain.3.ls[[1]][range.iter,val.nm]))
+  for (i in 2:3) {
+    points(chain.3.ls[[i]][range.iter,val.nm],pch=16,col=i)
+  }
+}
 # 
 # plot.title.func=function(species.in){
 #   par(mfrow=c(1,1),new=T,mar=c(1,1,1,1))
