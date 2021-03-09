@@ -1,6 +1,7 @@
 source('models/hufkens/hufkens_common_fun.R')
-
-#
+####################################################################################################################
+##############################################V13 of the hufkens model##############################################
+####################################################################################################################
 phenoGrass.func.v13 <- function(gcc.df,
                                 f.h,
                                 f.t.opt,
@@ -14,6 +15,14 @@ phenoGrass.func.v13 <- function(gcc.df,
                                 day.lay,
                                 use.smooth=FALSE,
                                 q = 1,q.s=1){
+  
+  ####################################################################################################################
+  # inputs
+  
+  # outputs
+  
+  
+  ####################################################################################################################
 
   # set the lag factor; in num of days
   start.date <- gcc.df$Date[min(which(!is.na(gcc.df$GCC.norm)))]
@@ -61,12 +70,12 @@ phenoGrass.func.v13 <- function(gcc.df,
     water.avi[nm.day] <- max(0,(swc.vec[nm.day-1]- swc.wilt*bucket.size))
 
     # define water stress using a beta function
-    swc.norm <-( water.avi[nm.day] / (swc.capacity - swc.wilt) / bucket.size)^2
+    swc.norm <-(water.avi[nm.day] / (swc.capacity - swc.wilt) / bucket.size)
     swc.norm <- max(0,min(1,swc.norm))
     loss.f <- swc.norm^q
     loss.f <- min(1,loss.f)
     # assuming sene stress is the not same
-    loss.f.s <- 1-(swc.norm)^q.s
+    loss.f.s <- (1-swc.norm)^q.s
     loss.f.s <- min(1,loss.f.s)
     # assume soil evap is linear to swc
     loss.f.soil <- swc.norm
@@ -78,7 +87,7 @@ phenoGrass.func.v13 <- function(gcc.df,
     # }
 
     days.past <- max(c(1,(nm.day-15))) #hufkens used 15 days
-    t.m[nm.day] <- mean(gcc.df$Tmax[days.past:nm.day],na.rm=TRUE) 
+    t.m[nm.day] <- gcc.df$Tmax[nm.day]#mean(gcc.df$Tmax[days.past:nm.day],na.rm=TRUE) 
     # hufkens used evaportanspiration from Hargreaves 1985
     # here is from evapotranspiration R package
     et[nm.day] <- pet.func(gcc.df$Date[nm.day],gcc.df$PPFD[nm.day],
@@ -121,8 +130,8 @@ phenoGrass.func.v13 <- function(gcc.df,
       (1 - cover.pred.vec[nm.day-1] / cover.max)
     
     senescence.vec[nm.day] <- d * f.sec * (loss.f.s) *
-      # (1 - cover.pred.vec[nm.day-1])*
-      cover.pred.vec[nm.day-1]
+      4*(1 - cover.pred.vec[nm.day-1])*
+      cover.pred.vec[nm.day-1]#/ cover.max
 
     cover.pred.vec[nm.day] <- cover.pred.vec[nm.day-1] + growth.vec[nm.day] - senescence.vec[nm.day]
 
@@ -136,7 +145,7 @@ phenoGrass.func.v13 <- function(gcc.df,
     # calculate swc
     evap.vec[nm.day] <- (1 - cover.pred.vec[nm.day-1]) *
       # loss.f^2*
-      loss.f.soil^2*#^2*
+      loss.f.soil*#^2*
       # ((swc.vec[nm.day-1]/bucket.size - swc.wilt)/(swc.capacity-swc.wilt))^2 *
       et[nm.day]
     transp.vec[nm.day] <- f.extract *
