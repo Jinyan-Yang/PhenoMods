@@ -51,10 +51,12 @@ for (i in seq_along(site.vec)){
 
 source('r/proces_modis_sites.R')
 # seq_along(modis.sites.vec)
-for (i in c(5)){
+for (i in c(13)){
+  
+  limits.vec <- limit.ls[[i]]
   fit.mcmc.2q.func(df=gcc.met.modis.df,
                    species.in=modis.sites.vec[i],prep.in = 'Control', temp.in ='Ambient',
-                   my.fun = phenoGrass.func.v13,out.nm.note='v13.2q.rooting.oldproposal.',use.smooth = FALSE,
+                   my.fun = phenoGrass.func.v13,out.nm.note='v13.2q.rooting.oldproposal.newNDVI.',use.smooth = FALSE,
                    swc.capacity = 0.3,swc.wilt = 0.05,n.iter = 15000,bucket.size = 1000,
                    norm.min.max = limits.vec)
 }
@@ -111,7 +113,7 @@ for (i in c(1,11,15,7)) {
                     prep.in='Control',
                     temp.in='Ambient',
                     my.fun = phenoGrass.func.v13,
-                    nm.note='v13.2q.rooting.oldproporal..',use.smooth = TRUE,norm.min.max = limits.vec,
+                    nm.note='v13.2q.rooting.oldproposal.',use.smooth = FALSE,norm.min.max = limits.vec,
                     swc.in.cap = 0.3,swc.in.wilt = 0.05,bucket.size = 1000)
   
   plot.title.func(modis.sites.vec[i])
@@ -132,49 +134,8 @@ dev.off()
 # 
 # dev.off()
 
-plot.check.mcmc.func=function(chain.in,species.in='',nm.vec = c('Topt','f.extract','senescence','growth','q','qs')){
-  
-  burnIn = round(nrow(chain.in) / 2)
-  
-  par(mfrow=c(3,2),mar=c(5,5,1,1))
-  
-  for(i in 1:ncol(chain.in)){
-    hist(chain.in[burnIn:nrow(chain.in),i],xlab = nm.vec[i],
-         main='')
-    
-  }
-  plot.title.func(species.in = species.in)
-}
 
-# 
-acceptance.func <- function(vec){
-  sum(!duplicated(vec)) / length(vec)
-}
-
-# 
-plot.line.mcmc.func <- function(chain.3.ls,val.nm,
-                                nm.vec = c('Topt','f.extract','senescence','growth','q','qs'),
-                                range.iter = NULL){
-  
-  # 
-  n.iter <- nrow(chain.3.ls[[1]])
-  
-  if(is.null(range.iter)){
-    range.iter <- round(0.75*n.iter):n.iter
-  }
-  
-  # 
-  min.val <- min(min(chain.3.ls[[1]][range.iter,val.nm]),min(chain.3.ls[[3]][range.iter,val.nm]),min(chain.3.ls[[2]][range.iter,val.nm]))
-  
-  max.val <- max(max(chain.3.ls[[1]][range.iter,val.nm]),max(chain.3.ls[[3]][range.iter,val.nm]),max(chain.3.ls[[2]][range.iter,val.nm]))
-# 
-  plot(chain.3.ls[[1]][range.iter,val.nm],pch=16,ylim=c(min.val,max.val),ylab=nm.vec[val.nm],xlab='Iteration')
-  print(acceptance.func(chain.3.ls[[1]][range.iter,val.nm]))
-  for (i in 2:3) {
-    points(chain.3.ls[[i]][range.iter,val.nm],pch=16,col=i)
-  }
-}
-
+# #############
 pdf('figures/v13.2q.diag.pdf',width = 8,height = 8*0.618)
 for(i in  c(1,2,3,4,6,10)){
   fn <- sprintf('cache/smv13.2qchain.%s.Control.Ambient.rds',species.vec[i])
@@ -188,7 +149,7 @@ chain.3.ls = readRDS(fn)
 lapply(chain.3.ls, plot.check.mcmc.func,species.in='ym')
 
 # modis
-fn <- c('cache/smv13.2q.rooting.oldproporal..chain.pasture_500.Control.Ambient.rds')
+fn <- c('cache/v13.2q.rooting.oldproposal.chain.pasture_700.Control.Ambient.rds')
 chain.3.ls = readRDS(fn)
 lapply(chain.3.ls, plot.check.mcmc.func,species.in='Pasture<300')
 
