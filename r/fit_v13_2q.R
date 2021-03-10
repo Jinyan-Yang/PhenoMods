@@ -95,25 +95,17 @@ for(i in seq_along(site.vec[1:7])){
 dev.off()
 
 # # plot modis
-pdf('figures/v13.2q.modis.pdf',width = 8,height = 8*0.618)
 
-gcc.met.modis.df <- readRDS('cache/modis/modis.ndvi.met.rds')
-limits.vec <- as.vector(quantile(gcc.met.modis.df$GCC,na.rm=T,probs = c(.01,.99)))
-gcc.met.modis.df <- gcc.met.modis.df[gcc.met.modis.df$Species != 'tussock<1100',]
-
-gcc.met.modis.df$Species <- gsub('<','_',gcc.met.modis.df$Species)
-modis.sites.vec <- unique(gcc.met.modis.df$Species)
-
-modis.sites.vec <- modis.sites.vec[c(4:9,14:19)]
+pdf('figures/v13.2q.modis.tussock600.pdf',width = 8,height = 8*0.618)
 
 # modis sites
-for (i in c(1,11,15,7)) {
+for (i in c(13)) {
   plot.mcmc.func.2q.modis(df=gcc.met.modis.df,
                     species.in=modis.sites.vec[i],
                     prep.in='Control',
                     temp.in='Ambient',
                     my.fun = phenoGrass.func.v13,
-                    nm.note='v13.2q.rooting.oldproposal.',use.smooth = FALSE,norm.min.max = limits.vec,
+                    nm.note='v13.2q.rooting.oldproposal.newNDVI.',use.smooth = FALSE,norm.min.max = limits.vec,
                     swc.in.cap = 0.3,swc.in.wilt = 0.05,bucket.size = 1000)
   
   plot.title.func(modis.sites.vec[i])
@@ -122,6 +114,19 @@ for (i in c(1,11,15,7)) {
 #   combine_pdfs = function(path, output_pdf) {
 #     system(sprintf("pdftk %s/*pdf cat output %s"), path, output_pdf)
 #   }
+}
+
+# modis
+fn <- c('cache/v13.2q.rooting.oldproposal.newNDVI.chain.tussock_600.Control.Ambient.rds')
+chain.3.ls = readRDS(fn)
+lapply(chain.3.ls, plot.check.mcmc.func,species.in='tussock<600')
+
+# 
+par(mfrow=c(3,2),mar=c(5,5,1,1))
+for(i in 1:6){
+  
+  plot.line.mcmc.func(chain.3.ls,i,range.iter = 1:15000)
+  
 }
 
 dev.off()
@@ -149,9 +154,9 @@ chain.3.ls = readRDS(fn)
 lapply(chain.3.ls, plot.check.mcmc.func,species.in='ym')
 
 # modis
-fn <- c('cache/v13.2q.rooting.oldproposal.chain.pasture_700.Control.Ambient.rds')
+fn <- c('cache/v13.2q.rooting.oldproposal.newNDVI.chain.tussock_600.Control.Ambient.rds')
 chain.3.ls = readRDS(fn)
-lapply(chain.3.ls, plot.check.mcmc.func,species.in='Pasture<300')
+lapply(chain.3.ls, plot.check.mcmc.func,species.in='Pasture<600')
 
 # 
 par(mfrow=c(3,2),mar=c(5,5,1,1))
@@ -174,7 +179,7 @@ lapply(chain.3.ls, plot.check.mcmc.func,species.in='Pasture<1000')
 par(mfrow=c(3,2),mar=c(5,5,1,1))
 for(i in 1:6){
   
-  plot.line.mcmc.func(chain.3.ls,i,range.iter = 1:100)
+  plot.line.mcmc.func(chain.3.ls,i,range.iter = 13000:15000)
   
 }
 # pdf('figures/v13.ym.2q.diag.pdf',width = 8,height = 8*0.618)

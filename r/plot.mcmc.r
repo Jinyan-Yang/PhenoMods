@@ -750,7 +750,7 @@ plot.line.mcmc.func <- function(chain.3.ls,val.nm,
   n.iter <- nrow(chain.3.ls[[1]])
   
   if(is.null(range.iter)){
-    range.iter <- round(0.75*n.iter):n.iter
+    range.iter <- round(0.5*n.iter):n.iter
   }
   
   # 
