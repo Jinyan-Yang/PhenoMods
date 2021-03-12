@@ -1,7 +1,12 @@
-source('models/hufkens/hufkens_common_fun.R')
+
 ####################################################################################################################
 ##############################################V13 of the hufkens model##############################################
 ####################################################################################################################
+
+# load need func and packages
+source('models/hufkens/hufkens_common_fun.R')
+
+# model function
 phenoGrass.func.v13 <- function(gcc.df,
                                 f.h,
                                 f.t.opt,
@@ -18,12 +23,22 @@ phenoGrass.func.v13 <- function(gcc.df,
   
   ####################################################################################################################
   # inputs
-  
+         # gcc.df: data frame with GCC, and met inputs
+         # f.h: gcc to cover scaling factor; mm/yr
+         # f.t.opt: optimal temperature for growth; degree C
+         # f.extract: max water extraction rate; mm d-1 
+         # f.sec & f.growth: intrinsic senescence and growth rate; cover d-1 
+         # swc.wilt & swc.capacity: soil wilting point and capacity; decimal
+         # bucket.size: rooting depth; mm
+         # t.max; max T after which no growth allowed; degree C
+         # day.lay; number of days plant wait to reponsd to rainfall
+         # use.smooth; switch to use GAM smoothed GCC; TRUE- use smoothed data
+         # q & q.s: power of the beta function for growth and senescence; unitless
   # outputs
-  
-  
+        # data frame with met and predicted cover, SWC, runoff, drainage, evaporation
   ####################################################################################################################
 
+  # model begine
   # set the lag factor; in num of days
   start.date <- gcc.df$Date[min(which(!is.na(gcc.df$GCC.norm)))]
 

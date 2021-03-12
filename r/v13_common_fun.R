@@ -268,7 +268,6 @@ mh.MCMC.func.2q <- function(iterations,par.df,
   # chain[1,] = as.numeric(par.df['initial',])
   chain[1,] = proposal.func(as.vector(as.matrix(par.df['initial',])),par.df)
   
-  
   # chain move on
   for (i in 1:iterations){
     # prpose a set of par values based on previous chain value

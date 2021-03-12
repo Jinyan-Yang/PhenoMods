@@ -58,7 +58,10 @@ proposal.func <- function(param,par.df){
 
     # prop.vec[i] <- rgamma(1,shape = as.numeric(param[i]))+0.001
   }
-  return(abs(prop.vec))
+  
+  prop.vec[prop.vec<=0] <- 0.005
+  
+  return((prop.vec))
 
   # while(any(prop.vec <= 0)){
   #

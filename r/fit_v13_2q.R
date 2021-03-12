@@ -51,13 +51,13 @@ for (i in seq_along(site.vec)){
 
 source('r/proces_modis_sites.R')
 # seq_along(modis.sites.vec)
-for (i in c(13)){
+for (i in c(1,4,6,11,15)){
   
   limits.vec <- limit.ls[[i]]
   fit.mcmc.2q.func(df=gcc.met.modis.df,
                    species.in=modis.sites.vec[i],prep.in = 'Control', temp.in ='Ambient',
                    my.fun = phenoGrass.func.v13,out.nm.note='v13.2q.rooting.oldproposal.newNDVI.',use.smooth = FALSE,
-                   swc.capacity = 0.3,swc.wilt = 0.05,n.iter = 15000,bucket.size = 1000,
+                   swc.capacity = 0.3,swc.wilt = 0.05,n.iter = 20000,bucket.size = 1000,
                    norm.min.max = limits.vec)
 }
 
@@ -100,6 +100,7 @@ pdf('figures/v13.2q.modis.tussock600.pdf',width = 8,height = 8*0.618)
 
 # modis sites
 for (i in c(13)) {
+  limits.vec <- limit.ls[[i]]
   plot.mcmc.func.2q.modis(df=gcc.met.modis.df,
                     species.in=modis.sites.vec[i],
                     prep.in='Control',
@@ -125,7 +126,7 @@ lapply(chain.3.ls, plot.check.mcmc.func,species.in='tussock<600')
 par(mfrow=c(3,2),mar=c(5,5,1,1))
 for(i in 1:6){
   
-  plot.line.mcmc.func(chain.3.ls,i,range.iter = 1:15000)
+  plot.line.mcmc.func(chain.3.ls,i,range.iter = 13000:15000)
   
 }
 
