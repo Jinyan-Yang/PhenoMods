@@ -47,13 +47,22 @@ phenoGrass.func.v13 <- function(gcc.df,
 
   # decide whether to use smooth gcc
   if(use.smooth==TRUE){
+    
+    
+    
     gcc.df$cover <-  gcc.df$GCC.norm.smooth * sf.value
   }else{
     gcc.df$cover <-  gcc.df$GCC.norm * sf.value
   }
 
   # set up the inital conditions
-  swc.vec <- gcc.df$vwc * bucket.size
+  if(length(unique(gcc.df$vwc)) == 1){
+    cover.fraction <- gcc.df$cover[!is.na(gcc.df$cover)][1]
+    swc.vec <- (swc.capacity - swc.wilt) * bucket.size * cover.fraction
+  }else{
+    swc.vec <- gcc.df$vwc * bucket.size
+  }
+ 
   et <- c()
   cover.pred.vec <- c()
   cover.pred.vec[day.lay] <- gcc.df$cover[!is.na(gcc.df$cover)][1]
@@ -145,7 +154,7 @@ phenoGrass.func.v13 <- function(gcc.df,
       (1 - cover.pred.vec[nm.day-1] / cover.max)
     
     senescence.vec[nm.day] <- d * f.sec * (loss.f.s) *
-      4*(1 - cover.pred.vec[nm.day-1])*
+      # 4*(1 - cover.pred.vec[nm.day-1])*
       cover.pred.vec[nm.day-1]#/ cover.max
 
     cover.pred.vec[nm.day] <- cover.pred.vec[nm.day-1] + growth.vec[nm.day] - senescence.vec[nm.day]
