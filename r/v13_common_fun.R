@@ -138,7 +138,8 @@ fit.mcmc.2q.func <- function(df = gcc.met.pace.df,
                              swc.capacity = 0.13,
                              swc.wilt = 0.05,
                              n.iter = 10000,
-                             norm.min.max=NULL){
+                             norm.min.max=NULL,
+                             cal.initial=F){
   s.time <- Sys.time()
   gcc.met.pace.df.16 <<- get.pace.func(df,
                                       species.in =species.in,
@@ -154,6 +155,35 @@ fit.mcmc.2q.func <- function(df = gcc.met.pace.df,
   swc.capacity <<- swc.capacity
   swc.wilt <<-  swc.wilt
   n.iter <<-  n.iter
+  
+  if(cal.initial){
+    source('r/deoptimal_initial.R')
+  }else{
+    initial.vec<-NULL
+  }
+
+  # para values####
+  par.df <- data.frame(#f.h = c(200,220,240,NA,NA),
+    f.t.opt = c(5,20,40,NA,NA,NA),
+    f.extract = c(0.0001,0.5,0.5,NA,NA,NA),
+    f.sec = c(0.001,0.05,0.1,NA,NA,NA),
+    f.growth = c(0.001,0.15,0.2,NA,NA,NA),
+    q = c(0.1,3,5,NA,NA,NA),
+    q.s = c(0.1,1,5,NA,NA,NA))
+  row.names(par.df) <- c('min','initial','max','fit','stdv','prop')
+  
+  # this assume 100% of the data falls into the max min range
+  # in a normal distribution for proposal.func
+  
+  if(is.null(initial.vec)){
+    par.df['initial',] <- c(20,0.05,0.05,0.15,3,1)
+  }else{
+    par.df['initial',] <- initial.vec
+  }
+  par.df['stdv',] <- (par.df['max',] - par.df['min',])/100
+  
+  par.df <<- par.df
+  
   # gcc.met.pace.df.16$map <- 760
   
   # # para values####
@@ -233,7 +263,7 @@ fit.mcmc.2q.func <- function(df = gcc.met.pace.df,
                    time = time.used,
                    when = Sys.time())
   
-  write.table(df, file = "time.used", sep = "\t",append = T,
+  write.table(df, file = "time.used.txt", sep = "\t",append = T,
               row.names = FALSE)
 }
 
@@ -245,19 +275,7 @@ mh.MCMC.func.2q <- function(iterations,par.df,
                             my.fun,
                             use.smooth){
 
-  # para values####
-  par.df <- data.frame(#f.h = c(200,220,240,NA,NA),
-    f.t.opt = c(5,20,40,NA,NA,NA),
-    f.extract = c(0.0001,0.075,0.5,NA,NA,NA),
-    f.sec = c(0.001,0.05,0.1,NA,NA,NA),
-    f.growth = c(0.001,0.02,0.1,NA,NA,NA),
-    q = c(0.1,1,5,NA,NA,NA),
-    q.s = c(0.1,1,5,NA,NA,NA))
-  row.names(par.df) <- c('min','initial','max','fit','stdv','prop')
-  
-  # this assume 100% of the data falls into the max min range
-  # in a normal distribution for proposal.func
-  par.df['stdv',] <- (par.df['max',] - par.df['min',])/100
+
   
   # get prior 
   prior.prob <- prior.func(par.df)
