@@ -1,35 +1,40 @@
 # process ym data
 source('r/pace_data_process.R')
 
+
 get.ym.func <- function(treat){
- # get gcc for specific treat
+  
+  c.wd <- getwd()
+  setwd('c:/repo/dn_gcc/')
+  on.exit(setwd(c.wd))
+   # get gcc for specific treat
   if(treat == 'Control'){
-    df.45 <- readRDS('cache/ym/gcc_45.rds')
+    df.45 <- readRDS('cache/gcc_ym_45.rds')
     df.45$SubplotID <- 45
-    df.18 <- readRDS('cache/ym/gcc_18.rds')
+    df.18 <- readRDS('cache/gcc_ym_18.rds')
     df.18$SubplotID <- 18
     
     tmp.gcc.df <- rbind(df.18,df.45)
     tmp.gcc.df$Precipitation <- 'Control'
   }
   if(treat == 'Drought'){
-    df.14 <- readRDS('cache/ym/gcc_14.rds')
+    df.14 <- readRDS('cache/gcc_ym_14.rds')
     df.14$SubplotID <- 14
-    df.27 <- readRDS('cache/ym/gcc_27.rds')
+    df.27 <- readRDS('cache/gcc_ym_27.rds')
     df.27$SubplotID <- 27
-    df.38 <- readRDS('cache/ym/gcc_38.rds')
+    df.38 <- readRDS('cache/gcc_ym_38.rds')
     df.38$SubplotID <- 38
     
     tmp.gcc.df <-do.call(rbind,list(df.14,df.27,df.38))
     tmp.gcc.df$Precipitation <- 'Drought'
   }
   if(treat == 'up'){
-    tmp.gcc.df <- readRDS('cache/ym/gcc_up.rds')
+    tmp.gcc.df <- readRDS('cache/gcc_ym_up.rds')
     tmp.gcc.df$Precipitation <- 'up'
     tmp.gcc.df$SubplotID <- 'up'
   }
   if(is.numeric(treat)){
-    fn <- sprintf('cache/ym/gcc_%s.rds',treat)
+    fn <- sprintf('cache/gcc_ym_%s.rds',treat)
     tmp.gcc.df <- readRDS(fn)
     if(treat %in% c(14,27,38)){
       prep <- 'Drought'
@@ -49,7 +54,7 @@ get.ym.func <- function(treat){
                             FUN=mean,na.rm=T,keep.names = T)
   
   # get met
-  ym.met.df <- readRDS('cache/ym/ym.met.rds')
+  ym.met.df <- readRDS('cache/ym.met.rds')
   ym.met.df <- subset(ym.met.df,select = -c(sensor.no,position))
   ym.met.df <- ym.met.df[!duplicated(ym.met.df),]
   
