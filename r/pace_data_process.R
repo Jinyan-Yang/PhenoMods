@@ -32,16 +32,15 @@ get.smooth.gcc.func = function(Date.vec,gcc.vec){
   
   gam.frdm = round(length(gam.in.df$x)/3)
   
- 
   fit.gam <- gam(y~s(x,k = gam.frdm),data = gam.in.df)
   
-  gam.in.df$fitted.val = fit.gam$fitted.values#predict(fit.gam,gam.in.df)
-  
+  gam.in.df$fitted.val = predict(fit.gam,gam.in.df)
+  # 
   gam.df <- merge(gam.out.df,gam.in.df,all=T)
   
-  # gam.df$fitted.val <- na.fill(gam.df$fitted.val,fill='extend')
+  gam.df$fitted.val <- na.fill(gam.df$fitted.val,fill='extend')
   
-  return(gam.df$fitted.val)
+  return(gam.in.df$fitted.val)
 }
 
 # get pace data by species or treatment
@@ -144,7 +143,7 @@ get.pace.func <- function(gcc.met.pace.df,
   #                                                     gcc.met.pace.df.16$GCC)
   
   # none.na.df <- gcc.met.pace.df.16[!is.na(gcc.met.pace.df.16$GCC.norm),]
-  
+  gcc.met.pace.df.16 <- gcc.met.pace.df.16[order(gcc.met.pace.df.16$Date),]
   gcc.met.pace.df.16$GCC.norm.smooth = get.smooth.gcc.func(Date.vec = gcc.met.pace.df.16$Date, 
                                                            gcc.vec = gcc.met.pace.df.16$GCC.norm)
   
@@ -159,8 +158,10 @@ get.pace.func <- function(gcc.met.pace.df,
   #   gcc.met.pace.df.16$GCC.smooth[1:day.lag]<-
   #   gcc.met.pace.df.16$GCC.norm.smooth[1:day.lag] <- 
   #   NA
-    
-  # gcc.met.pace.df.16$harvest = 0
+  
+  if(is.null(gcc.met.pace.df.16$harvest)){
+    gcc.met.pace.df.16$harvest = 0
+  }
   
   print('data processed')
   return(gcc.met.pace.df.16)
