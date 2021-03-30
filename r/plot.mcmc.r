@@ -275,7 +275,7 @@ plot.mcmc.func.noQ = function(df = gcc.met.pace.df,
   par.df["fit",] <- colMeans(chain.fes[burnIn:nrow(chain.fes),])
   # par.df["fit",] <- colMeans(luc.d.a.df[burnIn:nrow(luc.d.a.df),])
   # 
-  bucket.size = 300
+  # bucket.size = 300
   hufken.pace.pred <- my.fun(gcc.met.pace.df.16,
                              f.h = 222,
                              f.t.opt = par.df["fit",1],
@@ -492,22 +492,9 @@ plot.mcmc.func.2q = function(df = gcc.met.pace.df,
   # save prediction for future use
   
   saveRDS(hufken.pace.pred,rds.nm)
-  # hufken.pace.pred <- readRDS('tmp/pred.smv13chain.ym.Control.Ambient.rds')
-  # hufken.pace.pred$water.norm <- hufken.pace.pred$water.avi / (0.13-0.05)/300
-  # library(viridisLite)
-  # palette(viridis(8))
-  par(mar=c(5,5,1,5))
-  par(mfrow=c(2,2))
-  
-  
-  # par(mar=c(0,5,1,5))C
-  # plot(irrig.tot~Date,data = hufken.pace.pred,type='s',
-  #      ann=F,axes=F,col = 'lightskyblue')
-  # max.irrig = round(max(hufken.pace.pred$irrig.tot,na.rm=T))
-  # axis(2,at = seq(0,max.irrig,by=10),labels = seq(0,max.irrig,by=10))
-  # mtext('irrigation (mm)',side = 2,line = 3)
-  
+
   # plot swc
+  par(mfrow=c(2,2))
   par(mar=c(5,5,1,5))
   plot(vwc.hufken~Date,data = hufken.pace.pred,type='s',
        ann=F,axes=F,col = col.df$bushBySea[3],ylim=c(0,0.3),lwd='2')
@@ -566,7 +553,7 @@ plot.mcmc.func.2q = function(df = gcc.met.pace.df,
   mtext(yr.vec[(length(yr.vec) - num.yr + 1):length(yr.vec)],side = 1,adj = where.c,line = 3)
   
   # plot model pred
-  points(cover.hufken~Date,data = hufken.pace.pred,type='l',lwd='2',col=col.df$auLandscape[2],lty='dashed')
+  points(cover.hufken~Date,data = hufken.pace.pred,type='l',lwd='2',col=col.df$auLandscape[2],lty='solid')
   
   
   # legend('topleft',legend = paste0(species.in,prep.in,temp.in),bty='n')
@@ -601,7 +588,7 @@ plot.mcmc.func.2q.modis = function(df = gcc.met.pace.df,
                              nm.note='',use.smooth=FALSE,
                              my.fun = phenoGrass.func.v11,
                              swc.in.cap = 0.13,swc.in.wilt = 0.05,bucket.size =300,
-                             norm.min.max=NULL,time.series = TRUE){
+                             norm.min.max=NULL,time.series = TRUE,day.lag=1){
   
   if(is.null(subplot)){
     gcc.met.pace.df.16 <- get.pace.func(df,
@@ -644,7 +631,7 @@ plot.mcmc.func.2q.modis = function(df = gcc.met.pace.df,
   if(is.list(in.chain)){
     # assuming 1/3 burn in
     burnIn = 1
-    chain.3.ls.new = lapply(in.chain,function(m.in)m.in[round(2*nrow(m.in)/3):nrow(m.in),])
+    chain.3.ls.new = lapply(in.chain,function(m.in)m.in[round(3*nrow(m.in)/4):nrow(m.in),])
     
     chain.fes <- do.call(rbind,chain.3.ls.new)
   }else{
