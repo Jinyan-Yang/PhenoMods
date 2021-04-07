@@ -395,7 +395,8 @@ plot.mcmc.func.2q = function(df = gcc.met.pace.df,
                              nm.note='',use.smooth=FALSE,
                              my.fun = phenoGrass.func.v11,
                              swc.in.cap = 0.13,swc.in.wilt = 0.05,bucket.size =300,
-                             norm.min.max=NULL){
+                             norm.min.max=NULL,
+                             day.lag=3){
   
   if(is.null(subplot)){
     gcc.met.pace.df.16 <- get.pace.func(df,
@@ -471,10 +472,13 @@ plot.mcmc.func.2q = function(df = gcc.met.pace.df,
     q = c(0.001,1,2,NA,NA,NA),
     q.s = c(0.001,1,2,NA,NA,NA))
   row.names(par.df) <- c('min','initial','max','fit','stdv','prop')
-  par.df["fit",] <- colMeans(chain.fes[burnIn:nrow(chain.fes),])
+  # par.df["fit",] <- colMeans(chain.fes[burnIn:nrow(chain.fes),])
+  
+  par.df["fit",] <-apply(chain.fes[burnIn:nrow(chain.fes),],2,median)
   # par.df["fit",] <- colMeans(luc.d.a.df[burnIn:nrow(luc.d.a.df),])
   # 
   # bucket.size = 300
+  gcc.met.pace.df.16 <- gcc.met.pace.df.16[order(gcc.met.pace.df.16$Date),]
   hufken.pace.pred <- my.fun(gcc.met.pace.df.16,
                              f.h = 222,
                              f.t.opt = par.df["fit",1],

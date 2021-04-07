@@ -158,6 +158,7 @@ fit.mcmc.2q.func <- function(df = gcc.met.pace.df,
   
   if(cal.initial){
     source('r/deoptimal_initial.R')
+    initial.vec <- get.ini.func()
   }else{
     initial.vec<-NULL
   }
@@ -176,13 +177,14 @@ fit.mcmc.2q.func <- function(df = gcc.met.pace.df,
   # in a normal distribution for proposal.func
   
   if(is.null(initial.vec)){
-    par.df['initial',] <- c(20,0.05,0.05,0.15,3,1)
+    par.df['initial',] <- c(20,0.05,0.005,0.15,3,0.5)
   }else{
     par.df['initial',] <- initial.vec
   }
   par.df['stdv',] <- (par.df['max',] - par.df['min',])/100
   
   par.df <<- par.df
+  # print(par.df)
   
   # gcc.met.pace.df.16$map <- 760
   

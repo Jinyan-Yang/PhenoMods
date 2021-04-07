@@ -160,11 +160,11 @@ get.threshold.func <- function(gcc.vec = seq(0.1,1,by=0.01),
     # 
     # predict(fit.gam,newdata = data.frame(net.change=0))
     
-    # pred.out$vwc.hufken[abs(pred.out$net.change)<0.05]
+    break.points[i] <- pred.out$vwc.hufken[abs(pred.out$net.change)<0.05]
     
-    break.points[i] <- pred.out$vwc.hufken[pred.out$senescence ==
-                                             max(pred.out$senescence,
-                                                 na.rm=T)]
+    # break.points[i] <- pred.out$vwc.hufken[pred.out$senescence ==
+    #                                          max(pred.out$senescence,
+    #                                              na.rm=T)]
   }
   
   threshold.df <- data.frame(gcc = gcc.vec,
@@ -186,10 +186,17 @@ dig.threshold.df <- get.threshold.func(f.sec=0.19,
 ym.threshold.df <- get.threshold.func(f.sec=0.125,
                                        f.growth = 0.055,
                                        q = 0.01,q.s = 3.6)
+
+ym.threshold.df <- get.threshold.func(f.sec=0.01465686,
+                                      f.growth = 0.07186675,
+                                      q = 0.2184495,q.s = 0.6646073,
+                                      swc.wilt =0.05 ,
+                                      swc.capacity = 0.3,
+                                      bucket.size=1000,)
 # 
 plot(threshold~gcc,data = high.threshold.df,type='l',
      xlab='Initial cover',
-     ylab='SWC threshold',ylim=c(0,0.3))
+     ylab='SWC threshold',ylim=c(0,0.13))
 points(threshold~gcc,data = low.qs.threshold.df,type='l',col='red')
 abline(h=0.05,lty='dashed')
 legend('topleft',legend = c('q.s = 0.05','q.s = 1'),

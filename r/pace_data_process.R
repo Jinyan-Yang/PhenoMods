@@ -28,7 +28,7 @@ get.smooth.gcc.func = function(Date.vec,gcc.vec){
   gam.out.df = data.frame(x = seq_along((Date.vec)),
                           y = gcc.vec)
  
-  gam.in.df <- gam.out.df[!is.na(gam.out.df$y),]
+  gam.in.df <- gam.out.df#gam.out.df[!is.na(gam.out.df$y),]
   
   gam.frdm = round(length(gam.in.df$x)/3)
   
@@ -36,9 +36,9 @@ get.smooth.gcc.func = function(Date.vec,gcc.vec){
   
   gam.in.df$fitted.val = predict(fit.gam,gam.in.df)
   # 
-  gam.df <- merge(gam.out.df,gam.in.df,all=T)
+  # gam.df <- merge(gam.out.df,gam.in.df,all=T)
   
-  gam.df$fitted.val <- na.fill(gam.df$fitted.val,fill='extend')
+  # gam.df$fitted.val <- na.fill(gam.df$fitted.val,fill='extend')
   
   return(gam.in.df$fitted.val)
 }
@@ -147,7 +147,7 @@ get.pace.func <- function(gcc.met.pace.df,
   gcc.met.pace.df.16$GCC.norm.smooth = get.smooth.gcc.func(Date.vec = gcc.met.pace.df.16$Date, 
                                                            gcc.vec = gcc.met.pace.df.16$GCC.norm)
   
- 
+
   gcc.met.pace.df.16$GCC.norm.smooth[gcc.met.pace.df.16$GCC.norm.smooth<0] <- 0
   gcc.met.pace.df.16$GCC.norm.smooth[gcc.met.pace.df.16$GCC.norm.smooth>1] <- 1
   # tmp.df = get.smooth.gcc.func(y, gcc.met.pace.df.16$GCC)

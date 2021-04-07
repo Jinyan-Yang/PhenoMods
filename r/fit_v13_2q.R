@@ -10,26 +10,48 @@ library(foreach)
 library(doParallel)
 #
 # fit pace####
-species.vec <- c('Luc','Fes','Rye',
-                 'Dig', 'DigBis', 'Kan', 
-                 'KanWal','Pha', 'PhaSub', 
-                 'Rho',  'Wal')
+species.vec <- c('Luc')
+                 # 'Dig', 'DigBis', 'Kan', 
+                 # 'KanWal','Pha', 'PhaSub', 
+                 # 'Rho',  'Wal')
+# unique(gcc.met.pace.df$Species)
 # seq_along(species.vec)
-for(i in c(1,2,3,4,6,10)){
+for(i in seq_along(species.vec)){
   fit.mcmc.2q.func(df = gcc.met.pace.df,
-                   n.iter = 20000,
+                   n.iter = 40000,
                      species.in=species.vec[i],prep.in = 'Control', temp.in ='Ambient',
                      my.fun = phenoGrass.func.v13,
-                   out.nm.note='v13.2q', use.smooth = TRUE,cal.initial = T,day.lag = 3)
+                   out.nm.note='v13.2q', use.smooth = TRUE,cal.initial = F,day.lag = 3)
   
 }
 
+for(i in seq_along(species.vec)){
+  fit.mcmc.2q.func(df = gcc.met.pace.df,
+                   n.iter = 40000,
+                   species.in=species.vec[i],prep.in = 'Drought', temp.in ='Ambient',
+                   my.fun = phenoGrass.func.v13,
+                   out.nm.note='v13.2q', use.smooth = TRUE,cal.initial = F,day.lag = 3)
+  
+}
+
+
 # fit YM####
 ym.18.df <- get.ym.func(18)
-fit.mcmc.2q.func(df=ym.18.df,n.iter = 20000,
+fit.mcmc.2q.func(df=ym.18.df,n.iter = 40000,
                    species.in='ym',prep.in = 'Control', temp.in ='Ambient',
                    my.fun = phenoGrass.func.v13,out.nm.note='v13.2q',use.smooth = TRUE,
                    swc.capacity = 0.3,swc.wilt = 0.05,bucket.size = 1000,cal.initial = F,day.lag = 3)
+# 
+ym.drought.df <- get.ym.func('Drought')
+fit.mcmc.2q.func(df=ym.drought.df,n.iter = 40000,
+                 species.in='ym',prep.in = 'Drought', temp.in ='Ambient',
+                 my.fun = phenoGrass.func.v13,out.nm.note='v13.2q',use.smooth = TRUE,
+                 swc.capacity = 0.3,swc.wilt = 0.05,bucket.size = 1000,cal.initial = F,day.lag = 3)
+
+
+# plot(cover~Date,data = pred.ym.df)
+# plot(GCC.norm~Date,data = pred.ym.df)
+# plot(GCC.norm.smooth~Date,data = pred.ym.df)
 # 
 # fit.mcmc.2q.func(df=ym.18.df,n.iter = 1000,
 #                  species.in='ym',prep.in = 'Control', temp.in ='Ambient',
@@ -63,32 +85,47 @@ for (i in c(14)){
 # make plots####
 source('r/plot.mcmc.r')
 # make PDF plots#####
-pdf('figures/v13.2q.pdf',width = 8,height = 8*0.618)
+pdf('figures/v13.2q.pace.pdf',width = 8,height = 8*0.618)
 
 # ym
 plot.mcmc.func.2q(ym.18.df,species.in='ym',prep.in = 'Control','Ambient',
                   my.fun = phenoGrass.func.v13,
                   nm.note='v13.2q',use.smooth = TRUE,swc.in.cap = 0.3,swc.in.wilt = 0.05,bucket.size = 1000)
 plot.title.func('YM') 
+
+
+plot.mcmc.func.2q(ym.drought.df,species.in='ym',prep.in = 'Drought','Ambient',
+                  my.fun = phenoGrass.func.v13,
+                  nm.note='v13.2q',use.smooth = TRUE,swc.in.cap = 0.3,swc.in.wilt = 0.05,bucket.size = 1000)
+plot.title.func('YM') 
 # pace
-for (i in c(1,2,3,4,6,10)) {
+c(1,2,3,4,6,10)
+for (i in seq_along(species.vec)) {
   plot.mcmc.func.2q(gcc.met.pace.df,species.vec[i],'Control','Ambient',
                     my.fun = phenoGrass.func.v13,
-                    nm.note='v13.2q',use.smooth = TRUE)
+                    nm.note='v13.2q',use.smooth = TRUE,day.lag = 3)
   plot.title.func(species.vec[i]) 
 
 }
-# cw
-for(i in seq_along(site.vec[1:7])){
-  fn <- sprintf('cache/smv13chain.%s.Control.Ambient.rds',site.vec[i])
-  if(file.exists(fn)){
-
-    plot.mcmc.func.2q(gcc.met.cw.df,site.vec[i],'Control','Ambient'
-                      ,subplot = NULL,nm.note = 'v13.2q',use.smooth = TRUE,my.fun =phenoGrass.func.v13,
-                   swc.in.wilt = 0.05,swc.in.cap = 0.3,bucket.size=1000)
-    plot.title.func(site.vec[i])
-  }
+for (i in seq_along(species.vec)) {
+  plot.mcmc.func.2q(gcc.met.pace.df,species.vec[i],'Drought','Ambient',
+                    my.fun = phenoGrass.func.v13,
+                    nm.note='v13.2q',use.smooth = TRUE,day.lag = 3)
+  plot.title.func(paste0(species.vec[i],'-Drought')) 
+  
 }
+
+# # cw
+# for(i in seq_along(site.vec[1:7])){
+#   fn <- sprintf('cache/smv13chain.%s.Control.Ambient.rds',site.vec[i])
+#   if(file.exists(fn)){
+# 
+#     plot.mcmc.func.2q(gcc.met.cw.df,site.vec[i],'Control','Ambient'
+#                       ,subplot = NULL,nm.note = 'v13.2q',use.smooth = TRUE,my.fun =phenoGrass.func.v13,
+#                    swc.in.wilt = 0.05,swc.in.cap = 0.3,bucket.size=1000)
+#     plot.title.func(site.vec[i])
+#   }
+# }
 
 dev.off()
 
@@ -146,7 +183,7 @@ for(i in  c(1,2,3,4,6,10)){
   par(mfrow=c(3,2),mar=c(5,5,1,1))
   for(par.num in 1:6){
     
-    plot.line.mcmc.func(chain.3.ls,par.num,range.iter =  round(1:nrow(chain.3.ls[[1]])))
+    plot.line.mcmc.func(chain.3.ls,par.num,range.iter =  round(30000:nrow(chain.3.ls[[1]])))
     
   }
 }
@@ -158,6 +195,13 @@ for(i in  c(1,2,3,4,6,10)){
 fn <- sprintf('cache/smv13.2qchain.%s.Control.Ambient.rds','ym')
 chain.3.ls = readRDS(fn)
 lapply(chain.3.ls, plot.check.mcmc.func,species.in='ym')
+
+par(mfrow=c(3,2),mar=c(5,5,1,1))
+for(i in 1:6){
+  
+  plot.line.mcmc.func(chain.3.ls,i)
+  
+}
 
 # modis
 fn <- c('cache/v13.2q.rooting.oldproposal.newNDVI.chain.tussock_600.Control.Ambient.rds')

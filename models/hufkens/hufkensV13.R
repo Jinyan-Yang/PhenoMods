@@ -26,7 +26,7 @@ phenoGrass.func.v13 <- function(gcc.df,
          # gcc.df: data frame with GCC, and met inputs
          # f.h: gcc to cover scaling factor; mm/yr
          # f.t.opt: optimal temperature for growth; degree C
-         # f.extract: max water extraction rate; mm d-1 
+         # f.extract: max transpiration rate; mm d-1 
          # f.sec & f.growth: intrinsic senescence and growth rate; cover d-1 
          # swc.wilt & swc.capacity: soil wilting point and capacity; decimal
          # bucket.size: rooting depth; mm
@@ -47,9 +47,6 @@ phenoGrass.func.v13 <- function(gcc.df,
 
   # decide whether to use smooth gcc
   if(use.smooth==TRUE){
-    
-    
-    
     gcc.df$cover <-  gcc.df$GCC.norm.smooth * sf.value
   }else{
     gcc.df$cover <-  gcc.df$GCC.norm * sf.value
@@ -57,8 +54,10 @@ phenoGrass.func.v13 <- function(gcc.df,
 
   # set up the inital conditions
   if(length(unique(gcc.df$vwc)) == 1){
-    cover.fraction <- gcc.df$cover[!is.na(gcc.df$cover)][1]
-    swc.vec <- (swc.capacity - swc.wilt) * bucket.size * cover.fraction
+    # cover.fraction <- gcc.df$cover[!is.na(gcc.df$cover)][1]
+    swc.vec <- (swc.capacity - swc.wilt)* bucket.size * gcc.df$cover + swc.wilt*bucket.size
+    # swc.vec[swc.vec<swc.wilt*bucket.size] <- swc.wilt*bucket.size
+    # print(cover.fraction)
   }else{
     swc.vec <- gcc.df$vwc * bucket.size
   }
@@ -67,7 +66,7 @@ phenoGrass.func.v13 <- function(gcc.df,
   cover.pred.vec <- c()
   cover.pred.vec[day.lay] <- gcc.df$cover[!is.na(gcc.df$cover)][1]
   water.avi <- c()
-  water.avi <- swc.vec
+  water.avi <- swc.vec - swc.wilt*bucket.size
   water.lag <- c()
   water.lag <- water.avi
   t.m <- growth.vec <- senescence.vec <- evap.vec <- transp.vec <- runOff <-drain.vec <-  c()
@@ -85,8 +84,8 @@ phenoGrass.func.v13 <- function(gcc.df,
 
   # calcualte the par values
   cover.max <- 1#max(gcc.df$cover,na.rm=TRUE)
-  rad.min <-  min(gcc.df$PPFD,na.rm=TRUE)
-  rad.max <-  max(gcc.df$PPFD,na.rm=TRUE)
+  # rad.min <-  min(gcc.df$PPFD,na.rm=TRUE)
+  # rad.max <-  max(gcc.df$PPFD,na.rm=TRUE)
   gcc.df$rad.norm <- 1#(gcc.df$PPFD - rad.min) / (rad.max - rad.min)
 
   # model start
@@ -94,7 +93,7 @@ phenoGrass.func.v13 <- function(gcc.df,
     water.avi[nm.day] <- max(0,(swc.vec[nm.day-1]- swc.wilt*bucket.size))
 
     # define water stress using a beta function
-    swc.norm <-(water.avi[nm.day] / (swc.capacity - swc.wilt) / bucket.size)
+    swc.norm <-water.avi[nm.day] / (swc.capacity - swc.wilt) / bucket.size
     swc.norm <- max(0,min(1,swc.norm))
     loss.f <- swc.norm^q
     loss.f <- min(1,loss.f)
@@ -116,7 +115,8 @@ phenoGrass.func.v13 <- function(gcc.df,
     # here is from evapotranspiration R package
     et[nm.day] <- pet.func(gcc.df$Date[nm.day],gcc.df$PPFD[nm.day],
                            gcc.df$Tair[nm.day],gcc.df$Tmax[nm.day], gcc.df$Tmin[nm.day],
-                           gcc.df$RHmax[nm.day],gcc.df$RHmin[nm.day], gcc.df$u2[nm.day])    # Default not growth
+                           gcc.df$RHmax[nm.day],gcc.df$RHmin[nm.day], gcc.df$u2[nm.day])    
+   
     # default no growth & no sen
     g = 1
     d = 1
@@ -155,7 +155,7 @@ phenoGrass.func.v13 <- function(gcc.df,
     
     senescence.vec[nm.day] <- d * f.sec * (loss.f.s) *
       # 4*(1 - cover.pred.vec[nm.day-1])*
-      cover.pred.vec[nm.day-1]#/ cover.max
+      cover.pred.vec[nm.day-1]/ cover.max
 
     cover.pred.vec[nm.day] <- cover.pred.vec[nm.day-1] + growth.vec[nm.day] - senescence.vec[nm.day]
 
@@ -173,9 +173,9 @@ phenoGrass.func.v13 <- function(gcc.df,
       # ((swc.vec[nm.day-1]/bucket.size - swc.wilt)/(swc.capacity-swc.wilt))^2 *
       et[nm.day]
     transp.vec[nm.day] <- f.extract *
-      # swc.vec[nm.day-1] *
-      loss.f.soil*
-      cover.pred.vec[nm.day] / cover.max
+      swc.vec[nm.day-1] *
+      # loss.f.soil*
+      cover.pred.vec[nm.day] #/ cover.max
 
     swc.vec[nm.day] <- swc.vec[nm.day-1] + gcc.df$Rain[nm.day] - evap.vec[nm.day] - transp.vec[nm.day]
 
@@ -205,10 +205,6 @@ phenoGrass.func.v13 <- function(gcc.df,
   gcc.df$growth <- growth.vec
   gcc.df$senescence <- senescence.vec
   
-  gcc.df$senescence <- senescence.vec
-  # out.df <- data.frame(gcc.df)
-  # out.df <- out.df[!is.na(out.df$cover),]
-  # print('model worked')
   return(gcc.df)
 }
 
