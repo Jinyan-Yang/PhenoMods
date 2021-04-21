@@ -49,11 +49,11 @@ posterior.func <- function(prior.prob,bucket.size,swc.wilt,swc.capacity,FUN,...)
 
 ######## Metropolis algorithm ################
 # # function to generate a radom par value from a normal distribution based on mean and sd
-proposal.func <- function(param,par.df){
+proposal.func <- function(param){
 
   prop.vec <- c()
 
-  for(i in 1:ncol(par.df)){
+  for(i in seq_along(param)){
     par.val <- as.numeric(param[i])
     prop.vec[i] <- rnorm(1,mean = par.val, sd = par.val/70)#par.df['stdv',i])
 

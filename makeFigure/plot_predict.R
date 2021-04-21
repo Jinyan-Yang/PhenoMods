@@ -13,13 +13,14 @@ predict.mcmc.func.2q = function(df = gcc.met.pace.df,
                                 species.in,prep.in,temp.in,subplot=NULL,
                                 nm.note='',use.smooth=FALSE,
                                 my.fun = phenoGrass.func.v11,
-                                swc.in.cap = 0.13,swc.in.wilt = 0.05,bucket.size =300){
+                                swc.in.cap = 0.13,swc.in.wilt = 0.05,bucket.size =300,norm.min.max=NULL){
   
   if(is.null(subplot)){
     gcc.met.pace.df.16 <- get.pace.func(df,
                                         species.in = species.in,
                                         prep.in = prep.in,
-                                        temp.in =temp.in)
+                                        temp.in =temp.in,
+                                        norm.min.max = norm.min.max)
   }else{
     species.in = subplot
     prep.in = ''
@@ -81,13 +82,42 @@ predict.mcmc.func.2q = function(df = gcc.met.pace.df,
 }
 
 ym.38.df <- get.ym.func(38)
+ym.14.df <- get.ym.func(14)
+ym.27.df <- get.ym.func(27)
 
+plot(GCC~Date,data = ym.38.df,ylim=c(.2,.47),pch=16)
+points(GCC~Date,data = ym.14.df,pch=16,col='grey')
+points(GCC~Date,data = ym.27.df,pch=16,col='red')
+# ym.drt.daily.df <- get.pace.func(ym.38.df,species.in = 'ym',prep.in = 'Drought',temp.in = 'Ambient')
+# 
+# plot(GCC.norm.smooth~Date,data = ym.drt.daily.df)
+ym.14.pred.df <- predict.mcmc.func.2q(ym.14.df,
+                                      rds.nm = 'cache/smv13.2qchain.ym.Control.Ambient.rds',
+                                      'ym','Drought','Ambient',
+                                      my.fun = phenoGrass.func.v13,
+                                      nm.note='v13.2q',use.smooth = TRUE,swc.in.cap = 0.3,swc.in.wilt = 0.05,bucket.size = 1000)
+
+ym.27.pred.df <- predict.mcmc.func.2q(ym.27.df,
+                                      rds.nm = 'cache/smv13.2qchain.ym.Control.Ambient.rds',
+                                      'ym','Drought','Ambient',
+                                      my.fun = phenoGrass.func.v13,
+                                      nm.note='v13.2q',use.smooth = TRUE,swc.in.cap = 0.3,swc.in.wilt = 0.05,bucket.size = 1000)
 
 ym.38.pred.df <- predict.mcmc.func.2q(ym.38.df,
                                       rds.nm = 'cache/smv13.2qchain.ym.Control.Ambient.rds',
                                       'ym','Drought','Ambient',
                                       my.fun = phenoGrass.func.v13,
                                       nm.note='v13.2q',use.smooth = TRUE,swc.in.cap = 0.3,swc.in.wilt = 0.05,bucket.size = 1000)
+# 
+pre.pace.ls <- list()
+species.vec <- c('Bis','Dig','Luc','Fes','Rye','Kan','Rho')
+for (spc.nm in seq_along(species.vec)) {
+  pre.pace.ls[[spc.nm]] <- predict.mcmc.func.2q(gcc.met.pace.df,
+                                        rds.nm = sprintf('cache/smv13.2qchain.%s.Control.Ambient.rds',species.vec[spc.nm]),
+                                        species.vec[spc.nm],'Drought','Ambient',
+                                        my.fun = phenoGrass.func.v13,
+                                        nm.note='v13.2q',use.smooth = TRUE,swc.in.cap = 0.13,swc.in.wilt = 0.05,bucket.size = 300)
+}
 
 
 # 
@@ -169,7 +199,20 @@ plot.title.func=function(species.in){
 
 # 
 pdf('figures/predict.drought.pdf',width = 8,height = 8*.618)
-plot.4panel.func(ym.38.pred.df)
-plot.title.func('YM 38 with 18 fits')
+plot.4panel.func(ym.14.pred.df)
+plot.title.func('YM 14 with 18 fits')
+
+plot.4panel.func(ym.27.pred.df)
+plot.title.func('YM 27 with 18 fits')
+
+# plot.4panel.func(ym.38.pred.df)
+# plot.title.func('YM 38 with 18 fits')
+
+
+species.vec <- c('Bis','Dig','Luc','Fes','Rye','Kan','Rho')
+for (spc.nm in seq_along(species.vec)) {
+plot.4panel.func(pre.pace.ls[[spc.nm]],swc.in.cap = 0.13)
+  plot.title.func(species.vec[spc.nm])
+}
 dev.off()
 

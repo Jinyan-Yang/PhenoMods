@@ -396,7 +396,9 @@ plot.mcmc.func.2q = function(df = gcc.met.pace.df,
                              my.fun = phenoGrass.func.v11,
                              swc.in.cap = 0.13,swc.in.wilt = 0.05,bucket.size =300,
                              norm.min.max=NULL,
-                             day.lag=3){
+                             day.lag=3,
+                             do.predict =NULL,
+                             burn.proportion = 1/3){
   
   if(is.null(subplot)){
     gcc.met.pace.df.16 <- get.pace.func(df,
@@ -411,9 +413,17 @@ plot.mcmc.func.2q = function(df = gcc.met.pace.df,
       sm.nm=''
     }
     
-    fn=paste0('cache/',sm.nm,nm.note,'chain.',
-              species.in,'.',prep.in,'.',temp.in,'.rds')
-    rds.nm = paste0('tmp/pred.',sm.nm,nm.note,'chain.',species.in,'.',prep.in,'.',temp.in,'.rds')
+    if(is.null(do.predict)){
+      fn=paste0('cache/',sm.nm,nm.note,'chain.',
+                species.in,'.',prep.in,'.',temp.in,'.rds')
+      rds.nm = paste0('tmp/pred.',sm.nm,nm.note,'chain.',species.in,'.',prep.in,'.',temp.in,'.rds')
+    }else{
+      fn=paste0('cache/',sm.nm,nm.note,'chain.',
+                species.in,'.',do.predict,'.',temp.in,'.rds')
+      rds.nm = paste0('tmp/pred.',sm.nm,nm.note,'chain.',species.in,'.',do.predict,'.predict.',temp.in,'.rds')
+    }
+    
+   
     # fn=paste0('cache/chain.',species.in,'.',prep.in,'.',temp.in,'.rds')
     
     
@@ -430,6 +440,7 @@ plot.mcmc.func.2q = function(df = gcc.met.pace.df,
     }
     
     fn=paste0('cache/',sm.nm,nm.note,'chain.',subplot,'.rds')
+    
     rds.nm = paste0('tmp/pred.',sm.nm,nm.note,'chain.',subplot,'.rds')
   }
   
@@ -439,12 +450,13 @@ plot.mcmc.func.2q = function(df = gcc.met.pace.df,
   
   # chain.fes <- readRDS('cache/chain.Rye.Control.Ambient.rds')
   # read chains 
+  print(paste0('par file used: ',fn))
   in.chain =  readRDS(fn)
   
   if(is.list(in.chain)){
     # assuming 1/3 burn in
     burnIn = 1
-    chain.3.ls.new = lapply(in.chain,function(m.in)m.in[round(2*nrow(m.in)/3):nrow(m.in),])
+    chain.3.ls.new = lapply(in.chain,function(m.in)m.in[round((1-burn.proportion)*nrow(m.in)):nrow(m.in),])
     
     chain.fes <- do.call(rbind,chain.3.ls.new)
   }else{
@@ -473,9 +485,9 @@ plot.mcmc.func.2q = function(df = gcc.met.pace.df,
     q.s = c(0.001,1,2,NA,NA,NA))
   row.names(par.df) <- c('min','initial','max','fit','stdv','prop')
   # par.df["fit",] <- colMeans(chain.fes[burnIn:nrow(chain.fes),])
-  
+
   par.df["fit",] <-apply(chain.fes[burnIn:nrow(chain.fes),],2,median)
-  # par.df["fit",] <- colMeans(luc.d.a.df[burnIn:nrow(luc.d.a.df),])
+  
   # 
   # bucket.size = 300
   gcc.met.pace.df.16 <- gcc.met.pace.df.16[order(gcc.met.pace.df.16$Date),]
@@ -494,7 +506,6 @@ plot.mcmc.func.2q = function(df = gcc.met.pace.df,
                              day.lay = day.lag,use.smooth = use.smooth)
   
   # save prediction for future use
-  
   saveRDS(hufken.pace.pred,rds.nm)
 
   # plot swc
@@ -505,7 +516,7 @@ plot.mcmc.func.2q = function(df = gcc.met.pace.df,
   points(vwc~Date,data = hufken.pace.pred,type='s',lty='dashed',
          col = col.df$bushBySea[3],lwd='2')
   
-  legend('topleft',legend = c('OBS','MOD'),lty = c('solid','dashed'),col='black')
+  legend('topleft',legend = c('OBS','MOD'),lty = c('dashed','solid'),col='black')
   
   max.irrig = round(max(hufken.pace.pred$irrig.tot,na.rm=T))
   step.tmp <- floor((swc.in.cap /5)*100)/100
@@ -523,21 +534,7 @@ plot.mcmc.func.2q = function(df = gcc.met.pace.df,
   where.c <-which(mon.c =='01') / length(mon.c)
   num.yr <- length(where.c)
   mtext(yr.vec[(length(yr.vec) - num.yr + 1):length(yr.vec)],side = 1,adj = where.c,line = 3)
-  # plot irrig
-  par(new=TRUE)
-  plot(irrig.tot~Date,data = hufken.pace.pred,type='s',
-       ann=F,axes=F,col = 'navy')
-  max.irrig = ceiling(max(hufken.pace.pred$irrig.tot,na.rm=T))
-  axis(4,at = seq(0,max.irrig,by=10),labels = seq(0,max.irrig,by=10))
-  mtext('irrigation (mm)',side = 4,line = 3)
-  
-  # hufken.pace.pred <- readRDS('tmp/pred.smv13chain.ym.Control.Ambient.rds')
-  # min(hufken.pace.pred$swc)
-  # max(hufken.pace.pred$swc)
-  
-  # plot(irrig.tot~Date,data = hufken.pace.pred,type='s',
-  #      col = 'lightskyblue')
-  
+
   # plot obs cover
   par(mar=c(5,5,1,5))
   plot(cover~Date,data = hufken.pace.pred,type='p',pch=16,#lwd='2',
@@ -558,7 +555,13 @@ plot.mcmc.func.2q = function(df = gcc.met.pace.df,
   
   # plot model pred
   points(cover.hufken~Date,data = hufken.pace.pred,type='l',lwd='2',col=col.df$auLandscape[2],lty='solid')
-  
+  # plot irrig
+  par(new=TRUE)
+  plot(irrig.tot~Date,data = hufken.pace.pred,type='s',
+       ann=F,axes=F,col = 'navy')
+  max.irrig = ceiling(max(hufken.pace.pred$irrig.tot,na.rm=T))
+  axis(4,at = seq(0,max.irrig,by=10),labels = seq(0,max.irrig,by=10))
+  mtext('irrigation (mm)',side = 4,line = 3)
   
   # legend('topleft',legend = paste0(species.in,prep.in,temp.in),bty='n')
   

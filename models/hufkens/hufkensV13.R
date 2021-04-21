@@ -39,10 +39,12 @@ phenoGrass.func.v13 <- function(gcc.df,
   ####################################################################################################################
 
   # model begine
-  # set the lag factor; in num of days
+  # ignore the dates without GCC
   start.date <- gcc.df$Date[min(which(!is.na(gcc.df$GCC.norm)))]
 
   gcc.df <- gcc.df[gcc.df$Date > (start.date - day.lay),]
+  
+  # MAP scaling factor
   sf.value <- 1#scaling.f.func(mean(gcc.df$map,na.rm=TRUE),f.h)
 
   # decide whether to use smooth gcc
@@ -61,6 +63,8 @@ phenoGrass.func.v13 <- function(gcc.df,
   }else{
     swc.vec <- gcc.df$vwc * bucket.size
   }
+  
+  swc.vec[day.lay] <- swc.vec[!is.na(swc.vec)][1]
  
   et <- c()
   cover.pred.vec <- c()
@@ -98,7 +102,7 @@ phenoGrass.func.v13 <- function(gcc.df,
     loss.f <- swc.norm^q
     loss.f <- min(1,loss.f)
     # assuming sene stress is the not same
-    loss.f.s <- (1-swc.norm)^q.s
+    loss.f.s <- (1-swc.norm)^1#q.s
     loss.f.s <- min(1,loss.f.s)
     # assume soil evap is linear to swc
     loss.f.soil <- swc.norm
@@ -110,7 +114,7 @@ phenoGrass.func.v13 <- function(gcc.df,
     # }
 
     days.past <- max(c(1,(nm.day-15))) #hufkens used 15 days
-    t.m[nm.day] <- gcc.df$Tmax[nm.day]#mean(gcc.df$Tmax[days.past:nm.day],na.rm=TRUE) 
+    t.m[nm.day] <- gcc.df$Tmax[nm.day]#mean(gcc.df$Tmax[days.past:nm.day],na.rm=TRUE) #
     # hufkens used evaportanspiration from Hargreaves 1985
     # here is from evapotranspiration R package
     et[nm.day] <- pet.func(gcc.df$Date[nm.day],gcc.df$PPFD[nm.day],
@@ -143,17 +147,23 @@ phenoGrass.func.v13 <- function(gcc.df,
       #   d = 0
       # }
       # 
+    
+    # dormaince 
     # dor = gcc.df$rad.norm[nm.day]
-    dor = 1#min(max(dor,1),0)
+    #min(max(dor,1),0)
+    dor = 1
+    
+    # temperature effect
+    g.value <-  t.func(t.m[nm.day],f.t.opt,t.max)
 
     # plant cover
-    g.value <-  t.func(t.m[nm.day],f.t.opt,t.max)
+    
     growth.vec[nm.day] <- dor*g * g.value * f.growth *
       loss.f *
       #water.avi.norm*
       (1 - cover.pred.vec[nm.day-1] / cover.max)
     
-    senescence.vec[nm.day] <- d * f.sec * (loss.f.s) *
+    senescence.vec[nm.day] <- d * f.sec * loss.f.s *
       # 4*(1 - cover.pred.vec[nm.day-1])*
       cover.pred.vec[nm.day-1]/ cover.max
 
@@ -169,10 +179,10 @@ phenoGrass.func.v13 <- function(gcc.df,
     # calculate swc
     evap.vec[nm.day] <- (1 - cover.pred.vec[nm.day-1]) *
       # loss.f^2*
-      loss.f.soil*#^2*
+      loss.f.soil*
       # ((swc.vec[nm.day-1]/bucket.size - swc.wilt)/(swc.capacity-swc.wilt))^2 *
       et[nm.day]
-    transp.vec[nm.day] <- f.extract *
+    transp.vec[nm.day] <- f.extract *#g.value*
       swc.vec[nm.day-1] *
       # loss.f.soil*
       cover.pred.vec[nm.day] #/ cover.max
