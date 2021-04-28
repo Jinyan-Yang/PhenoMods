@@ -102,7 +102,7 @@ phenoGrass.func.v13 <- function(gcc.df,
     loss.f <- swc.norm^q
     loss.f <- min(1,loss.f)
     # assuming sene stress is the not same
-    loss.f.s <- (1-swc.norm)^1#q.s
+    loss.f.s <- (1-swc.norm)^q.s
     loss.f.s <- min(1,loss.f.s)
     # assume soil evap is linear to swc
     loss.f.soil <- swc.norm
@@ -195,7 +195,7 @@ phenoGrass.func.v13 <- function(gcc.df,
     swc.vec[nm.day] <- min(swc.capacity * bucket.size,swc.vec[nm.day])
     
     # apply drainage
-    drain.vec[nm.day] <- drainage.func(swc.vec[nm.day] / bucket.size)
+    drain.vec[nm.day] <- drainage.func(swc.vec[nm.day] / bucket.size,theta.sat  = swc.capacity)
     swc.vec[nm.day] <- swc.vec[nm.day] - drain.vec[nm.day]
 
     swc.vec[nm.day] <- max(0,swc.vec[nm.day])
