@@ -20,12 +20,15 @@ species.vec <- as.character(unique(gcc.met.pace.df$Species)[c(1,2,4,5,7,8,10,11)
 # 
 # seq_along(species.vec)
 # select.spc <- 
+# species.vec <- 'Kan'
 for(i in seq_along(species.vec)){
   fit.mcmc.2q.func(df = gcc.met.pace.df,
                    n.iter = 40000,
                    species.in=species.vec[i],prep.in = 'Control', temp.in ='Ambient',
                    my.fun = phenoGrass.func.v13,
-                   out.nm.note='v13.2q.', use.smooth = TRUE,cal.initial = TRUE,day.lag = 3,
+                   out.nm.note='v13.2q.', 
+                   use.smooth = TRUE,cal.initial = TRUE,day.lag = 3,
                    swc.capacity = 0.13,swc.wilt = 0.05,bucket.size = 300)
   
 }
+

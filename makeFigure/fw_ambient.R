@@ -1,6 +1,10 @@
 
-species.vec <- c('Luc','Fes','Rye','Kan',
-                 'YM')
+# species.vec <- c('Luc','Fes','Rye','Kan',
+#                  'YM')
+# species.vec <- c("Bis",    "Dig",  "Fes",    "Kan",    
+#                  "Luc",  "Rho",    "Rye",
+#                  'YM','Flux')
+species.vec <- c('Bis','Luc','Dig','Kan','Rho','Fes','Pha','Rye','YM','Flux')
 
 out.df <- data.frame(spc = species.vec,
                      f.t.opt =NA,
@@ -10,7 +14,7 @@ out.df <- data.frame(spc = species.vec,
                      q = NA,
                      q.s = NA)
 for(i in seq_along(species.vec)){
-  fn <- sprintf('cache/smv13.2qchain.%s.Control.Ambient.rds',species.vec[i])
+  fn <- sprintf('cache/smv13.2q.chain.%s.Control.Ambient.rds',species.vec[i])
   
   chain.3.ls = readRDS(fn)
   
@@ -40,28 +44,38 @@ for (i.nm in seq_along(species.vec)) {
   beta.sene.ls[[i.nm]] <- beta.func(x=swc.vec,q=out.df$q.s[i.nm],is.q.s = TRUE)
 }
 
-palette(col.df$auLandscape)
+
 
 png('figures/fig3_q.png',width = 600,height = 2*600*0.618)
 par(mar=c(5,5,1,1),mfrow=c(2,1))
-plot( beta.growth.ls[[1]]~swc.vec,type='l',col=1,
-     xlab='VWC',ylab=expression(f[w]),lwd=3)
+palette(c(col.df$iris))
 
-points(beta.growth.ls[[2]]~swc.vec,type='l',col=2,lwd=3)
-points(beta.growth.ls[[3]]~swc.vec,type='l',col=3,lwd=3)
-points(beta.growth.ls[[4]]~swc.vec,type='l',col=4,lwd=3)
-points(beta.growth.ls[[5]]~swc.vec,type='l',col=5,lwd=3)
+col.nm.vec <- c(1,1,2,2,2,3,3,3,4,4)
+lty.vec <- c(1,2,1,2,3,1,2,3,1,2)
+plot(beta.growth.ls[[1]]~swc.vec,type='l',col=col.nm.vec[1],
+     xlab='Soil moisture',ylab=expression(f[w]),lwd=3,lty=lty.vec[1])
+
+# points(beta.growth.ls[[2]]~swc.vec,type='l',col=2,lwd=3)
+# points(beta.growth.ls[[3]]~swc.vec,type='l',col=3,lwd=3)
+# points(beta.growth.ls[[4]]~swc.vec,type='l',col=4,lwd=3)
+# points(beta.growth.ls[[5]]~swc.vec,type='l',col=5,lwd=3)
+
+
+for (i in seq_along(beta.growth.ls)) {
+  points(beta.growth.ls[[i]]~swc.vec,type='l',col=col.nm.vec[i],lty=lty.vec[i],lwd=3)
+}
 legend('topleft',legend = '(a)',bty='n')
 legend('bottomright',legend = out.df$spc,
-       lty='solid',col=palette())
+       lty=lty.vec,col=col.nm.vec,ncol = 2,lwd=3)
 
 # 
-plot( beta.sene.ls[[1]]~swc.vec,type='l',col=1,
-      xlab='VWC',ylab=expression(f[w*','*s]),lwd=3,lty='dashed')
+plot(beta.sene.ls[[1]]~swc.vec,type='l',col=col.nm.vec[1],xlim=c(0.03,0.3),
+      xlab='Soil moisture',ylab=expression(f[w*','*s]),lty=lty.vec[1],lwd=3)
 
-points(beta.sene.ls[[2]]~swc.vec,type='l',col=2,lwd=3,lty='dashed')
-points(beta.sene.ls[[3]]~swc.vec,type='l',col=3,lwd=3,lty='dashed')
-points(beta.sene.ls[[4]]~swc.vec,type='l',col=4,lwd=3,lty='dashed')
-points(beta.sene.ls[[5]]~swc.vec,type='l',col=5,lwd=3,lty='dashed')
+# points(beta.sene.ls[[2]]~swc.vec,type='l',col=2,lwd=3,lty='dashed')
+for (i in seq_along(beta.sene.ls)) {
+  points(beta.sene.ls[[i]]~swc.vec,type='l',col=col.nm.vec[i],lty=lty.vec[i],lwd=3)
+}
 legend('topleft',legend = '(b)',bty='n')
 dev.off()
+

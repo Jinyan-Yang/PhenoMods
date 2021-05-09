@@ -3,8 +3,8 @@ library(doBy)
 library(lubridate)
 
 plot.ts.func <- function(hufken.pace.pred){
-  plot(cover~Date,data = hufken.pace.pred,type='p',pch=16,#lwd='2',
-       xlab=' ',ylab=expression(f[cover]),ylim=c(0,1),col = col.df$iris[4],
+  plot(GCC.norm~Date,data = hufken.pace.pred,type='p',pch=16,#lwd='2',
+       xlab=' ',ylab='Cover',ylim=c(0,1),col = col.df$iris[4],
        xaxt='n')
   
   
@@ -31,13 +31,16 @@ plot.ts.func <- function(hufken.pace.pred){
   mtext('irrigation (mm)',side = 4,line = 3)
 }
 
-species.vec <- c("Bis",    "Dig",  "Fes",    "Kan",    
-                 "Luc",  "Rho",    "Rye",
-                 'ym')
+# species.vec <- c("Bis",    "Dig",  "Fes",    "Kan",    
+#                  "Luc",  "Rho",    "Rye",
+#                  'ym')
+species.vec <- c('Bis','Luc','Dig','Kan','Rho','Fes','Pha','Rye','YM')
 
+# #########################################
+palette(c(col.df$iris,col.df$daisy))
 png('figures/obs_fit_TS_scatter.png',height = 400*2,width = 400/.618)
 par(mfrow =c(2,1))
-palette(c(col.df$iris,col.df$daisy))
+
 # plot obs cover
 par(mar=c(5,5,1,5))
 fn <- 'tmp/pred.smv13.2qchain.flux.Control.Ambient.rds'
@@ -47,13 +50,13 @@ plot.ts.func(hufken.pace.pred)
 legend('top',legend = 'Flux',bty='n')
 
 for (i in seq_along(species.vec)){
-  fn <- sprintf('tmp/pred.smv13.2qchain.%s.Control.Ambient.rds',species.vec[i])
+  fn <- sprintf('tmp/pred.smv13.2q.chain.%s.Control.Ambient.rds',species.vec[i])
   hufken.pace.pred <- readRDS(fn)
   
   if(i == 1){
     plot(GCC.norm~cover.hufken,data = hufken.pace.pred,
          xlim=c(0,1),ylim=c(0,1),
-         xlab='MOD_GCC',ylab = 'OBS_GCC',pch=16,col=i)
+         xlab='MOD_cover',ylab = 'OBS_cover',pch=16,col=i)
   }else{
     points(GCC.norm~cover.hufken,data = hufken.pace.pred,
          xlim=c(0,1),ylim=c(0,1),
@@ -68,9 +71,10 @@ for (i in seq_along(species.vec)){
 dev.off()
 
 # ###########
-species.vec <- c("Bis",    "Dig",  "Fes",    "Kan",    
-                 "Luc",  "Rho",    "Rye",
-                 'ym')
+# species.vec <- c("Bis","Dig", "Fes", "Kan",    
+#                  "Luc",  "Rho",    "Rye")
+
+species.vec <- c('Bis','Luc','Dig','Kan','Rho','Fes','Pha','Rye')
 png('figures/fit_pred_TS_scatter.png',height = 400*2,width = 400/.618)
 par(mfrow =c(2,1))
 palette(c(col.df$iris,col.df$daisy))
@@ -83,17 +87,16 @@ plot.ts.func(hufken.pace.pred)
 legend('top',legend = 'YM',bty='n')
 
 for (i in seq_along(species.vec)){
-  fn <- sprintf('tmp/pred.smv13.2qchain.%s.Control.predict.Ambient.rds',species.vec[i])
+  fn <- sprintf('tmp/pred.smv13.2q.chain.%s.Control.predict.Ambient.rds',species.vec[i])
   hufken.pace.pred <- readRDS(fn)
   
   if(i == 1){
     plot(GCC.norm~cover.hufken,data = hufken.pace.pred,
          xlim=c(0,1),ylim=c(0,1),
-         xlab='MOD_GCC',ylab = 'OBS_GCC',pch=16,col=i)
+         xlab='MOD_cover',ylab = 'OBS_cover',pch=16,col=i)
   }else{
     points(GCC.norm~cover.hufken,data = hufken.pace.pred,
-           xlim=c(0,1),ylim=c(0,1),
-           xlab='MOD_GCC',ylab = 'OBS_GCC',pch=16,col=i)
+           xlim=c(0,1),ylim=c(0,1),pch=16,col=i)
   }
   legend('bottomright',legend = species.vec,col=palette(),
          pch=16,bty='n')

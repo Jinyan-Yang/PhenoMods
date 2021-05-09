@@ -13,5 +13,5 @@ library(doParallel)
 ym.18.df <- get.ym.func(18)
 fit.mcmc.2q.func(df=ym.18.df,n.iter = 40000,
                  species.in='ym',prep.in = 'Control', temp.in ='Ambient',
-                 my.fun = phenoGrass.func.v13,out.nm.note='v13.2q.noT.',use.smooth = TRUE,
+                 my.fun = phenoGrass.func.v13,out.nm.note='v13.2q.',use.smooth = TRUE,
                  swc.capacity = 0.3,swc.wilt = 0.05,bucket.size = 1000,cal.initial = T,day.lag = 3)

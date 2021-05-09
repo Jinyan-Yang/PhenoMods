@@ -79,6 +79,7 @@ t.func <- function(t.mean,f.t.opt,t.max){
 # drainage
 drainage.func <- function(theta,theta.sat  = 0.3,sigma = 23.3,k.sat = 0.15 #mm d-1
 ){
+  if(theta.sat<0.3)theta.sat=0.3
   # taken from SGS, Johnson 2005
   q = k.sat*(theta/theta.sat)^sigma * 1000
   return(q)
