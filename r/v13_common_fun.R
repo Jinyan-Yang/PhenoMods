@@ -131,7 +131,7 @@ fit.mcmc.pace.func <- function(df = gcc.met.pace.df,
 fit.mcmc.2q.func <- function(df = gcc.met.pace.df,
                              species.in = 'Luc',prep.in = 'Control', 
                              temp.in ='Ambient',subplot =NA,
-                             my.fun = phenoGrass.func.v11,
+                             my.fun = phenoGrass.func.v13,
                              out.nm.note = '',use.smooth = FALSE,
                              day.lag = 3,
                              bucket.size = 300,
@@ -175,11 +175,13 @@ fit.mcmc.2q.func <- function(df = gcc.met.pace.df,
   
   # this assume 100% of the data falls into the max min range
   # in a normal distribution for proposal.func
-  
+
   if(is.null(initial.vec)){
     par.df['initial',] <- c(20,0.05,0.005,0.15,3,0.5)
   }else{
     par.df['initial',] <- initial.vec
+    par.df['max',] <- initial.vec*2
+    par.df['min',] <- initial.vec/2
   }
   par.df['stdv',] <- (par.df['max',] - par.df['min',])/100
   
@@ -234,14 +236,12 @@ fit.mcmc.2q.func <- function(df = gcc.met.pace.df,
                                                      gcc.met.pace.df.16 = gcc.met.pace.df.16,
                                                      bucket.size = bucket.size,
                                                      day.lay = day.lag,
-                                                     swc.capacity = 0.3,
-                                                     swc.wilt = 0.1,
+                                                     swc.capacity = swc.capacity,
+                                                     swc.wilt = swc.wilt,
                                                      my.fun = phenoGrass.func.v13,
                                                      use.smooth = T)
-                         
-                         chain.tmp
                        }
-  
+
   # stopCluster(cl)
   
   # save file
@@ -286,12 +286,12 @@ mh.MCMC.func.2q <- function(iterations,par.df,
   # intial
   chain = array(dim = c(iterations+1,ncol(par.df)))
   # chain[1,] = as.numeric(par.df['initial',])
-  chain[1,] = proposal.func(as.vector(as.matrix(par.df['initial',])),par.df)
+  chain[1,] = proposal.func(par.df['initial',])
   
   # chain move on
   for (i in 1:iterations){
     # prpose a set of par values based on previous chain value
-    proposal = proposal.func(chain[i,],par.df)
+    proposal = proposal.func(chain[i,])
 
     # prior.prob,data,data.sd,bucket.size = 300,...
     probab = exp(posterior.func(prior.prob,FUN = my.fun,
