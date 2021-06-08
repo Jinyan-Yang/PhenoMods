@@ -225,11 +225,72 @@ for (iter.nm in 1:nrow(out.df)) {
 # 
 palette(c(col.df$iris))
 
-# species.vec <- c('Bis','Dig','Luc','Fes','Rye','Kan','Rho','ym')
 
-png('figures/threshold.png',width = 600,height = 600*0.618)
-plot(pred.ls[[10]]~cover.vec,ylim=c(0.05,0.3),
-     xlab = 'Cover',ylab = 'Soil moisture',
+# # species.vec <- c('Bis','Dig','Luc','Fes','Rye','Kan','Rho','ym')
+# plot(0,pch=16,col='white',xlim=c(0,1),ylim=c(0,0.3),
+#      xlab='Cover',ylab='Soil moisture')
+# polygon(c(0,cover.vec,1),c(0,pred.ls[[1]],0),col=col.df$auLandscape[3])
+# polygon(c(0,1,rev(cover.vec),0),c(0.3,0.3,rev(pred.ls[[1]]),0),col=col.df$auLandscape[2])
+# legend(x=0.85,y=0.05,legend = c('Green-up','Brown-down'),pch=15,col=col.df$auLandscape[2:3],)
+
+
+# png('figures/threshold.png',width = 600,height = 600*0.618)
+# plot(pred.ls[[10]]~cover.vec,
+#      ylim=c(0.05,0.3),
+#      xlab = 'Cover',
+#      ylab = 'Soil moisture',
+#      type='l',lwd=2,col = 4,lty=1)
+# 
+# points(pred.ls[[1]]~cover.vec,type='l',col=1,lwd=2,lty=1)
+# points(pred.ls[[2]]~cover.vec,type='l',col=1,lwd=2,lty=2)
+# points(pred.ls[[3]]~cover.vec,type='l',col=2,lwd=2,lty=1)
+# points(pred.ls[[4]]~cover.vec,type='l',col=2,lwd=2,lty=2)
+# points(pred.ls[[5]]~cover.vec,type='l',col=2,lwd=2,lty=3)
+# points(pred.ls[[6]]~cover.vec,type='l',col=3,lwd=2,lty=1)
+# points(pred.ls[[7]]~cover.vec,type='l',col=3,lwd=2,lty=2)
+# points(pred.ls[[8]]~cover.vec,type='l',col=3,lwd=2,lty=3)
+# 
+# points(pred.ls[[9]]~cover.vec,type='l',col=4,lwd=2,lty=2)
+# 
+# legend('topleft',legend = '(a)',bty='n')
+# legend('bottomright',legend = out.df$spc,
+#        lty=c(1,2,1,2,3,1,2,3,1,2),col=c(1,1,2,2,2,3,3,3,4,4),lwd=2,
+#        ncol = 2)
+# dev.off()
+
+png('figures/threshold.png',width = 800,height = 800)
+layout(matrix(c(1:6,7,8,11,9,10,11),3,4, byrow = FALSE), 
+       # c(3,1), c(1,3),
+       respect = TRUE)
+
+par(mar=rep(2,4),xpd=TRUE,oma=rep(2,4))
+
+# par(mfrow=c(4,3))
+letter.nm=1
+for (i in c(3:10,1,2)) {
+  plot(0,pch=16,col='white',xlim=c(0,1),ylim=c(0,0.3),
+       xlab=' ',ylab=' ')
+  polygon(c(0,cover.vec,1),c(0,pred.ls[[i]],0),col=col.df$auLandscape[3])
+  polygon(c(0,1,rev(cover.vec),0),c(0.3,0.3,rev(pred.ls[[i]]),0),col=col.df$auLandscape[2])
+  legend('topleft',legend = paste0('(',letters[letter.nm],') ',species.vec[i]))
+  if(letter.nm==1){
+    legend('bottomright',
+           legend = c('Green-up','Brown-down'),
+           pch=15,col=col.df$auLandscape[2:3])
+  }
+  if(letter.nm==2){
+    mtext('Soil moisture',side=2,xpd=T,line=3)
+  }
+  if(letter.nm==6){
+    mtext('Cover',side=1,xpd=T,line=3,adj=1)
+  }
+  letter.nm =letter.nm+1
+}
+# par(mar=c(5,5,3,1))
+plot(pred.ls[[10]]~cover.vec,
+     ylim=c(0.05,0.3),
+     xlab = ' ',
+     ylab = ' ',
      type='l',lwd=2,col = 4,lty=1)
 
 points(pred.ls[[1]]~cover.vec,type='l',col=1,lwd=2,lty=1)
@@ -243,9 +304,14 @@ points(pred.ls[[8]]~cover.vec,type='l',col=3,lwd=2,lty=3)
 
 points(pred.ls[[9]]~cover.vec,type='l',col=4,lwd=2,lty=2)
 
-legend('topleft',legend = '(a)',bty='n')
+legend('topleft',legend = '(k)',bty='n')
 legend('bottomright',legend = out.df$spc,
        lty=c(1,2,1,2,3,1,2,3,1,2),col=c(1,1,2,2,2,3,3,3,4,4),lwd=2,
        ncol = 2)
+
+
+
 dev.off()
 
+# matrix(c(1:6,7,8,11,9,10,11),3,4, byrow = FALSE)
+# matrix(c(3:10,11,1,2,11),3,4, byrow = FALSE)
