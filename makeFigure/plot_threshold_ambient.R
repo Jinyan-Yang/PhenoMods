@@ -33,9 +33,11 @@ devtools::source_url("https://github.com/Jinyan-Yang/colors/blob/master/R/col.R?
 
 # pdf('figures/v13.2q.diag.pdf',width = 8,height = 8*0.618)
 # fit pace####
-species.vec <- c('Luc','Fes','Rye','Kan',
-                 'YM')
-
+# species.vec <- c('Bis','Dig','Luc','Fes','Rye','Kan','Rho','YM','Flux')
+species.vec <- c('Bis','Luc','Dig','Kan','Rho','Fes','Pha','Rye','YM','Flux')
+# species.vec <- c('Bis','Luc','Dig','Kan','Rho','Fes','Pha','Rye','YM','Flux')
+# legume = 1; C4=2,C3=3,mix=4
+# c(1,1,2,2,2,3,3,3,4,4)
 out.df <- data.frame(spc = species.vec,
                      f.t.opt =NA,
                      f.extract =NA,
@@ -44,7 +46,7 @@ out.df <- data.frame(spc = species.vec,
                      q = NA,
                      q.s = NA)
 for(i in  seq_along(species.vec)){
-  fn <- sprintf('cache/smv13.2qchain.%s.Control.Ambient.rds',species.vec[i])
+  fn <- sprintf('cache/smv13.2q.chain.%s.Control.Ambient.rds',species.vec[i])
   
   chain.3.ls = readRDS(fn)
   
@@ -221,17 +223,29 @@ for (iter.nm in 1:nrow(out.df)) {
 }
 
 # 
-palette(col.df$auLandscape)
+palette(c(col.df$iris))
+
+# species.vec <- c('Bis','Dig','Luc','Fes','Rye','Kan','Rho','ym')
 
 png('figures/threshold.png',width = 600,height = 600*0.618)
-plot(pred.ls[[1]]~cover.vec,ylim=c(0.05,0.3),
-     xlab = 'Initial cover',ylab = 'Soil moisture threshold',
-     type='l',lwd=2,col = 1)
-points(pred.ls[[2]]~cover.vec,type='l',col=2,lwd=2)
-points(pred.ls[[3]]~cover.vec,type='l',col=3,lwd=2)
-points(pred.ls[[4]]~cover.vec,type='l',col=4,lwd=2)
-points(pred.ls[[5]]~cover.vec,type='l',col=5,lwd=2)
+plot(pred.ls[[10]]~cover.vec,ylim=c(0.05,0.3),
+     xlab = 'Cover',ylab = 'Soil moisture',
+     type='l',lwd=2,col = 4,lty=1)
+
+points(pred.ls[[1]]~cover.vec,type='l',col=1,lwd=2,lty=1)
+points(pred.ls[[2]]~cover.vec,type='l',col=1,lwd=2,lty=2)
+points(pred.ls[[3]]~cover.vec,type='l',col=2,lwd=2,lty=1)
+points(pred.ls[[4]]~cover.vec,type='l',col=2,lwd=2,lty=2)
+points(pred.ls[[5]]~cover.vec,type='l',col=2,lwd=2,lty=3)
+points(pred.ls[[6]]~cover.vec,type='l',col=3,lwd=2,lty=1)
+points(pred.ls[[7]]~cover.vec,type='l',col=3,lwd=2,lty=2)
+points(pred.ls[[8]]~cover.vec,type='l',col=3,lwd=2,lty=3)
+
+points(pred.ls[[9]]~cover.vec,type='l',col=4,lwd=2,lty=2)
+
 legend('topleft',legend = '(a)',bty='n')
 legend('bottomright',legend = out.df$spc,
-       lty='solid',col=palette(),lwd=2)
+       lty=c(1,2,1,2,3,1,2,3,1,2),col=c(1,1,2,2,2,3,3,3,4,4),lwd=2,
+       ncol = 2)
 dev.off()
+

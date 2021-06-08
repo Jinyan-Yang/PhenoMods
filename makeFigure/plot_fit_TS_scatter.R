@@ -47,7 +47,11 @@ fn <- 'tmp/pred.smv13.2qchain.flux.Control.Ambient.rds'
 hufken.pace.pred <- readRDS(fn)
 
 plot.ts.func(hufken.pace.pred)
-legend('top',legend = 'Flux',bty='n')
+legend('topleft',legend = '(a) Flux Tower',bty='n')
+legend('topright',legend = c('OBS','MOD'),
+       pch=c(16,NA),lty=c(NA,'solid'),
+       col=c( col.df$iris[4],col.df$auLandscape[2]),
+       bty='n')
 
 for (i in seq_along(species.vec)){
   fn <- sprintf('tmp/pred.smv13.2q.chain.%s.Control.Ambient.rds',species.vec[i])
@@ -64,6 +68,7 @@ for (i in seq_along(species.vec)){
   }
   legend('bottomright',legend = species.vec,col=palette(),
          pch=16,bty='n')
+  legend('topleft',legend = '(b)',bty='n')
   abline(a=0,b=1,lty='dashed',col='grey',lwd=2)
 
 }
@@ -84,7 +89,11 @@ fn <- 'tmp/pred.smv13.2qchain.ym.Control.predict.Ambient.rds'
 hufken.pace.pred <- readRDS(fn)
 
 plot.ts.func(hufken.pace.pred)
-legend('top',legend = 'YM',bty='n')
+legend('topleft',legend = '(a) YM',bty='n')
+legend('topright',legend = c('OBS','MOD'),
+       pch=c(16,NA),lty=c(NA,'solid'),
+       col=c( col.df$iris[4],col.df$auLandscape[2]),
+       bty='n')
 
 for (i in seq_along(species.vec)){
   fn <- sprintf('tmp/pred.smv13.2q.chain.%s.Control.predict.Ambient.rds',species.vec[i])
@@ -100,6 +109,7 @@ for (i in seq_along(species.vec)){
   }
   legend('bottomright',legend = species.vec,col=palette(),
          pch=16,bty='n')
+  legend('topleft',legend = '(b)',bty='n')
   abline(a=0,b=1,lty='dashed',col='grey',lwd=2)
   
 }
