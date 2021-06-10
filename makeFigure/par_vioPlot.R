@@ -122,33 +122,35 @@ for (par.i in seq_along(all.var.ls)) {
     
     index.ns <- which(tmp.m[,i]==0)
     
-    tmp.ls <- list()
-    for (tmp.i in seq_along(index.ns)){
-      tmp.ls[[tmp.i]] <- intersect(which(tmp.m[,index.ns[tmp.i]]==0),index.ns)
-      
-      if(length(tmp.ls[[tmp.i]])>0){
-        tmp.ls[[tmp.i]][length(tmp.ls[[tmp.i]])+1] <- index.ns[tmp.i]
-      }
+    # consider different situation
+    if(length(index.ns) == 0){
+      final.index <- NULL
     }
-    final.index <- unique(unlist(tmp.ls))
-    # 
-    # found.new=0
-    if(length(final.index)>1){
-      final.index[length(final.index)+1] <- i
-      # found.new=1
-    }
-    final.index <- unique(final.index)
     
+    if(length(index.ns) == 1){
+      final.index <- c(i,index.ns)
+    }
+    
+    if(length(index.ns) >1){
+      tmp.ls <- list()
+      for (tmp.i in seq_along(index.ns)){
+        tmp.ls[[tmp.i]] <- intersect(which(tmp.m[,index.ns[tmp.i]]==0),index.ns)
+        
+        if(length(tmp.ls[[tmp.i]])>0){
+          tmp.ls[[tmp.i]][length(tmp.ls[[tmp.i]])+1] <- index.ns[tmp.i]
+        }
+      }
+      final.index <- unique(unlist(tmp.ls))
+      final.index[length(final.index)+1] <- i
+    }
+    
+    final.index <- unique(final.index)
+    # assign significant letter
     if(length(final.index)>0){
       tmp.m[final.index,11] <- paste0(tmp.m[final.index,11],letters[letter.nm])
       letter.nm <- letter.nm+1
     }
 
-    
-    # if(length(final.index)==0 & tmp.m[i,11]!=''){
-    #   tmp.m[i,11] <- paste0(tmp.m[i,11],letters[letter.nm])
-    # }
-    
     if(length(final.index)==0 & tmp.m[i,11]==''){
       tmp.m[i,11] <- letters[letter.nm]
       letter.nm <- letter.nm+1
