@@ -61,11 +61,11 @@ proposal.func <- function(param){
   }
   params.upper <- c(45,0.4,0.5,0.5,10,10)
   reflectionFromMax <- pmax( 0, 
-                             unlist(candidatepValues-params.upper) )
+                             unlist(prop.vec-params.upper) )
   
   params.lower <- c(5,0.01,0.01,0.01,0.01,0.01)
   reflectionFromMin <- pmin( 0, 
-                             unlist(candidatepValues-params.lower) )
+                             unlist(prop.vec-params.lower) )
   
   prop.vec <- prop.vec -
     2 * reflectionFromMin - 

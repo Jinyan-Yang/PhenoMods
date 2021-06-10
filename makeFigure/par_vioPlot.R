@@ -1,3 +1,4 @@
+# function to get mean
 get.fit.value.func <- function(fn,burin.frac=0.75){
   in.chain =  readRDS(fn)
   burnIn = 1
@@ -7,7 +8,7 @@ get.fit.value.func <- function(fn,burin.frac=0.75){
   
   return(colMeans(chain.fes[burnIn:nrow(chain.fes),]))
 }
-
+# function to get CI
 get.fit.ci.func <- function(fn,burin.frac=0.75){
   in.chain =  readRDS(fn)
   burnIn = 1
@@ -26,8 +27,8 @@ get.fit.ci.func <- function(fn,burin.frac=0.75){
   return(out.df)
 }
 
-
-
+# 
+# loop through all params####
 tmp.ls <- list()
 
 spc.vec <-c('Bis','Luc','Dig','Kan','Rho','Fes','Pha','Rye','YM','Flux')
@@ -71,11 +72,97 @@ for (spc.i in seq_along(spc.vec)) {
   )
 }
 
-
-
-
 out.df = do.call(rbind,tmp.ls)
-# 
+
+# prepare significance data####
+# read in significant data
+all.var.ls <- readRDS('cache/compare.var.rds')
+
+# loop through all pars
+# prepare significance data####
+# read in significant data
+all.var.ls <- readRDS('cache/compare.var.rds')
+
+# loop through all pars
+out.ls <- list()
+for (par.i in seq_along(all.var.ls)) {
+  # create empty df to store info
+  spc.condition.df <- data.frame(spc = spc.vec,
+                                 condition.1 = '',
+                                 condition.2 = '',
+                                 condition.3 = '',
+                                 condition.4 = '',
+                                 condition.5 = '',
+                                 condition.6 = '',
+                                 condition.7 = '',
+                                 condition.8 = '',
+                                 condition.9 = '')
+  
+  
+  # subset to parameter
+  tmp.df <- all.var.ls[[par.i]]
+  
+  tmp.m <- matrix(NA,ncol=11,nrow=10)
+  rownames(tmp.m)<- spc.vec
+  colnames(tmp.m) <- c(spc.vec,'sig')
+  for(spc.nm in seq_along(spc.vec)[-length(spc.vec)]){
+    
+    # subset the 
+    index.spc <- grep(paste0(spc.vec[spc.nm],'-'),tmp.df$pars)
+    
+    tmp.m[(spc.nm+1):10,spc.nm] <- tmp.df$sig[index.spc]
+  }
+  
+  tmp.m[,11] <- ''
+  
+  # here's the logic is to find the common ones and assign the same letter
+  i= 1
+  letter.nm <- 1
+  while (i<=10){
+    
+    index.ns <- which(tmp.m[,i]==0)
+    
+    tmp.ls <- list()
+    for (tmp.i in seq_along(index.ns)){
+      tmp.ls[[tmp.i]] <- intersect(which(tmp.m[,index.ns[tmp.i]]==0),index.ns)
+      
+      if(length(tmp.ls[[tmp.i]])>0){
+        tmp.ls[[tmp.i]][length(tmp.ls[[tmp.i]])+1] <- index.ns[tmp.i]
+      }
+    }
+    final.index <- unique(unlist(tmp.ls))
+    # 
+    # found.new=0
+    if(length(final.index)>1){
+      final.index[length(final.index)+1] <- i
+      # found.new=1
+    }
+    final.index <- unique(final.index)
+    
+    if(length(final.index)>0){
+      tmp.m[final.index,11] <- paste0(tmp.m[final.index,11],letters[letter.nm])
+      letter.nm <- letter.nm+1
+    }
+
+    
+    # if(length(final.index)==0 & tmp.m[i,11]!=''){
+    #   tmp.m[i,11] <- paste0(tmp.m[i,11],letters[letter.nm])
+    # }
+    
+    if(length(final.index)==0 & tmp.m[i,11]==''){
+      tmp.m[i,11] <- letters[letter.nm]
+      letter.nm <- letter.nm+1
+    }
+    
+    i <- i+1
+ 
+  }
+  
+  # 
+  out.ls[[par.i]] <- as.data.frame(tmp.m)
+}
+
+# make plot####
 library(vioplot)
 devtools::source_url("https://github.com/Jinyan-Yang/colors/blob/master/R/col.R?raw=TRUE")
 palette(c(col.df$iris))
@@ -102,11 +189,38 @@ plot.box.func <- function(spc.vec,col2plot,burin.frac=0.75,y.nm){
 
   vioplot(par.val~spc,plot.df,col=col.nm.vec,
           xlab='',ylab=y.nm)
+  
+  sig.df <- out.ls[[col2plot]]
+  
+  # for(sig.i in 1:10){
+    
+    for (par.i in 1:10) {
+      # find the position 
+      adj.val <- 0.095 * (par.i-2)+0.172
+      # correct for uneven start and end 
+      if(par.i==1){
+        adj.val <- 0.07
+      }
+      if(par.i==2){
+        adj.val <- 0.172
+      }
+      if(par.i==9){
+        adj.val <- 1-0.172
+      }
+      if(par.i==10){
+        adj.val <- 1-0.07
+      }
+      mtext(sig.df[par.i,11],side = 3,line = 1+par.i%%2,adj = adj.val,cex=0.8)
+    }
+    # mtext('x',line=1,side=3,adj=0.267)
+  # }
+  
+  
 }
 
 pdf('figures/par.vioplot.pdf',width = 4*2,height = 4*.618*3)
 par(mfrow=c(3,2))
-par(mar=c(5,5,1,1))
+par(mar=c(5,5,3,1))
 
 # var.nm.vec <- c('f.t.opt', 'f.extract',
 #                 'f.sec','f.growth', 

@@ -26,7 +26,7 @@ for (i in seq_along(species.vec)) {
   
   if(species.vec[i]=='ym'){
     df = ym.18.df
-    swc.ym.con <- quantile(ym.18.df$vwc,na.rm=T,probs = c(0.001,0.999))
+    swc.ym.con <- quantile(ym.18.df$vwc,na.rm=T,probs = c(0.01,0.99))
     swc.cap = swc.ym.con[[2]]
     swc.wilt = swc.ym.con[[1]]
     bucket.size=1000

@@ -13,6 +13,7 @@ ym.18.df <- get.ym.func(18)
 gcc.met.con.df <- get.paddock.func('control')
 # species.vec <- c('Bis','Dig','Luc','Fes','Rye','Kan','Rho','ym','flux')
 species.vec <- c('Bis','Luc','Dig','Kan','Rho','Fes','Pha','Rye','ym','flux')
+species.vec <- c('Rho','Pha','ym')
 # species.vec <- c('Kan','ym','flux')
 # species.vec <- c('Bis','Luc','Kan','Fes','Pha','ym','flux')
 # species.vec <- c('Bis','Luc','Dig','Kan','Rho','Fes','Pha','Rye')
@@ -29,15 +30,15 @@ for (i in seq_along(species.vec)) {
   
   if(species.vec[i]=='ym'){
     df = ym.18.df
-    swc.ym.con <- quantile(ym.18.df$vwc,na.rm=T,probs = c(0.001,0.999))
-    swc.cap = swc.ym.con[[2]]
+    swc.ym.con <- quantile(ym.18.df$vwc,na.rm=T,probs = c(0.01,0.99))
+    swc.cap =swc.ym.con[[2]]
     swc.wilt = swc.ym.con[[1]]
     bucket.size=1000
   }
   
   if(species.vec[i]=='flux'){
     df = gcc.met.con.df
-    swc.q.con <- quantile(gcc.met.con.df$vwc,na.rm=T,probs = c(0.001,0.999))
+    swc.q.con <- quantile(gcc.met.con.df$vwc,na.rm=T,probs = c(0.01,0.99))
     swc.cap =  swc.q.con[[2]]
     swc.wilt = swc.q.con[[1]]
     bucket.size=1000
