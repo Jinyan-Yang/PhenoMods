@@ -230,10 +230,10 @@ par(mar=c(5,5,3,1))
 
 y.nm.vec <- c(expression('Opt. T '*(degree*C)),
               expression('Max. tran. rate '*(mm~d^-1)),
-              expression('Turnover rate '*(cover~d^-1)),
+              expression('Senescence rate '*(cover~d^-1)),
               expression('Growth rate '*(cover~d^-1)),
               expression('q (growth)'),
-              expression(q[s]~(turnover)))
+              expression(q[s]~(Senescence)))
 
 for (plot.var.nm in c(1,2,3,4,6,5)) {
   
