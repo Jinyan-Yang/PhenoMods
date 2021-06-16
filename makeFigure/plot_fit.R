@@ -11,7 +11,7 @@ source('r/plot.mcmc.r')
 ym.18.df <- get.ym.func(18)
 gcc.met.con.df <- get.paddock.func('control')
 # species.vec <- c('Bis','Dig','Luc','Fes','Rye','Kan','Rho','ym','flux')
-species.vec <- c('Bis','Luc','Dig','Kan','Rho','Fes','Pha','Rye','ym','flux')
+species.vec <- c('Bis','Luc','Dig','Wal','Rho','Fes','Pha','Rye','ym','flux')
 # species.vec <- 'Kan'
 
 pdf('figures/obs_pred.pdf',width = 8,height = 8*.618)

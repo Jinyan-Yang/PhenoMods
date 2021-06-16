@@ -34,7 +34,7 @@ plot.ts.func <- function(hufken.pace.pred){
 # species.vec <- c("Bis",    "Dig",  "Fes",    "Kan",    
 #                  "Luc",  "Rho",    "Rye",
 #                  'ym')
-species.vec <- c('Bis','Luc','Dig','Kan','Rho','Fes','Pha','Rye','YM')
+species.vec <- c('Bis','Luc','Dig','Wal','Rho','Fes','Pha','Rye','YM')
 
 # #########################################
 palette(c(col.df$iris,col.df$daisy))
@@ -79,7 +79,8 @@ dev.off()
 # species.vec <- c("Bis","Dig", "Fes", "Kan",    
 #                  "Luc",  "Rho",    "Rye")
 
-species.vec <- c('Bis','Luc','Dig','Kan','Rho','Fes','Pha','Rye')
+# species.vec <- c('Bis','Luc','Dig','Kan','Rho','Fes','Pha','Rye')
+plot.nm.vec <- c('Bis','Dig','Luc','Fes','Rye','Wal','Rho','Pha','YM','Flux Tower')
 png('figures/fit_pred_TS_scatter.png',height = 400*2,width = 400/.618)
 par(mfrow =c(2,1))
 palette(c(col.df$iris,col.df$daisy))
@@ -107,7 +108,7 @@ for (i in seq_along(species.vec)){
     points(GCC.norm~cover.hufken,data = hufken.pace.pred,
            xlim=c(0,1),ylim=c(0,1),pch=16,col=i)
   }
-  legend('bottomright',legend = species.vec,col=palette(),
+  legend('bottomright',legend = plot.nm.vec,col=palette(),
          pch=16,bty='n')
   legend('topleft',legend = '(b)',bty='n')
   abline(a=0,b=1,lty='dashed',col='grey',lwd=2)

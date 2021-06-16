@@ -4,7 +4,7 @@
 # species.vec <- c("Bis",    "Dig",  "Fes",    "Kan",    
 #                  "Luc",  "Rho",    "Rye",
 #                  'YM','Flux')
-species.vec <- c('Bis','Luc','Dig','Kan','Rho','Fes','Pha','Rye','YM','Flux')
+species.vec <- c('Bis','Luc','Dig','Wal','Rho','Fes','Pha','Rye','YM','Flux')
 
 out.df <- data.frame(spc = species.vec,
                      f.t.opt =NA,

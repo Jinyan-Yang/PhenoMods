@@ -31,7 +31,7 @@ get.fit.ci.func <- function(fn,burin.frac=0.75){
 # loop through all params####
 tmp.ls <- list()
 
-spc.vec <-c('Bis','Luc','Dig','Kan','Rho','Fes','Pha','Rye','YM','Flux')
+spc.vec <-c('Bis','Luc','Dig','Wal','Rho','Fes','Pha','Rye','YM','Flux')
 
 for (spc.i in seq_along(spc.vec)) {
   fn <- sprintf('cache/smv13.2q.chain.%s.Control.Ambient.rds',spc.vec[spc.i])
@@ -74,11 +74,6 @@ for (spc.i in seq_along(spc.vec)) {
 
 out.df = do.call(rbind,tmp.ls)
 
-# prepare significance data####
-# read in significant data
-all.var.ls <- readRDS('cache/compare.var.rds')
-
-# loop through all pars
 # prepare significance data####
 # read in significant data
 all.var.ls <- readRDS('cache/compare.var.rds')
