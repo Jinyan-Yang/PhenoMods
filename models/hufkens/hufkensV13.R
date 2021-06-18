@@ -38,7 +38,8 @@ phenoGrass.func.v13 <- function(gcc.df,
         # data frame with met and predicted cover, SWC, runoff, drainage, evaporation
   ####################################################################################################################
 
-  # model begine
+  # model begine####
+  # 1.set up initial conditions
   # ignore the dates without GCC
   start.date <- gcc.df$Date[min(which(!is.na(gcc.df$GCC.norm)))]
 
@@ -92,7 +93,7 @@ phenoGrass.func.v13 <- function(gcc.df,
   # rad.max <-  max(gcc.df$PPFD,na.rm=TRUE)
   gcc.df$rad.norm <- 1#(gcc.df$PPFD - rad.min) / (rad.max - rad.min)
 
-  # model start
+  # 2.daily simulation start
   for (nm.day in (day.lay+1):nrow(gcc.df)){
     water.avi[nm.day] <- max(0,(swc.vec[nm.day-1]- swc.wilt*bucket.size))
 
@@ -157,13 +158,13 @@ phenoGrass.func.v13 <- function(gcc.df,
     g.value <-  t.func(t.m[nm.day],f.t.opt,t.max)
 
     # plant cover
-    
     growth.vec[nm.day] <- dor*g * g.value * f.growth *
       loss.f *
       #water.avi.norm*
       (1 - cover.pred.vec[nm.day-1] / cover.max)
     
-    senescence.vec[nm.day] <- d * f.sec * loss.f.s *
+    senescence.vec[nm.day] <- d * f.sec * 
+      loss.f.s *
       # 4*(1 - cover.pred.vec[nm.day-1])*
       cover.pred.vec[nm.day-1]/ cover.max
 
@@ -183,9 +184,9 @@ phenoGrass.func.v13 <- function(gcc.df,
       # ((swc.vec[nm.day-1]/bucket.size - swc.wilt)/(swc.capacity-swc.wilt))^2 *
       et[nm.day]
     transp.vec[nm.day] <- f.extract *#g.value*
-      swc.vec[nm.day-1] *
-      # loss.f.soil*
-      cover.pred.vec[nm.day] #/ cover.max
+      # swc.vec[nm.day-1] *
+      loss.f.soil*
+      cover.pred.vec[nm.day] / cover.max
 
     swc.vec[nm.day] <- swc.vec[nm.day-1] + gcc.df$Rain[nm.day] - evap.vec[nm.day] - transp.vec[nm.day]
 
@@ -201,7 +202,7 @@ phenoGrass.func.v13 <- function(gcc.df,
     swc.vec[nm.day] <- max(0,swc.vec[nm.day])
   }
   
-  # organise output
+  # 3.organise output
   gcc.df$ppt <- gcc.df$Rain
   gcc.df$cover.hufken <- cover.pred.vec
   gcc.df$swc.hufken <- swc.vec
