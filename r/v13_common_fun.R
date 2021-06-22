@@ -168,11 +168,11 @@ fit.mcmc.2q.func <- function(df = gcc.met.pace.df,
   # in a normal distribution for proposal.func
 
   if(is.null(initial.vec)){
-    par.df['initial',] <- c(20,0.5,0.005,0.15,3,0.5)
+    par.df['initial',] <- c(20,0.5,0.005,0.15,3,0.5)[seq_along(par.df['initial',])]
   }else{
     par.df['initial',] <- initial.vec
-    par.df['max',] <- initial.vec*2
-    par.df['min',] <- initial.vec/2
+    # par.df['max',] <- initial.vec*2
+    # par.df['min',] <- initial.vec/2
   }
   par.df['stdv',] <- (par.df['max',] - par.df['min',])/100
   
@@ -283,6 +283,19 @@ mh.MCMC.func.2q <- function(iterations,par.df,
   for (i in 1:iterations){
     # prpose a set of par values based on previous chain value
     proposal = proposal.func(chain[i,],par.df)
+    
+    # deal with constant sensitivity
+    if(length(proposal)<6){
+      q.s.val = 0
+    }else{
+      q.s.val = proposal[6]
+    }
+    
+    if(length(proposal)<5){
+      q.val = 0
+    }else{
+      q.val = proposal[5]
+    }
 
     # prior.prob,data,data.sd,bucket.size = 300,...
     probab = exp(posterior.func(prior.prob,FUN = my.fun,
@@ -292,8 +305,8 @@ mh.MCMC.func.2q <- function(iterations,par.df,
                                 f.extract = proposal[2],
                                 f.sec = proposal[3],
                                 f.growth = proposal[4] ,
-                                q = proposal[5] ,
-                                q.s = proposal[6] ,
+                                q = q.val ,
+                                q.s = q.s.val ,
                                 t.max = 45,
                                 day.lay = day.lay,
                                 bucket.size = bucket.size,

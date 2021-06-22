@@ -59,13 +59,13 @@ proposal.func <- function(param,par.df){
 
     # prop.vec[i] <- rgamma(1,shape = as.numeric(param[i]))+0.001
   }
-  params.upper <- unname(par.df['max',]) 
+  params.upper <- unlist(par.df['max',]) 
   reflectionFromMax <- pmax( 0, 
-                             unlist(prop.vec-params.upper) )
+                             unname(prop.vec-params.upper) )
   
-  params.lower <- unname(par.df['min',])
+  params.lower <- unlist(par.df['min',])
   reflectionFromMin <- pmin( 0, 
-                             unlist(prop.vec-params.lower) )
+                             unname(prop.vec-params.lower) )
   
   prop.vec <- prop.vec -
     2 * reflectionFromMin - 
