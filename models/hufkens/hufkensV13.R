@@ -184,8 +184,8 @@ phenoGrass.func.v13 <- function(gcc.df,
       # ((swc.vec[nm.day-1]/bucket.size - swc.wilt)/(swc.capacity-swc.wilt))^2 *
       et[nm.day]
     transp.vec[nm.day] <- f.extract *#g.value*
-      # swc.vec[nm.day-1] *
-      loss.f.soil*
+      swc.vec[nm.day-1] *
+      # loss.f.soil*
       cover.pred.vec[nm.day] / cover.max
 
     swc.vec[nm.day] <- swc.vec[nm.day-1] + gcc.df$Rain[nm.day] - evap.vec[nm.day] - transp.vec[nm.day]

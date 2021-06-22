@@ -63,69 +63,69 @@ source('r/plot.mcmc.r')
 library(doBy)
 library(zoo)
 
-fit.mcmc.pace.func <- function(df = gcc.met.pace.df,
-                               species.in = 'Luc',prep.in = 'Control', 
-                               temp.in ='Ambient',subplot =NA,
-                               my.fun = phenoGrass.func.v11,
-                               out.nm.note = '',use.smooth = FALSE,
-                               day.lag = 3,
-                               bucket.size = 300,
-                               swc.capacity = 0.13,
-                               swc.wilt = 0.05,
-                               n.iter = 10000){
-  s.time <- Sys.time()
-  gcc.met.pace.df.16 <- get.pace.func(df,
-                                      species.in =species.in,
-                                      prep.in = prep.in,
-                                      temp.in =temp.in,
-                                      subplot = subplot)
-  gcc.met.pace.df.16$map <- 760
-  
-  # para values####
-  par.df <- data.frame(#f.h = c(200,220,240,NA,NA),
-    f.t.opt = c(10,15,20,NA,NA,NA),
-    f.extract = c(0.05,0.075,0.1,NA,NA,NA),
-    f.sec = c(0.05,0.1,0.15,NA,NA,NA),
-    f.growth = c(0.1,0.2,0.3,NA,NA,NA),
-    q = c(0.5,1,2,NA,NA,NA))
-  row.names(par.df) <- c('min','initial','max','fit','stdv','prop')
-
-  # this assume 100% of the data falls into the max min range
-  # in a normal distribution for proposal.func
-  par.df['stdv',] <- ((par.df['max',] - par.df['min',])/100)
-
-  # start mcmc fiting######
-
-  # soil.water.var <- quantile(gcc.met.pace.df.16$vwc,c(.1,.99))
-  chain.fes=list()
-  for(n.chain in 1:3){
-    chain.fes[[n.chain]] = mh.MCMC.func(n.iter,
-                                        par.df,
-                                        gcc.met.pace.df.16,
-                                        bucket.size = bucket.size,
-                                        day.lay = day.lag,
-                                        swc.capacity = swc.capacity,
-                                        swc.wilt = swc.wilt,
-                                        my.fun = my.fun,
-                                        use.smooth = use.smooth)
-  }
-
-  if(use.smooth==TRUE){
-    smooth.nm='sm'
-  }else{
-    smooth.nm=''
-  }
-
-  if(is.na(subplot)){
-    out.name <- sprintf('cache/%s%schain.%s.%s.%s.rds',smooth.nm,out.nm.note,species.in,prep.in,temp.in)
-  }else{
-    out.name <- sprintf('cache/%schain.%s.rds',out.nm.note,subplot)
-  }
-
-  saveRDS(chain.fes,out.name)
-
-  print(Sys.time() - s.time)
-}
+# fit.mcmc.pace.func <- function(df = gcc.met.pace.df,
+#                                species.in = 'Luc',prep.in = 'Control', 
+#                                temp.in ='Ambient',subplot =NA,
+#                                my.fun = phenoGrass.func.v11,
+#                                out.nm.note = '',use.smooth = FALSE,
+#                                day.lag = 3,
+#                                bucket.size = 300,
+#                                swc.capacity = 0.13,
+#                                swc.wilt = 0.05,
+#                                n.iter = 10000){
+#   s.time <- Sys.time()
+#   gcc.met.pace.df.16 <- get.pace.func(df,
+#                                       species.in =species.in,
+#                                       prep.in = prep.in,
+#                                       temp.in =temp.in,
+#                                       subplot = subplot)
+#   gcc.met.pace.df.16$map <- 760
+#   
+#   # para values####
+#   par.df <- data.frame(#f.h = c(200,220,240,NA,NA),
+#     f.t.opt = c(10,15,20,NA,NA,NA),
+#     f.extract = c(0.05,0.075,0.1,NA,NA,NA),
+#     f.sec = c(0.05,0.1,0.15,NA,NA,NA),
+#     f.growth = c(0.1,0.2,0.3,NA,NA,NA),
+#     q = c(0.5,1,2,NA,NA,NA))
+#   row.names(par.df) <- c('min','initial','max','fit','stdv','prop')
+# 
+#   # this assume 100% of the data falls into the max min range
+#   # in a normal distribution for proposal.func
+#   par.df['stdv',] <- ((par.df['max',] - par.df['min',])/100)
+# 
+#   # start mcmc fiting######
+# 
+#   # soil.water.var <- quantile(gcc.met.pace.df.16$vwc,c(.1,.99))
+#   chain.fes=list()
+#   for(n.chain in 1:3){
+#     chain.fes[[n.chain]] = mh.MCMC.func(n.iter,
+#                                         par.df,
+#                                         gcc.met.pace.df.16,
+#                                         bucket.size = bucket.size,
+#                                         day.lay = day.lag,
+#                                         swc.capacity = swc.capacity,
+#                                         swc.wilt = swc.wilt,
+#                                         my.fun = my.fun,
+#                                         use.smooth = use.smooth)
+#   }
+# 
+#   if(use.smooth==TRUE){
+#     smooth.nm='sm'
+#   }else{
+#     smooth.nm=''
+#   }
+# 
+#   if(is.na(subplot)){
+#     out.name <- sprintf('cache/%s%schain.%s.%s.%s.rds',smooth.nm,out.nm.note,species.in,prep.in,temp.in)
+#   }else{
+#     out.name <- sprintf('cache/%schain.%s.rds',out.nm.note,subplot)
+#   }
+# 
+#   saveRDS(chain.fes,out.name)
+# 
+#   print(Sys.time() - s.time)
+# }
 
 
 fit.mcmc.2q.func <- function(df = gcc.met.pace.df,
@@ -139,7 +139,8 @@ fit.mcmc.2q.func <- function(df = gcc.met.pace.df,
                              swc.wilt = 0.05,
                              n.iter = 10000,
                              norm.min.max=NULL,
-                             cal.initial=F){
+                             cal.initial=F,
+                             par.df){
   s.time <- Sys.time()
   gcc.met.pace.df.16 <<- get.pace.func(df,
                                       species.in =species.in,
@@ -158,26 +159,16 @@ fit.mcmc.2q.func <- function(df = gcc.met.pace.df,
   
   if(cal.initial){
     source('r/deoptimal_initial.R')
-    initial.vec <- get.ini.func()
+    initial.vec <- get.ini.func(par.df = par.df)
   }else{
     initial.vec<-NULL
   }
 
-  # para values####
-  par.df <- data.frame(#f.h = c(200,220,240,NA,NA),
-    f.t.opt = c(5,20,40,NA,NA,NA),
-    f.extract = c(0.0001,0.5,0.5,NA,NA,NA),
-    f.sec = c(0.001,0.05,0.1,NA,NA,NA),
-    f.growth = c(0.001,0.15,0.2,NA,NA,NA),
-    q = c(0.1,3,5,NA,NA,NA),
-    q.s = c(0.1,1,5,NA,NA,NA))
-  row.names(par.df) <- c('min','initial','max','fit','stdv','prop')
-  
   # this assume 100% of the data falls into the max min range
   # in a normal distribution for proposal.func
 
   if(is.null(initial.vec)){
-    par.df['initial',] <- c(20,0.05,0.005,0.15,3,0.5)
+    par.df['initial',] <- c(20,0.5,0.005,0.15,3,0.5)
   }else{
     par.df['initial',] <- initial.vec
     par.df['max',] <- initial.vec*2
@@ -286,12 +277,12 @@ mh.MCMC.func.2q <- function(iterations,par.df,
   # intial
   chain = array(dim = c(iterations+1,ncol(par.df)))
   # chain[1,] = as.numeric(par.df['initial',])
-  chain[1,] = proposal.func(par.df['initial',])
+  chain[1,] = proposal.func(par.df['initial',],par.df)
   
   # chain move on
   for (i in 1:iterations){
     # prpose a set of par values based on previous chain value
-    proposal = proposal.func(chain[i,])
+    proposal = proposal.func(chain[i,],par.df)
 
     # prior.prob,data,data.sd,bucket.size = 300,...
     probab = exp(posterior.func(prior.prob,FUN = my.fun,

@@ -13,13 +13,14 @@ ym.18.df <- get.ym.func(18)
 gcc.met.con.df <- get.paddock.func('control')
 # species.vec <- c('Bis','Dig','Luc','Fes','Rye','Kan','Rho','ym','flux')
 species.vec <- c('Bis','Luc','Dig','Kan','Rho','Fes','Pha','Rye','ym','flux')
-species.vec <- c('Rho','Pha','ym')
-# species.vec <- c('Kan','ym','flux')
+# species.vec <- c('Kan')
+# species.vec <- c('flux')
+species.vec <- c('Kan','ym','flux')
 # species.vec <- c('Bis','Luc','Kan','Fes','Pha','ym','flux')
 # species.vec <- c('Bis','Luc','Dig','Kan','Rho','Fes','Pha','Rye')
 
 # species.vec <- c('Luc','Dig','Rho','Fes','Pha')
-for (i in seq_along(species.vec)) {
+for (i in seq_along(species.vec)){
   
   if(species.vec[i]!='ym'){
     df = gcc.met.pace.df
@@ -30,27 +31,46 @@ for (i in seq_along(species.vec)) {
   
   if(species.vec[i]=='ym'){
     df = ym.18.df
-    swc.ym.con <- quantile(ym.18.df$vwc,na.rm=T,probs = c(0.01,0.99))
-    swc.cap =swc.ym.con[[2]]
-    swc.wilt = swc.ym.con[[1]]
+    # 
+    c.wd <- getwd()
+    setwd('c:/repo/dn_gcc/')
+    ym.met.df <- readRDS('cache/ym.met.rds')
+    setwd(c.wd)
+    # 
+    swc.ym.con <- quantile(ym.met.df$swc,na.rm=T,probs = c(0.01,0.99))
+    swc.cap = round(swc.ym.con[[2]]*10)/10
+    swc.wilt = round(swc.ym.con[[1]]*100)/100
     bucket.size=1000
   }
   
   if(species.vec[i]=='flux'){
     df = gcc.met.con.df
     swc.q.con <- quantile(gcc.met.con.df$vwc,na.rm=T,probs = c(0.01,0.99))
-    swc.cap =  swc.q.con[[2]]
-    swc.wilt = swc.q.con[[1]]
+    swc.cap =  round(swc.q.con[[2]]*10)/10
+    swc.wilt = round(swc.q.con[[1]]*100)/100
     bucket.size=1000
   }
   
+  
+  # para values####
+  par.df <- data.frame(#f.h = c(200,220,240,NA,NA),
+    f.t.opt = c(5,20,40,NA,NA,NA),
+    f.extract = c(0.05,0.5,0.8,NA,NA,NA),
+    f.sec = c(0.001,0.05,0.1,NA,NA,NA),
+    f.growth = c(0.001,0.15,0.2,NA,NA,NA),
+    q = c(0.1,3,5,NA,NA,NA),
+    q.s = c(0.1,1,5,NA,NA,NA))
+  row.names(par.df) <- c('min','initial','max','fit','stdv','prop')
+  
+  # 
   fit.mcmc.2q.func(df,
                    n.iter = 50000,
                    species.in=species.vec[i],
                    prep.in = 'Control', temp.in ='Ambient',
                    my.fun = phenoGrass.func.v13,
-                   out.nm.note='v13.2q.', 
+                   out.nm.note='v13.2q.18062021.', 
                    use.smooth = TRUE,cal.initial = TRUE,day.lag = 3,
-                   swc.capacity = swc.cap,swc.wilt = swc.wilt,bucket.size = bucket.size)
+                   swc.capacity = swc.cap,swc.wilt = swc.wilt,bucket.size = bucket.size,
+                   par.df = par.df)
   
 }

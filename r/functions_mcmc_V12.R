@@ -49,7 +49,7 @@ posterior.func <- function(prior.prob,bucket.size,swc.wilt,swc.capacity,FUN,...)
 
 ######## Metropolis algorithm ################
 # # function to generate a random par value from a normal distribution based on mean and sd
-proposal.func <- function(param){
+proposal.func <- function(param,par.df){
 
   prop.vec <- c()
 
@@ -59,11 +59,11 @@ proposal.func <- function(param){
 
     # prop.vec[i] <- rgamma(1,shape = as.numeric(param[i]))+0.001
   }
-  params.upper <- c(45,0.4,0.5,0.5,10,10)
+  params.upper <- unname(par.df['max',]) 
   reflectionFromMax <- pmax( 0, 
                              unlist(prop.vec-params.upper) )
   
-  params.lower <- c(5,0.01,0.01,0.01,0.01,0.01)
+  params.lower <- unname(par.df['min',])
   reflectionFromMin <- pmin( 0, 
                              unlist(prop.vec-params.lower) )
   
@@ -72,7 +72,7 @@ proposal.func <- function(param){
     2 * reflectionFromMax 
   
   
-  prop.vec[prop.vec<=0] <- 0.001
+  prop.vec[prop.vec<=0] <- 0.01
   
   return((prop.vec))
 

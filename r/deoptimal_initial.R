@@ -35,16 +35,19 @@ model.de.func <- function(pars,dat,bucket.size,swc.in.wilt,swc.in.cap,day.lag,us
   return(sum(resid.gs,na.rm = T))
 }
 
-# setting control parameters and limits to values
-lower <- c(1, 0.01,0.001,0.001,0.01,0.01) 
-upper <- c(40,0.5,   0.5, 0.5,  5  ,5)
-NPmax <- 100
-maxiter <- 30
+
 
 #- Call to DEoptim
 # years <-(year(gcc.met.pace.df.16$Date))
 
-get.ini.func <- function(){
+get.ini.func <- function(par.df){
+  # setting control parameters and limits to values
+  lower <- unname(par.df['min',])
+  upper <- unname(par.df['max',]) 
+  NPmax <- 100
+  maxiter <- 50
+  # 
+  set.seed(1935)
   OptBB.de.fit <- DEoptim(fn=model.de.func,lower=lower,upper=upper,
                           dat=gcc.met.pace.df.16,
                           DEoptim.control(VTR = 1,
