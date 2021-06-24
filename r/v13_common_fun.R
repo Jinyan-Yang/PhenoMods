@@ -1,3 +1,7 @@
+###################################################################
+# functions to do the mcmc fitting fot V13 version of the model####
+###################################################################
+
 source('r/functions_mcmc_v12.r')
 mh.MCMC.func <- function(iterations,par.df,
                          gcc.met.pace.df.16,
@@ -127,7 +131,7 @@ library(zoo)
 #   print(Sys.time() - s.time)
 # }
 
-
+# wrpped function to fit mcmc to a df
 fit.mcmc.2q.func <- function(df = gcc.met.pace.df,
                              species.in = 'Luc',prep.in = 'Control', 
                              temp.in ='Ambient',subplot =NA,
@@ -140,7 +144,18 @@ fit.mcmc.2q.func <- function(df = gcc.met.pace.df,
                              n.iter = 10000,
                              norm.min.max=NULL,
                              cal.initial=F,
-                             par.df){
+                             par.df,q.given =NULL,q.s.given=NULL){
+  
+  # check for error in input
+  if(ncol(par.df)==6 & !is.null(q.s.given)){
+    stop('qs not set correctly. ')
+  }
+
+  if(ncol(par.df)==5 & !is.null(q.given)){
+    stop('q not set correctly. ')
+  }
+  
+  # 
   s.time <- Sys.time()
   gcc.met.pace.df.16 <<- get.pace.func(df,
                                       species.in =species.in,
@@ -159,7 +174,7 @@ fit.mcmc.2q.func <- function(df = gcc.met.pace.df,
   
   if(cal.initial){
     source('r/deoptimal_initial.R')
-    initial.vec <- get.ini.func(par.df = par.df)
+    initial.vec <- get.ini.func(par.df = par.df,q.given =NULL,qs.given=NULL)
   }else{
     initial.vec<-NULL
   }
@@ -260,13 +275,13 @@ fit.mcmc.2q.func <- function(df = gcc.met.pace.df,
               row.names = FALSE)
 }
 
-
+# generic function to do mcmc in paralle
 mh.MCMC.func.2q <- function(iterations,par.df,
                             gcc.met.pace.df.16,
                             bucket.size,swc.wilt ,
                             swc.capacity,day.lay,
                             my.fun,
-                            use.smooth){
+                            use.smooth,q.given,qs.given){
 
 
   
@@ -285,16 +300,28 @@ mh.MCMC.func.2q <- function(iterations,par.df,
     proposal = proposal.func(chain[i,],par.df)
     
     # deal with constant sensitivity
-    if(length(proposal)<6){
-      q.s.val = 0
+    # if(length(proposal)<6){
+    #   q.s.val = 0
+    # }else{
+    #   q.s.val = proposal[6]
+    # }
+    # 
+    # if(length(proposal)<5){
+    #   q.val = 0
+    # }else{
+    #   q.val = proposal[5]
+    # }
+    
+    if(is.null(q.given)){
+      q.val = proposal[5]
     }else{
-      q.s.val = proposal[6]
+      q.val = q.given
     }
     
-    if(length(proposal)<5){
-      q.val = 0
+    if(is.null(qs.given)){
+      q.s.val = proposal[6]
     }else{
-      q.val = proposal[5]
+      q.s.val = q.given
     }
 
     # prior.prob,data,data.sd,bucket.size = 300,...
@@ -320,8 +347,8 @@ mh.MCMC.func.2q <- function(iterations,par.df,
                                   f.extract = chain[i,2],
                                   f.sec = chain[i,3],
                                   f.growth = chain[i,4] ,
-                                  q = chain[i,5] ,
-                                  q.s = chain[i,6] ,
+                                  q = q.val ,
+                                  q.s = q.s.val ,
                                   t.max = 45,
                                   day.lay = day.lay,
                                   swc.wilt = swc.wilt ,
