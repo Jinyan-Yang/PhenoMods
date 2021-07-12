@@ -14,6 +14,9 @@ get.ym.func <- function(treat){
     df.18 <- readRDS('cache/gcc_ym_18.rds')
     df.18$SubplotID <- 18
     
+    # 
+    f.rain.reduce <- 1
+    
     tmp.gcc.df <- rbind(df.18,df.45)
     tmp.gcc.df$Precipitation <- 'Control'
   }
@@ -25,6 +28,8 @@ get.ym.func <- function(treat){
     df.38 <- readRDS('cache/gcc_ym_38.rds')
     df.38$SubplotID <- 38
     
+    f.rain.reduce <- 0.35
+    
     tmp.gcc.df <-do.call(rbind,list(df.14,df.27,df.38))
     tmp.gcc.df$Precipitation <- 'Drought'
   }
@@ -32,19 +37,25 @@ get.ym.func <- function(treat){
     tmp.gcc.df <- readRDS('cache/gcc_ym_up.rds')
     tmp.gcc.df$Precipitation <- 'up'
     tmp.gcc.df$SubplotID <- 'up'
+    
+    f.rain.reduce <- 1
   }
   if(is.numeric(treat)){
     fn <- sprintf('cache/gcc_ym_%s.rds',treat)
     tmp.gcc.df <- readRDS(fn)
     if(treat %in% c(14,27,38)){
       prep <- 'Drought'
+      f.rain.reduce <- 0.35
     }else{
       prep <- 'Control'
+      f.rain.reduce <- 1
     }
     tmp.gcc.df$Precipitation <- prep
     
     tmp.gcc.df$SubplotID <- treat
   }
+  
+
   tmp.gcc.df$Temperature <- 'Ambient'
   tmp.gcc.df$Species <- 'ym'
   
@@ -65,7 +76,7 @@ get.ym.func <- function(treat){
   gcc.met.ym.df$vwc <- gcc.met.ym.df$swc
   gcc.met.ym.df$PAR.ros <- gcc.met.ym.df$PAR
   gcc.met.ym.df$rh <- gcc.met.ym.df$RH
-  gcc.met.ym.df$irrig.tot <- gcc.met.ym.df$Rain
+  gcc.met.ym.df$irrig.tot <- gcc.met.ym.df$Rain * f.rain.reduce
   gcc.met.ym.df$WS_ms_Avg <- gcc.met.ym.df$u2
   
   gcc.met.ym.df$harvest = 0

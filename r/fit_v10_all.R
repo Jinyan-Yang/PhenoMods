@@ -15,9 +15,7 @@ library(doParallel)
 ym.18.df <- get.ym.func(18)
 gcc.met.con.df <- get.paddock.func('control')
 
-# 
 species.vec <- c('Bis','Luc','Dig','Kan','Rho','Fes','Pha','Rye','ym','flux')
-# species.vec <- c('Luc','Dig','Kan','Rho','Fes','Pha','Rye','ym','flux')
 # species.vec <- c('Kan','ym','flux')
 # species.vec <- c('Bis','Luc','Dig','Rho','Fes','Pha','Rye','flux')
 # loop through all spcies/site
@@ -53,10 +51,8 @@ for (i in seq_along(species.vec)){
   par.df <- data.frame(#f.h = c(200,220,240,NA,NA),
     f.t.opt = c(5,20,40,NA,NA,NA),
     f.extract = c(0.01,0.5,0.8,NA,NA,NA),
-    f.sec = c(0.01,0.05,0.5,NA,NA,NA),
-    f.growth = c(0.01,0.1,0.5,NA,NA,NA),
-    q = c(0.1,3,15,NA,NA,NA),
-    q.s = c(0.1,1,15,NA,NA,NA))
+    f.sec = c(0.001,0.05,0.5,NA,NA,NA),
+    f.growth = c(0.001,0.01,0.5,NA,NA,NA))
   row.names(par.df) <- c('min','initial','max','fit','stdv','prop')
   
   # mcmc fitting
@@ -64,11 +60,11 @@ for (i in seq_along(species.vec)){
                    n.iter = 50000,
                    species.in=species.vec[i],
                    prep.in = 'Control', temp.in ='Ambient',
-                   my.fun = phenoGrass.func.v13,
-                   out.nm.note='v13.2q.07072021.', 
+                   my.fun = phenoGrass.func.v10,
+                   out.nm.note='v10.', 
                    use.smooth = TRUE,cal.initial = TRUE,day.lag = 3,
                    swc.capacity = swc.cap,swc.wilt = swc.wilt,bucket.size = bucket.size,
-                   par.df = par.df,q.given =NULL,q.s.given=NULL)
+                   par.df = par.df,q.given =1,q.s.given=0)
   
   
 }

@@ -46,7 +46,7 @@ out.df <- data.frame(spc = species.vec,
                      q = NA,
                      q.s = NA)
 for(i in  seq_along(species.vec)){
-  fn <- sprintf('cache/smv13.2q.chain.%s.Control.Ambient.rds',species.vec[i])
+  fn <- sprintf('cache/smv13.2q.07072021.chain.%s.Control.Ambient.rds',species.vec[i])
   
   chain.3.ls = readRDS(fn)
   
@@ -54,9 +54,36 @@ for(i in  seq_along(species.vec)){
   chain.fes <- do.call(rbind,chain.3.ls.new)
   
  
-  fitted.val <- colMeans(chain.fes[15000:nrow(chain.fes),])
+  fitted.val <- colMeans(chain.fes[40000:nrow(chain.fes),])
   
   out.df[i,2:7] <- fitted.val
+  
+  # lapply(chain.3.ls, plot.check.mcmc.func,species.in=species.vec[i])
+  
+  # par(mfrow=c(3,2),mar=c(5,5,1,1))
+  # for(par.num in 1:6){
+  #   
+  #   plot.line.mcmc.func(chain.3.ls,par.num,range.iter =  round(15000:nrow(chain.3.ls[[1]])))
+  #   
+  # }
+}
+
+out.sample.ls <- list()
+
+for(i in  seq_along(species.vec)){
+  fn <- sprintf('cache/smv13.2q.07072021.chain.%s.Control.Ambient.rds',species.vec[i])
+  
+  chain.3.ls = readRDS(fn)
+  
+  chain.3.ls.new = lapply(chain.3.ls,function(m.in)m.in[round(2*nrow(m.in)/3):nrow(m.in),])
+  chain.fes <- do.call(rbind,chain.3.ls.new)
+  
+  tmp.m <- apply(chain.fes, 2, sample,size=1000)
+  tmp.m <- as.data.frame(tmp.m)
+  tmp.m$spc <- species.vec[i]
+  
+  
+  out.sample.ls[[i]] <- tmp.m
   
   # lapply(chain.3.ls, plot.check.mcmc.func,species.in=species.vec[i])
   
@@ -157,13 +184,13 @@ for(i in  seq_along(species.vec)){
 solve.intersect.func <- function(vwc.in){
   swc.norm <-  (vwc.in- swc.wilt)/ (swc.capacity - swc.wilt)
   loss.f <- swc.norm^q
-  loss.f.s <- f.growth*(1-swc.norm)^q.s
+  loss.f.s <- (1-swc.norm)^q.s
   
-  growth.vec <- f.sen*
+  growth.vec <- f.growth*
     loss.f *
     (1 - cover.in / cover.max)
   
-  senescence.vec <- (loss.f.s) *
+  senescence.vec <- f.sen*(loss.f.s) *
     # (1 - cover.pred.vec[nm.day-1])*
     cover.in
   
@@ -221,7 +248,54 @@ for (iter.nm in 1:nrow(out.df)) {
   
   pred.ls[[iter.nm]] <- threshold.vec.tmp
 }
+# get ci
+pred.ci.ls <- list()
 
+for (iter.nm in seq_along(species.vec)) {
+  
+  swc.capacity <- 0.3
+  swc.wilt <- 0.05
+  
+  tmp.df <- out.sample.ls[[iter.nm]]
+
+  cover.max <- 1
+  cover.in <- 0.5
+  
+  cover.vec <- seq(0,1,by=0.01)
+  
+  # calculate threshold
+ 
+  tmp.x.df <- data.frame(cover=rep(NA,length(cover.vec)),
+                         q.05=NA,
+                         q.5=NA,
+                         q.95=NA,
+                         spc = species.vec[iter.nm])
+  for (i in seq_along(cover.vec)){
+    threshold.vec.tmp <- c()
+    cover.in <- cover.vec[i]
+    for(j in seq_along(tmp.df$spc)){
+      q <- tmp.df[j,5]
+      q.s <- tmp.df[j,6]
+      f.growth <- tmp.df[j,3]
+      f.sen <- tmp.df[j,4]
+      
+     
+      
+      x <- uniroot(solve.intersect.func,interval = c(0.05,0.3))$root
+      
+      threshold.vec.tmp <- c(threshold.vec.tmp, x)
+    }
+    q.tmp <-  quantile(threshold.vec.tmp,probs = c(.05,.5,.95))
+    
+    tmp.x.df$cover[i] <-  cover.in
+    tmp.x.df$q.05[i] <- q.tmp[[1]]
+    tmp.x.df$q.5[i] <- q.tmp[[2]]
+    tmp.x.df$q.95[i] <- q.tmp[[3]]
+}
+  
+  pred.ci.ls[[iter.nm]] <- tmp.x.df
+}
+ci.df <- do.call(rbind,pred.ci.ls)
 # 
 palette(c(col.df$iris))
 
@@ -270,9 +344,15 @@ letter.nm=1
 for (i in c(3:10,1,2)) {
   plot(0,pch=16,col='white',xlim=c(0,1),ylim=c(0,0.3),
        xlab=' ',ylab=' ')
-  polygon(c(0,cover.vec,1),c(0,pred.ls[[i]],0),col=col.df$auLandscape[3])
-  polygon(c(0,1,rev(cover.vec),0),c(0.3,0.3,rev(pred.ls[[i]]),0),col=col.df$auLandscape[2])
+  
+  mid.df <- pred.ci.ls[[i]]$q.5
+ 
+  polygon(c(0,cover.vec,1),c(0,mid.df,0),col=col.df$auLandscape[3])
+  polygon(c(0,1,rev(cover.vec),0),c(0.3,0.3,rev(mid.df),0),col=col.df$auLandscape[2])
   legend('topleft',legend = paste0('(',letters[letter.nm],') ',species.vec[i]))
+  
+  points(q.05~cover,data = pred.ci.ls[[i]],type='l',lty='dashed',lwd=2)
+  points(q.95~cover,data = pred.ci.ls[[i]],type='l',lty='dashed',lwd=2)
   if(letter.nm==1){
     legend('bottomright',
            legend = c('Green-up','Brown-down'),
@@ -287,22 +367,24 @@ for (i in c(3:10,1,2)) {
   letter.nm =letter.nm+1
 }
 # par(mar=c(5,5,3,1))
-plot(pred.ls[[10]]~cover.vec,
+
+plot(q.5~cover,
+     data = pred.ci.ls[[10]],
      ylim=c(0.05,0.3),
      xlab = ' ',
      ylab = ' ',
      type='l',lwd=2,col = 4,lty=1)
 
-points(pred.ls[[1]]~cover.vec,type='l',col=1,lwd=2,lty=1)
-points(pred.ls[[2]]~cover.vec,type='l',col=1,lwd=2,lty=2)
-points(pred.ls[[3]]~cover.vec,type='l',col=2,lwd=2,lty=1)
-points(pred.ls[[4]]~cover.vec,type='l',col=2,lwd=2,lty=2)
-points(pred.ls[[5]]~cover.vec,type='l',col=2,lwd=2,lty=3)
-points(pred.ls[[6]]~cover.vec,type='l',col=3,lwd=2,lty=1)
-points(pred.ls[[7]]~cover.vec,type='l',col=3,lwd=2,lty=2)
-points(pred.ls[[8]]~cover.vec,type='l',col=3,lwd=2,lty=3)
+points(q.5~cover,data = pred.ci.ls[[1]],type='l',col=1,lwd=2,lty=1)
+points(q.5~cover,data = pred.ci.ls[[2]],type='l',col=1,lwd=2,lty=2)
+points(q.5~cover,data = pred.ci.ls[[3]],type='l',col=2,lwd=2,lty=1)
+points(q.5~cover,data = pred.ci.ls[[4]],type='l',col=2,lwd=2,lty=2)
+points(q.5~cover,data = pred.ci.ls[[5]],type='l',col=2,lwd=2,lty=3)
+points(q.5~cover,data = pred.ci.ls[[6]],type='l',col=3,lwd=2,lty=1)
+points(q.5~cover,data = pred.ci.ls[[7]],type='l',col=3,lwd=2,lty=2)
+points(q.5~cover,data = pred.ci.ls[[8]],type='l',col=3,lwd=2,lty=3)
 
-points(pred.ls[[9]]~cover.vec,type='l',col=4,lwd=2,lty=2)
+points(q.5~cover,data = pred.ci.ls[[9]],type='l',col=4,lwd=2,lty=2)
 
 legend('topleft',legend = '(k)',bty='n')
 legend('bottomright',legend = out.df$spc,
@@ -315,3 +397,4 @@ dev.off()
 
 # matrix(c(1:6,7,8,11,9,10,11),3,4, byrow = FALSE)
 # matrix(c(3:10,11,1,2,11),3,4, byrow = FALSE)
+

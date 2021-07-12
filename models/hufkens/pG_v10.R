@@ -13,8 +13,8 @@ phenoGrass.func.v10 <- function(gcc.df,
                                 day.lay = 3,
                                 use.smooth=FALSE){
   # scaling factor based on map
-  sf.value <- scaling.f.func(mean(gcc.df$map,na.rm=TRUE),f.h)
-  
+  # sf.value <- scaling.f.func(mean(gcc.df$map,na.rm=TRUE),f.h)
+  sf.value <- scaling.f.func(800,f.h)
   # decide whether to use smooth gcc
   if(use.smooth==TRUE){
     gcc.df$cover <-  gcc.df$GCC.norm.smooth * sf.value
@@ -71,6 +71,8 @@ phenoGrass.func.v10 <- function(gcc.df,
     }
     
     # # check radiation  for leaf drop
+    # dor = gcc.df$rad.norm[nm.day]
+    dor = 1#min(max(dor,1),0)
     # if(gcc.df$rad.norm[nm.day] <= gcc.df$rad.norm[nm.day-1]){
     #   d=0
     # }else{
@@ -79,13 +81,19 @@ phenoGrass.func.v10 <- function(gcc.df,
     
     # get g value; t depedence
     g.value <- t.func(t.m[nm.day],f.t.opt,t.max)
+    
+    if(is.na(g.value)){
+      g.value = 0
+    }
+    
+    g.value = min(max(g.value,1),0)
     # # # calculate plant cover
     # 
     # water.lag.norm <- (water.lag[nm.day]) / (swc.capacity - swc.wilt)
     # water.avi.norm <- water.avi[nm.day]/(swc.capacity - swc.wilt)
     
     # plant cover
-    growth.vec[nm.day] <- g.value * f.growth * water.lag[nm.day-1] * (1 - cover.pred.vec[nm.day-1] / cover.max)
+    growth.vec[nm.day] <- dor * g.value * f.growth * water.lag[nm.day-1] * (1 - cover.pred.vec[nm.day-1] / cover.max)
     senescence.vec[nm.day] <- d * f.sec * (1 - cover.pred.vec[nm.day-1] )*cover.pred.vec[nm.day-1]
     
     cover.pred.vec[nm.day] <- cover.pred.vec[nm.day-1] + growth.vec[nm.day] - senescence.vec[nm.day]                 

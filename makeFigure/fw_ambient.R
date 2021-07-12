@@ -4,7 +4,7 @@
 # species.vec <- c("Bis",    "Dig",  "Fes",    "Kan",    
 #                  "Luc",  "Rho",    "Rye",
 #                  'YM','Flux')
-species.vec <- c('Bis','Luc','Dig','Wal','Rho','Fes','Pha','Rye','YM','Flux')
+species.vec <- c('Bis','Luc','Dig','Kan','Rho','Fes','Pha','Rye','YM','Flux')
 
 out.df <- data.frame(spc = species.vec,
                      f.t.opt =NA,
@@ -12,9 +12,13 @@ out.df <- data.frame(spc = species.vec,
                      f.sec =NA,
                      f.growth = NA,
                      q = NA,
-                     q.s = NA)
+                     q.s = NA,
+                     q.05=NA,
+                     q.95=NA,
+                     q.s.05=NA,
+                     q.s.95=NA)
 for(i in seq_along(species.vec)){
-  fn <- sprintf('cache/smv13.2q.chain.%s.Control.Ambient.rds',species.vec[i])
+  fn <- sprintf('cache/smv13.2q.18062021.chain.%s.Control.Ambient.rds',species.vec[i])
   
   chain.3.ls = readRDS(fn)
   
@@ -22,10 +26,17 @@ for(i in seq_along(species.vec)){
   chain.fes <- do.call(rbind,chain.3.ls.new)
   
   
-  fitted.val <- colMeans(chain.fes[15000:nrow(chain.fes),])
+  fitted.val <- colMeans(chain.fes)
   
   out.df[i,2:7] <- fitted.val
   
+  q.quant <- quantile(chain.fes[,5],probs = c(.05,.95))
+  qs.quant <- quantile(chain.fes[,6],probs = c(.05,.95))
+  out.df$q.05[i] <- q.quant[[1]]
+  out.df$q.95[i] <- q.quant[[2]]
+  
+  out.df$q.s.05[i] <- qs.quant[[1]]
+  out.df$q.s.95[i] <- qs.quant[[2]]
 }
 
 

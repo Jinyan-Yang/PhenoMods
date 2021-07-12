@@ -174,7 +174,7 @@ fit.mcmc.2q.func <- function(df = gcc.met.pace.df,
   
   if(cal.initial){
     source('r/deoptimal_initial.R')
-    initial.vec <- get.ini.func(par.df = par.df,q.given =NULL,qs.given=NULL)
+    initial.vec <- get.ini.func(par.df = par.df,q.given =q.given,q.s.given=q.s.given)
   }else{
     initial.vec<-NULL
   }
@@ -245,7 +245,7 @@ fit.mcmc.2q.func <- function(df = gcc.met.pace.df,
                                                      swc.capacity = swc.capacity,
                                                      swc.wilt = swc.wilt,
                                                      my.fun = phenoGrass.func.v13,
-                                                     use.smooth = T)
+                                                     use.smooth = T,q.given =q.given,q.s.given=q.s.given)
                        }
 
   # stopCluster(cl)
@@ -281,7 +281,7 @@ mh.MCMC.func.2q <- function(iterations,par.df,
                             bucket.size,swc.wilt ,
                             swc.capacity,day.lay,
                             my.fun,
-                            use.smooth,q.given,qs.given){
+                            use.smooth,q.given,q.s.given){
 
 
   
@@ -318,7 +318,7 @@ mh.MCMC.func.2q <- function(iterations,par.df,
       q.val = q.given
     }
     
-    if(is.null(qs.given)){
+    if(is.null(q.s.given)){
       q.s.val = proposal[6]
     }else{
       q.s.val = q.given

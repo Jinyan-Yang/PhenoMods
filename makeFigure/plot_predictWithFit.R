@@ -7,47 +7,45 @@ devtools::source_url("https://github.com/Jinyan-Yang/colors/blob/master/R/col.R?
 library(zoo)
 source('r/plot.mcmc.r')
 
-ym.18.df <- get.ym.func(18)
-gcc.met.con.df <- get.paddock.func('control')
-gcc.met.iri.df <- get.paddock.func('irrigated')
-species.vec <- c('Bis','Dig','Luc','Fes','Rye','Kan','Rho','ym','flux')
-
-
-# pdf('figures/makepredictions.pdf',width = 8,height = 8*.618)
+ym.df <- get.ym.func('Drought')
+# gcc.met.con.df <- get.paddock.func('control')
+# gcc.met.iri.df <- get.paddock.func('irrigated')
+species.vec <- c('Bis','Dig','Luc','Fes','Rye','Kan','Rho','Pha','ym')
+plot.nm.vec <- c('Bis','Dig','Luc','Fes','Rye','Kan','Rho','Pha','YM')
+# species.vec <- 'Pha'
+pdf('figures/makepredictions.pdf',width = 8,height = 8*.618)
 for (i in seq_along(species.vec)) {
   
-  pred.con <- 'Control'
-  
-  if(species.vec[i]!='ym'){
+  pred.con <- 'Drought'
+  if(species.vec[i]=='ym'){
+    df = ym.df
+    # 
+    c.wd <- getwd()
+    setwd('c:/repo/dn_gcc/')
+    ym.met.df <- readRDS('cache/ym.met.rds')
+    setwd(c.wd)
+    # 
+    swc.ym.con <- quantile(ym.met.df$swc,na.rm=T,probs = c(0.01,0.99))
+    swc.cap = round(swc.ym.con[[2]]*10)/10
+    swc.wilt = round(swc.ym.con[[1]]*100)/100
+    bucket.size=1000
+  }else{
     df = gcc.met.pace.df
     swc.cap = 0.13
     swc.wilt = 0.05
     bucket.size=300
   }
-  
-  if(species.vec[i]=='ym'){
-    df = ym.18.df
-    swc.cap = 0.3
-    swc.wilt = 0.05
-    bucket.size=1000
-  }
-  
-  if(species.vec[i]=='flux'){
-    df = gcc.met.iri.df
-    swc.q.con <- quantile(gcc.met.con.df$vwc,na.rm=T,probs = c(0.01,0.99))
-    swc.cap = swc.q.con[[2]]
-    swc.wilt = swc.q.con[[1]]
-    bucket.size=1000
-    pred.con = 'Irrigated'
-  }
-  
+
+
   plot.mcmc.func.2q(df,species.vec[i],pred.con,'Ambient',
                     my.fun = phenoGrass.func.v13,
-                    nm.note='v13.2q',use.smooth = TRUE,day.lag = 3,
-                    swc.in.cap = swc.cap,swc.in.wilt = swc.wilt,bucket.size = bucket.size,do.predict = 'Control')
-  plot.title.func(species.vec[i]) 
+                    nm.note='v13.2q.07072021.',use.smooth = TRUE,day.lag = 3,
+                    swc.in.cap = swc.cap,swc.in.wilt = swc.wilt,
+                    bucket.size = bucket.size,do.predict = 'Control')
+  plot.title.func(plot.nm.vec[i]) 
+  
 }
-# dev.off()
+dev.off()
 
 # # ###########
 # plot.mcmc.func.2q(gcc.met.iri.df,'flux','Irrigated','Ambient',

@@ -31,8 +31,8 @@ get.fit.ci.func <- function(fn,burin.frac=0.75){
 # loop through all params####
 tmp.ls <- list()
 
-spc.vec <-c('Bis','Luc','Dig','Wal','Rho','Fes','Pha','Rye','YM','Flux')
-
+spc.vec <-c('Bis','Luc','Dig','Kan','Rho','Fes','Pha','Rye','YM','Flux')
+# spc.vec <-c('Kan','YM','Flux')
 for (spc.i in seq_along(spc.vec)) {
   fn <- sprintf('cache/smv13.2q.chain.%s.Control.Ambient.rds',spc.vec[spc.i])
   
@@ -169,7 +169,9 @@ plot.box.func <- function(spc.vec,col2plot,burin.frac=0.75,y.nm){
   
   tmp.ls <- list()
   for (i in seq_along(spc.vec)) {
-    fn <- sprintf('cache/smv13.2q.chain.%s.Control.Ambient.rds',spc.vec[i])
+    fn <- sprintf('cache/smv13.2q.07072021.chain.%s.Control.Ambient.rds',spc.vec[i])
+    # fn <- sprintf('cache/smv13.qs1.chain.%s.Control.Ambient.rds',spc.vec[i])
+    
     in.chain =  readRDS(fn)
     burnIn = 1
     chain.3.ls.new = lapply(in.chain,function(m.in)m.in[round(nrow(m.in)* (1-burin.frac)):nrow(m.in),])

@@ -211,7 +211,7 @@ plot.mcmc.func.2q = function(df = gcc.met.pace.df,
                              norm.min.max=NULL,
                              day.lag=3,
                              do.predict =NULL,
-                             burn.proportion = 0.75){
+                             burn.proportion = 0.75,q.s.in=NULL,q.in=NULL){
   
   if(is.null(subplot)){
     gcc.met.pace.df.16 <- get.pace.func(df,
@@ -298,8 +298,18 @@ plot.mcmc.func.2q = function(df = gcc.met.pace.df,
     q.s = c(0.001,1,2,NA,NA,NA))
   row.names(par.df) <- c('min','initial','max','fit','stdv','prop')
   # par.df["fit",] <- colMeans(chain.fes[burnIn:nrow(chain.fes),])
+  
+  fit.par.vec <- apply(chain.fes[burnIn:nrow(chain.fes),],2,median)
+  
+  if(length(fit.par.vec)<5){
+    fit.par.vec[5:6] <-c(q.in,q.s.in)
+    print(paste0('sensitivities of growth and senesence set to ',c(q.in,q.s.in)))
+  }else if(length(fit.par.vec)<6){
+    fit.par.vec[6] <- q.s.in
+    print(paste0('sensitivitiy of senesence set to 1',q.s.in))
+  }
 
-  par.df["fit",] <-apply(chain.fes[burnIn:nrow(chain.fes),],2,median)
+  par.df["fit",] <- fit.par.vec
   
   # 
   # bucket.size = 300
