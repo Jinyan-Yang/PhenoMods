@@ -34,7 +34,7 @@ tmp.ls <- list()
 spc.vec <-c('Bis','Luc','Dig','Kan','Rho','Fes','Pha','Rye','YM','Flux')
 # spc.vec <-c('Kan','YM','Flux')
 for (spc.i in seq_along(spc.vec)) {
-  fn <- sprintf('cache/smv13.2q.chain.%s.Control.Ambient.rds',spc.vec[spc.i])
+  fn <- sprintf('cache/smv13.2q.07072021.chain.%s.Control.Ambient.rds',spc.vec[spc.i])
   
   v13.chain <- get.fit.value.func(fn)
   
@@ -185,41 +185,38 @@ plot.box.func <- function(spc.vec,col2plot,burin.frac=0.75,y.nm){
  
   plot.df <- do.call(rbind,tmp.ls)
   plot.df$spc <- factor(plot.df$spc,levels=spc.vec)
-
+  plot.df$spc[plot.df$spc =='flux'] <- 'Flux Tower'
   vioplot(par.val~spc,plot.df,col=col.nm.vec,
           xlab='',ylab=y.nm)
   
   sig.df <- out.ls[[col2plot]]
   
-  # for(sig.i in 1:10){
-    
-    for (par.i in 1:10) {
-      # find the position 
-      adj.val <- 0.095 * (par.i-2)+0.172
-      # correct for uneven start and end 
-      if(par.i==1){
-        adj.val <- 0.07
-      }
-      if(par.i==2){
-        adj.val <- 0.172
-      }
-      if(par.i==9){
-        adj.val <- 1-0.172
-      }
-      if(par.i==10){
-        adj.val <- 1-0.07
-      }
-      mtext(sig.df[par.i,11],side = 3,line = 1+par.i%%2,adj = adj.val,cex=0.8)
-    }
-    # mtext('x',line=1,side=3,adj=0.267)
-  # }
-  
+# add significance letter
+    # for (par.i in 1:10) {
+    #   # find the position 
+    #   adj.val <- 0.095 * (par.i-2)+0.172
+    #   # correct for uneven start and end 
+    #   if(par.i==1){
+    #     adj.val <- 0.07
+    #   }
+    #   if(par.i==2){
+    #     adj.val <- 0.172
+    #   }
+    #   if(par.i==9){
+    #     adj.val <- 1-0.172
+    #   }
+    #   if(par.i==10){
+    #     adj.val <- 1-0.07
+    #   }
+    #   mtext(sig.df[par.i,11],side = 3,line = 1+par.i%%2,adj = adj.val,cex=0.8)
+    # }
+
   
 }
 
 pdf('figures/par.vioplot.pdf',width = 4*2,height = 4*.618*3)
 par(mfrow=c(3,2))
-par(mar=c(5,5,3,1))
+par(mar=c(5,5,1,1))
 
 # var.nm.vec <- c('f.t.opt', 'f.extract',
 #                 'f.sec','f.growth', 
@@ -240,7 +237,48 @@ for (plot.var.nm in c(1,2,3,4,6,5)) {
                 y.nm = y.nm.vec[plot.var.nm])
   
 }
+
+
 dev.off()
+# # plot significance.
+pdf('figures/significance.pdf',width = 4*2,height = 4*3)
+y.nm.vec <- c(('Opt. T '),
+              ('Max. tran. rate '),
+              ('Senescence rate '),
+              ('Growth rate '),
+              ('q[Growth]'),
+              ('q[Senescence]'))
 
+library(raster)
+par(mfrow=c(3,2))
+par(mar=c(5,6,1,1))
+index.nm <- 1
+for(plot.var.nm in c(1,2,3,4,6,5)){
+  # subset for only the par needed
+  plot.df <- out.ls[[plot.var.nm]]
+  plot.m <- as.matrix(plot.df[2:10,1:9])
+  rownames(plot.m)[rownames(plot.m) == 'Flux'] <- 'Flux Tower'
+  x.nm <- colnames(plot.m)
+  y.nm <- rownames(plot.m)
+  # conver to a matrix
+  plot.m <- matrix(as.numeric(plot.m),ncol=9)
+  # plot as a raster
+  plot(raster(plot.m),breaks=c(-1,0.5,1.1),col=c('grey','black'),legend=F,
+       ann=F,axes=F,main = y.nm.vec[plot.var.nm])
+  legend('topleft',legend =paste0('(',letters[index.nm],") " ,
+                                  y.nm.vec[plot.var.nm]),
+         bty='n')
+  # add grid lines
+  abline(h=(0:10)/9,lty='dotted')
+  abline(v=(0:10)/9,lty='dotted')
+  # 
+  axis(1,at = (1:9)/9-0.05,labels = x.nm)
+  axis(2,at = (1:9)/9-0.05,labels = rev(y.nm),las = 1)
+  # 
+  index.nm=index.nm+1
+  
+  
+}
 
+dev.off()
 

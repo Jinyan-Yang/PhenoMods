@@ -18,7 +18,7 @@ out.df <- data.frame(spc = species.vec,
                      q.s.05=NA,
                      q.s.95=NA)
 for(i in seq_along(species.vec)){
-  fn <- sprintf('cache/smv13.2q.18062021.chain.%s.Control.Ambient.rds',species.vec[i])
+  fn <- sprintf('cache/smv13.2q.07072021.chain.%s.Control.Ambient.rds',species.vec[i])
   
   chain.3.ls = readRDS(fn)
   
@@ -76,6 +76,7 @@ for (i in seq_along(beta.growth.ls)) {
   points(beta.growth.ls[[i]]~swc.vec,type='l',col=col.nm.vec[i],lty=lty.vec[i],lwd=3)
 }
 legend('topleft',legend = '(a)',bty='n')
+out.df$spc[out.df$spc=='Flux'] <- 'Flux Tower'
 legend('bottomright',legend = out.df$spc,
        lty=lty.vec,col=col.nm.vec,ncol = 2,lwd=3)
 
