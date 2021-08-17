@@ -50,9 +50,9 @@ points(x.vec[which.max(y.vec.ll)],y.vec.ll[which.max(y.vec.ll)],cex=2,pch=3,col=
 points(x.vec[which.max(y.vec.hh)],y.vec.hh[which.max(y.vec.hh)],cex=2,pch=3,col='grey')
 
 # 
-legend('bottom',legend = c('Onset of Brown-down',
-                             'Low growth sensitivity; Low senescence sensitivity', 
-                             'High growth sensitivity; High senescence sensitivity'),bty='n',
+legend(x = 1.3,y=0.28,legend = c('Onset of Brown-down',
+                             'Low growth and senescence sensitivities', 
+                             'High growth and senescence sensitivities'),bty='n',
        pch=c(3,rep(NA,2)),
        lty = 1,lwd=3,
        col = c('grey',palette()))
