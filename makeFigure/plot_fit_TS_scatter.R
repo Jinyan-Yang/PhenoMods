@@ -1,3 +1,21 @@
+t_col <- function(color, percent = 50, name = NULL) {
+  #      color = color name
+  #    percent = % transparency
+  #       name = an optional name for the color
+  
+  ## Get RGB values for named color
+  rgb.val <- col2rgb(color)
+  
+  ## Make new color using input color as base and alpha set by transparency
+  t.col <- rgb(rgb.val[1], rgb.val[2], rgb.val[3],
+               max = 255,
+               alpha = (100 - percent) * 255 / 100,
+               names = name)
+  
+  ## Save the color
+  invisible(t.col)
+}
+# 
 devtools::source_url("https://github.com/Jinyan-Yang/colors/blob/master/R/col.R?raw=TRUE")
 library(doBy)
 library(lubridate)
@@ -36,8 +54,8 @@ plot.ts.func <- function(hufken.pace.pred){
 # species.vec <- c("Bis",    "Dig",  "Fes",    "Kan",    
 #                  "Luc",  "Rho",    "Rye",
 #                  'ym')
-species.vec <- c('Bis','Luc','Dig','Kan','Rho','Fes','Pha','Rye','YM')
-
+species.vec <- c('Bis','Luc','Dig','Kan','Rho','Fes','Pha','Rye','YM','flux')
+species.vec.plot.nm <- c('Bis','Luc','Dig','Kan','Rho','Fes','Pha','Rye','YM','Flux Tower')
 # #########################################
 palette(c(col.df$iris,col.df$daisy))
 png('figures/obs_fit_TS_scatter.png',height = 400*2,width = 400/.618)
@@ -48,16 +66,23 @@ par(mar=c(5,5,1,5))
 fn <- 'tmp/pred.smv13.2qchain.ym.Control.Ambient.rds'
 hufken.pace.pred <- readRDS(fn)
 
-ci.fm <- sprintf('tmp/ci.smv13.2q.07072021.chain.ym.Control.Ambient.rds',species.vec[i])
+ci.fm <- ('tmp/ci.smv13.2q.07072021.chain.ym.Control.Ambient.rds')
 ci.m <- readRDS(ci.fm)
 hufken.pace.pred$cover.05 <- ci.m[1,]
 hufken.pace.pred$cover.95 <- ci.m[2,]
 
 plot.ts.func(hufken.pace.pred)
-points(cover.05~Date,data = hufken.pace.pred,
-       type='l',lwd=2,col=col.df$iris[5],lty='dashed')
-points(cover.95~Date,data = hufken.pace.pred,
-       type='l',lwd=2,col= col.df$iris[5],lty='dashed')
+
+polygon(x = c(hufken.pace.pred$Date,
+              rev(hufken.pace.pred$Date)),
+        y=c(hufken.pace.pred$cover.95,rev(hufken.pace.pred$cover.05)),
+        col=t_col(col.df$iris[4],60),border = NA
+        )
+# 
+# points(cover.05~Date,data = hufken.pace.pred,
+#        type='l',lwd=2,col=col.df$iris[5],lty='dashed')
+# points(cover.95~Date,data = hufken.pace.pred,
+#        type='l',lwd=2,col= col.df$iris[5],lty='dashed')
 
 legend('topleft',legend = '(a) YM',bty='n')
 legend('topright',legend = c('OBS','MOD'),
@@ -79,7 +104,7 @@ for (i in seq_along(species.vec)){
          xlim=c(0,1),ylim=c(0,1),
          xlab='MOD_GCC',ylab = 'OBS_GCC',pch=16,col=i)
   }
-  legend('bottomright',legend = species.vec,col=palette(),
+  legend('bottomright',legend = species.vec.plot.nm,col=palette(),
          pch=16,bty='n')
   legend('topleft',legend = '(b)',bty='n')
   abline(a=0,b=1,lty='dashed',col='grey',lwd=2)
