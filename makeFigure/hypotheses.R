@@ -74,24 +74,26 @@ source('models/hufkens/hufkensV13.R')
 source('r/v13_common_fun.R')
 day.lag <- 3
 source('r/pace_data_process.R')
-source('r/ym_data_process.R')
-ym.18.df <- get.ym.func(18)
-ym.processed.df <- get.pace.func(ym.18.df,
-                                 species.in = 'ym',
+# source('r/ym_data_process.R')
+# ym.18.df <- get.ym.func(18)
+ym.processed.df <- get.pace.func(gcc.met.pace.df,
+                                 species.in = 'Fes',
                                  prep.in = 'Control',
                                  temp.in ='Ambient',
                                  norm.min.max=NULL)
+
+ym.processed.df <- ym.processed.df[year(ym.processed.df$Date)==2018,]
 
 ym.processed.df$Tair <- 25
 ym.processed.df$Tmax <- 30
 ym.processed.df$Tmin <- 20
 ym.processed.df$vwc <- 0.05
-ym.processed.df$GCC.norm.smooth <- 0
+ym.processed.df$GCC.norm.smooth <- 0.0
 # ym.processed.df$Rain_mm_Tot <- 0
 # ym.processed.df$irrig.tot <- 0
 # ym.processed.df$irrig.tot[10] <- 30
 ym.processed.df$Rain <- 0
-ym.processed.df$Rain[20] <- 50
+ym.processed.df$Rain[5] <- 50
 # # 
 # fn <- sprintf('cache/smv13.2q.chain.%s.Control.Ambient.rds','ym')
 # in.chain =  readRDS(fn)
