@@ -33,7 +33,7 @@ x.vec <- seq(0.01,22,by=0.1)
 # 
 y.vec.ll <- plot.shape.func(x.vec,
                 a = 2,b=10)
-which.min(abs(y.vec.ll - y.vec.hh))
+# which.min(abs(y.vec.ll - y.vec.hh))
 
 plot(y.vec.ll~x.vec,ylim=c(0.1,1),type='l',lwd=2,col=1,
      xlim=c(0.7,8),
