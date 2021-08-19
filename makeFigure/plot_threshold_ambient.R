@@ -349,7 +349,9 @@ for (i in c(3:10,1,2)) {
  
   polygon(c(0,cover.vec,1),c(0,mid.df,0),col=col.df$auLandscape[3])
   polygon(c(0,1,rev(cover.vec),0),c(0.3,0.3,rev(mid.df),0),col=col.df$auLandscape[2])
-  legend('topleft',legend = paste0('(',letters[letter.nm],') ',species.vec[i]))
+  species.vec.nm <- species.vec
+  species.vec.nm[species.vec.nm=='Flux'] <- 'Flux Tower'
+  legend('topleft',legend = paste0('(',letters[letter.nm],') ',species.vec.nm[i]))
   
   points(q.05~cover,data = pred.ci.ls[[i]],type='l',lty='dashed',lwd=2)
   points(q.95~cover,data = pred.ci.ls[[i]],type='l',lty='dashed',lwd=2)
@@ -387,6 +389,7 @@ points(q.5~cover,data = pred.ci.ls[[8]],type='l',col=3,lwd=2,lty=3)
 points(q.5~cover,data = pred.ci.ls[[9]],type='l',col=4,lwd=2,lty=2)
 
 legend('topleft',legend = '(k)',bty='n')
+out.df$spc[out.df$spc=='Flux'] <-' Flux Tower'
 legend('bottomright',legend = out.df$spc,
        lty=c(1,2,1,2,3,1,2,3,1,2),col=c(1,1,2,2,2,3,3,3,4,4),lwd=2,
        ncol = 2)
