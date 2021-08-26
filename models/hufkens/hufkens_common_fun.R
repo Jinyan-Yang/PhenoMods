@@ -77,10 +77,10 @@ t.func <- function(t.mean,f.t.opt,t.max){
   return(min(h.val,l.val)*2)
 }
 # drainage
-drainage.func <- function(theta,theta.sat  = 0.3,sigma = 23.3,k.sat = 0.15 #mm d-1
+drainage.func <- function(theta,theta.sat  = 0.3,sigma = 23.3,k.sat = 0.05 #mm d-1
 ){
   # if(theta.sat<0.3)
-    theta.sat=0.3
+    # theta.sat=0.3
   
   theta.frac <- theta/theta.sat
   theta.frac <- max(min(1,theta.frac),0)
