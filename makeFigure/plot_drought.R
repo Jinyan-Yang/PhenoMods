@@ -48,9 +48,9 @@ mean.annual.reduction <- with(ym.both.df,sum(GCC.mean.drt) / sum(GCC.mean.con))
 mean.annual.reduction.vwc <- with(ym.both.df,sum(vwc.mean.drt) / sum(vwc.mean.con))
 # pace data
 pace.ls <- list()
-species.vec <- c('Bis','Luc','Dig','Kan','Rho','Fes','Pha','Rye','YM')
+species.vec <- c('Bis','Luc','Dig','Kan','Rho','Fes','Rye','YM')
 for (i in seq_along(species.vec)) {
-  fn.con <- sprintf('tmp/pred.smv13.2q.07072021.chain.%s.Control.Ambient.rds',
+  fn.con <- sprintf('tmp/pred.smv13.2qchain.%s.Control.Ambient.rds',
                     species.vec[i])
   # dat.con <- get.pace.func(gcc.met.pace.df,
   #                          species.in=species.vec[i],
@@ -71,7 +71,7 @@ for (i in seq_along(species.vec)) {
   #                              temp.in ='Ambient',
   #                              subplot = NA,
   #                              norm.min.max = NULL)
-  fn.drt <- sprintf('tmp/pred.smv13.2q.07072021.chain.%s.Control.predict.Ambient.rds',
+  fn.drt <- sprintf('tmp/pred.smv13.2qchain.%s.Control.predict.Ambient.rds',
                     species.vec[i])
   dat.drought <- readRDS(fn.drt)
   dat.drought <- dat.drought[,c('Date','GCC.norm.smooth',
