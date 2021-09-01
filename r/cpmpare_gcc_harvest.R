@@ -86,6 +86,42 @@ har.gcc.df$gcc.change <- har.gcc.df$past.day.gcc - har.gcc.df$next.day.gcc
 
 har.gcc.df$Species <- as.factor(har.gcc.df$Species)
 
+write.csv(har.gcc.df,'cache/pace_gcc_harvest.csv',row.names = F)
+
+
+# make plots####
+pdf('figures/gcc_harvest.pdf',width = 4*4,height = 4*3*.618)
+# plot gcc past and harv
+par(mfrow=c(4,3))
+
+for (spc.i in seq_along(levels(har.gcc.df$Species))) {
+  plot.df <- har.gcc.df[har.gcc.df$Species == levels(har.gcc.df$Species)[spc.i],]
+  
+  with(plot.df,plot(TotalFM~past.day.gcc,pch=LETTERS[spc.i],col='grey'))
+  fit.lm <- summary(with(plot.df,lm(TotalFM~gcc.change)))
+  r.sqrt <- format(fit.lm$r.squared,digits = 2)
+  legend('topleft',legend = paste0('(',letters[spc.i],') ',
+                                   levels(har.gcc.df$Species)[spc.i],
+                                   ' R2 = ',
+                                   r.sqrt),bty='n')
+ }
+# plot gcc after 
+par(mfrow=c(4,3))
+
+for (spc.i in seq_along(levels(har.gcc.df$Species))) {
+  plot.df <- har.gcc.df[har.gcc.df$Species == levels(har.gcc.df$Species)[spc.i],]
+  
+  with(plot.df,plot(TotalFM~next.day.gcc,pch=LETTERS[spc.i],col='grey'))
+  fit.lm <- summary(with(plot.df,lm(TotalFM~gcc.change)))
+  r.sqrt <- format(fit.lm$r.squared,digits = 2)
+  legend('topleft',legend = paste0('(',letters[spc.i],') ',
+                                   levels(har.gcc.df$Species)[spc.i],
+                                   ' R2 = ',
+                                   r.sqrt),bty='n')
+}
+
+
+# plot change of gcc and biomass 
 par(mfrow=c(4,3))
 
 for (spc.i in seq_along(levels(har.gcc.df$Species))) {
@@ -100,10 +136,10 @@ plot.df <- har.gcc.df[har.gcc.df$Species == levels(har.gcc.df$Species)[spc.i],]
                                    r.sqrt),bty='n')
   # legend('topleft',legend = levels(har.gcc.df$Species),col=palette(),pch=LETTERS[seq_along(levels(har.gcc.df$Species))],bty='n')
 }
-write.csv(har.gcc.df,'pace_gcc_harvest.csv',row.names = F)
+dev.off()
+# # 
+# with(har.gcc.df,plot(TotalFM~gcc.change,pch=LETTERS[Species],col=Species))
+# legend('topleft',legend = levels(har.gcc.df$Species),col=palette(),pch=LETTERS[seq_along(levels(har.gcc.df$Species))],bty='n')
 # 
-with(har.gcc.df,plot(TotalFM~gcc.change,pch=LETTERS[Species],col=Species))
-legend('topleft',legend = levels(har.gcc.df$Species),col=palette(),pch=LETTERS[seq_along(levels(har.gcc.df$Species))],bty='n')
-
-summary(with(har.gcc.df,lm(TotalFM~gcc.change)))
+# summary(with(har.gcc.df,lm(TotalFM~gcc.change)))
 
