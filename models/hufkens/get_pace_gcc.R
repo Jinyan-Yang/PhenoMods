@@ -1,20 +1,24 @@
 # library(DEoptim)
 # library(Evapotranspiration)
-gcc.pace.df <- readRDS('cache/pace.gcc.2019.rds')
+gcc.pace.df <- readRDS('cache/pace/pace.gcc.2019.rds')
+# gcc.pace.df$GCC <- gcc.pace.df$G / (gcc.pace.df$R + gcc.pace.df$G + gcc.pace.df$B)
 gcc.pace.df$Date <- gcc.pace.df$DateTime
-gcc.pace.df.daily <- doBy::summaryBy(GCC ~  Date + Cam + SubplotID +
-                                       Species + Precipitation + Temperature,
-                                     FUN = mean, na.rm=T,keep.names = T,
-                                     data = gcc.pace.df)
+# gcc.pace.df.daily <- doBy::summaryBy(GCC ~  Date + Cam + SubplotID +
+#                                        Species + Precipitation + Temperature,
+#                                      FUN = mean, na.rm=T,keep.names = T,
+#                                      data = gcc.pace.df)
+gcc.pace.df.daily <- gcc.pace.df
 saveRDS(gcc.pace.df.daily,'cache/gcc.pace.daily.2019.rds')
 
 # 
-gcc.pace.df <- readRDS('cache/pace.gcc.2018.rds')
+gcc.pace.df <- readRDS('cache/pace/pace.gcc.2018.rds')
+# gcc.pace.df$GCC <- with(gcc.pace.df,G/(G+B+R))
 gcc.pace.df$Date <- gcc.pace.df$DateTime
-gcc.pace.df.daily <- doBy::summaryBy(GCC ~  Date + Cam + SubplotID +
-                                       Species + Precipitation + Temperature,
-                                     FUN = mean, na.rm=T,keep.names = T,
-                                     data = gcc.pace.df)
+# gcc.pace.df.daily <- doBy::summaryBy(GCC ~  Date + Cam + SubplotID +
+#                                        Species + Precipitation + Temperature,
+#                                      FUN = mean, na.rm=T,keep.names = T,
+#                                      data = gcc.pace.df)
+gcc.pace.df.daily <- gcc.pace.df
 saveRDS(gcc.pace.df.daily,'cache/gcc.pace.daily.2018.rds')
 
 # with(gcc.pace.df.daily[gcc.pace.df.daily$SubplotID == 'S1P1A',],plot(GCC~Date))
