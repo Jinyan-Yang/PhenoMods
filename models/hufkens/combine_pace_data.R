@@ -142,4 +142,4 @@ met.gcc.swc.df.add.har$harvest[is.na(met.gcc.swc.df.add.har$harvest)] = 0
 # save results
 saveRDS(met.gcc.swc.df.add.har,'cache/gcc.met.pace.df.rds')
 write.csv(met.gcc.swc.df.add,'gcc.met.pace.df.csv',row.names = F)
-sum(met.gcc.swc.df.add$irrig.tot[met.gcc.swc.df.add$SubplotID == 'S1P1A'],na.rm = T)
+# sum(met.gcc.swc.df.add$irrig.tot[met.gcc.swc.df.add$SubplotID == 'S1P1A'],na.rm = T)
