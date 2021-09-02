@@ -54,11 +54,13 @@ phenoGrass.func.v13 <- function(gcc.df,
   }else{
     gcc.df$cover <-  gcc.df$GCC.norm * sf.value
   }
-
+#  use drainage function to determine the real capacity
+  loss.at.full <- drainage.func(swc.capacity,theta.sat= swc.capacity)
+  swc.cap.true <- swc.capacity  - round(loss.at.full)/ bucket.size
   # set up the inital conditions
   if(length(unique(gcc.df$vwc)) == 1){
     # cover.fraction <- gcc.df$cover[!is.na(gcc.df$cover)][1]
-    swc.vec <- (swc.capacity - swc.wilt)* bucket.size * gcc.df$cover + swc.wilt*bucket.size
+    swc.vec <- (swc.cap.true - swc.wilt)* bucket.size * gcc.df$cover + swc.wilt*bucket.size
     # swc.vec[swc.vec<swc.wilt*bucket.size] <- swc.wilt*bucket.size
     # print(cover.fraction)
   }else{
@@ -98,7 +100,7 @@ phenoGrass.func.v13 <- function(gcc.df,
     water.avi[nm.day] <- max(0,(swc.vec[nm.day-1]- swc.wilt*bucket.size))
 
     # define water stress using a beta function
-    swc.norm <-water.avi[nm.day] / (swc.capacity - swc.wilt) / bucket.size
+    swc.norm <-water.avi[nm.day] / (swc.cap.true - swc.wilt) / bucket.size
     swc.norm <- max(0,min(1,swc.norm))
     loss.f <- swc.norm^q
     loss.f <- min(1,loss.f)
