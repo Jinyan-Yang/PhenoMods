@@ -92,12 +92,13 @@ write.csv(har.gcc.df,'cache/pace_gcc_harvest.csv',row.names = F)
 # make plots####
 pdf('figures/gcc_harvest.pdf',width = 4*4,height = 4*3*.618)
 # plot gcc past and harv
+palette(c('navy','coral'))
 par(mfrow=c(4,3))
 
 for (spc.i in seq_along(levels(har.gcc.df$Species))) {
   plot.df <- har.gcc.df[har.gcc.df$Species == levels(har.gcc.df$Species)[spc.i],]
-  
-  with(plot.df,plot(TotalFM~past.day.gcc,pch=LETTERS[spc.i],col='grey'))
+  plot.df$plot.factor <- as.factor(plot.df$Precipitation)
+  with(plot.df,plot(TotalFM~past.day.gcc,pch=LETTERS[spc.i],col=plot.factor))
   fit.lm <- summary(with(plot.df,lm(TotalFM~gcc.change)))
   r.sqrt <- format(fit.lm$r.squared,digits = 2)
   legend('topleft',legend = paste0('(',letters[spc.i],') ',
@@ -110,8 +111,8 @@ par(mfrow=c(4,3))
 
 for (spc.i in seq_along(levels(har.gcc.df$Species))) {
   plot.df <- har.gcc.df[har.gcc.df$Species == levels(har.gcc.df$Species)[spc.i],]
-  
-  with(plot.df,plot(TotalFM~next.day.gcc,pch=LETTERS[spc.i],col='grey'))
+  plot.df$plot.factor <- as.factor(plot.df$Precipitation)
+  with(plot.df,plot(TotalFM~next.day.gcc,pch=LETTERS[spc.i],col=plot.factor))
   fit.lm <- summary(with(plot.df,lm(TotalFM~gcc.change)))
   r.sqrt <- format(fit.lm$r.squared,digits = 2)
   legend('topleft',legend = paste0('(',letters[spc.i],') ',
@@ -126,8 +127,8 @@ par(mfrow=c(4,3))
 
 for (spc.i in seq_along(levels(har.gcc.df$Species))) {
 plot.df <- har.gcc.df[har.gcc.df$Species == levels(har.gcc.df$Species)[spc.i],]
-  
-  with(plot.df,plot(TotalFM~gcc.change,pch=LETTERS[spc.i],col='grey'))
+plot.df$plot.factor <- as.factor(plot.df$Precipitation)
+  with(plot.df,plot(TotalFM~gcc.change,pch=LETTERS[spc.i],col=plot.factor))
   fit.lm <- summary(with(plot.df,lm(TotalFM~gcc.change)))
   r.sqrt <- format(fit.lm$r.squared,digits = 2)
   legend('topleft',legend = paste0('(',letters[spc.i],') ',
