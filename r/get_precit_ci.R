@@ -45,7 +45,7 @@ for (i in seq_along(species.vec)) {
   
   get.mod.ci.func(df,species.vec[i],'Control','Ambient',
                   my.fun = phenoGrass.func.v13,
-                  nm.note='v13.2q.07072021.',use.smooth = TRUE,day.lag = 3,
+                  nm.note='smv13.2q.',use.smooth = TRUE,day.lag = 3,
                   swc.in.cap = swc.cap,swc.in.wilt = swc.wilt,
                   bucket.size = bucket.size)
 

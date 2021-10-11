@@ -32,7 +32,7 @@ tmp.ls <- list()
 spc.vec <-c('Bis','Luc','Dig','Kan','Rho','Fes','Pha','Rye','ym','flux')
 
 for (spc.i in seq_along(spc.vec)) {
-  fn <- sprintf('cache/smv13.2q.chain.%s.Control.Ambient.rds',spc.vec[spc.i])
+  fn <- sprintf('cache/smv13.2q.07072021.chain.%s.Control.Ambient.rds',spc.vec[spc.i])
   
   v13.chain <- get.fit.value.func(fn)
   
@@ -77,5 +77,4 @@ out.df = do.call(rbind,tmp.ls)
 
 write.csv(out.df,'cache/fittedParValue.csv',row.names = F)
 
-# 
-plot()
+

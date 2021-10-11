@@ -53,7 +53,7 @@ get.mod.ci.func <-  function(df = gcc.met.pace.df,
     rds.nm = paste0('tmp/ci.',sm.nm,nm.note,'chain.',subplot,'.rds')
   }
   
-  # chain.fes <- readRDS('cache/smv13.2q.07072021.chain.Bis.Control.Ambient.rds')
+  # fn <- ('cache/smv13.q1.qs0.chain.Bis.Control.Ambient.rds')
   # read chains 
   print(paste0('par file used: ',fn))
   in.chain =  readRDS(fn)
@@ -74,11 +74,22 @@ get.mod.ci.func <-  function(df = gcc.met.pace.df,
   sample.szie <- 100
   set.seed(1935)
   chain.sample <- apply(chain.sub,2,sample,size=sample.szie)
+  chain.sample <- as.data.frame(chain.sample)
+  
+  if(ncol(chain.sample)<5){
+    chain.sample[,5] <- q.in
+    chain.sample[,6] <- q.s.in
+    print(paste0('sensitivities of growth and senesence set to ',
+                 q.in,' and ',q.s.in))
+  }else if(ncol(chain.sample)<6){
+    chain.sample[,6] <- q.s.in
+    print(paste0('sensitivitiy of senesence set to ',q.s.in))
+  }
   
   gcc.met.pace.df.16 <- gcc.met.pace.df.16[order(gcc.met.pace.df.16$Date),]
   pred.vec <- list()
   for(i in 1:sample.szie){
-    fit.par.vec <-chain.sample[i,]
+    fit.par.vec <- unlist(unname(chain.sample[i,]))
     
     hufken.pace.pred <- my.fun(gcc.met.pace.df.16,
                                f.h = 222,
