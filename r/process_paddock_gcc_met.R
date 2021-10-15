@@ -9,13 +9,13 @@ get.paddock.func <- function(treat){
   # on.exit(setwd(c.wd))
   
   # read swc
-  flux.swc.df <- readRDS("E:/repo/paddockGCC/cache/flux_swc.df.rds")
+  flux.swc.df <- readRDS("cache/flux_twoer/flux_swc.df.rds")
   
   # get gcc for specific treat
   if(treat == 'control'){
     # url.in <- 'https://github.com/Jinyan-Yang/paddock_gcc/raw/main/cache/gcc_control.rds'
     # download.file(url.in,"cache/gcc_control.rds", method="curl")
-    tmp.gcc.df <- readRDS("E:/repo/paddockGCC/cache/gcc_control.rds")
+    tmp.gcc.df <- readRDS("cache/flux_twoer/gcc_control.rds")
     tmp.gcc.df$SubplotID <- 1000
     p.con <- 'Control'
     tmp.gcc.df$Precipitation <- 'Control'
@@ -24,7 +24,7 @@ get.paddock.func <- function(treat){
     swc.sub.df <- flux.swc.df[flux.swc.df$treat == 'control',]
   }
   if(treat == 'irrigated'){
-    tmp.gcc.df <- readRDS("E:/repo/paddockGCC/cache/gcc_irrigated.rds")
+    tmp.gcc.df <- readRDS("cache/flux_twoer/gcc_irrigated.rds")
     tmp.gcc.df$SubplotID <- 1000
     p.con <- 'Irrigated'
     tmp.gcc.df$Precipitation <- 'Irrigated'
@@ -60,7 +60,7 @@ get.paddock.func <- function(treat){
   }
   
   # get met
-  ym.met.df <- readRDS('c:/repo/dn_gcc/cache/ym.met.rds')
+  ym.met.df <- readRDS('cache/ym/ym.met.rds')
   ym.met.df <- subset(ym.met.df,select = -c(sensor.no,position))
   ym.met.df <- ym.met.df[!duplicated(ym.met.df),]
   
