@@ -8,10 +8,7 @@ get.norm.gcc.func <- function(df,norm.min.max){
   if(is.null(norm.min.max)){
     quantiles.5.95 <- quantile(df$GCC[!is.na(df$GCC)],
                                c(.01,.99),na.rm=T)
-<<<<<<< HEAD
 
-=======
->>>>>>> ea1d1105afa6b109a27f10997ef895f917066c99
     quantiles.5.95[1] <- 0.3
     # quantiles.5.95 <- c(0.3,0.43)
   }else{
