@@ -116,6 +116,8 @@ get.pace.func <- function(gcc.met.pace.df,
   # the minimum seems to be an outliner
   # use the second lowest instead
   # low.2nd <- sort(gcc.met.pace.df.16$GCC[!is.na(gcc.met.pace.df.16$GCC)])[2]
+  # 
+  gcc.met.pace.df.16$irrig.tot[is.na(gcc.met.pace.df.16$irrig.tot)] <- 0
 
   # 
   gcc.met.pace.df.16$PPFD <- na.locf(gcc.met.pace.df.16$PAR.ros)
