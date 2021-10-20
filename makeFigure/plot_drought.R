@@ -2,9 +2,7 @@ day.lag <- 3
 source('r/pace_data_process.R')
 source('r/ym_data_process.R')
 
-
-
-# process ym data
+# process ym dataas an example####
 ym.18.df <- get.ym.func(18)
 ym.con.df.sum <- get.pace.func(ym.18.df,
                                species.in='ym',
@@ -13,12 +11,12 @@ ym.con.df.sum <- get.pace.func(ym.18.df,
                                subplot = NA,
                                norm.min.max = NULL)
 ym.con.df.sum <- ym.con.df.sum[,c('Date','GCC.norm',
-                                  'GCC.norm.sd','vwc')]
+                                  'GCC.norm.sd','vwc','GCC.norm.smooth')]
 
 names(ym.con.df.sum) <- c("Date","GCC.mean.con",
-                          'GCC.sd.con',"vwc.mean.con")
+                          'GCC.sd.con',"vwc.mean.con",'GCC.norm.smooth.con')
 
-
+# ym.drought.df.sum$vwc
 ym.drought.df <- get.ym.func('Drought')
 ym.drought.df.sum <- get.pace.func(ym.drought.df,
                                    species.in='ym',
@@ -26,18 +24,19 @@ ym.drought.df.sum <- get.pace.func(ym.drought.df,
                                    temp.in ='Ambient',
                                    subplot = NA,
                                    norm.min.max = NULL)
-ym.drought.df.sum <- ym.drought.df.sum[,c('Date','GCC.norm',
-                                  'GCC.norm.sd','vwc')]
+ym.drought.df.sum <- ym.drought.df.sum[,c('Date','GCC.norm','GCC.norm.sd','vwc','GCC.norm.smooth')]
 names(ym.drought.df.sum) <- c("Date","GCC.mean.drt",
-                              'GCC.sd.drt',"vwc.mean.drt")
+                              'GCC.sd.drt',"vwc.mean.drt",'GCC.norm.smooth.drt')
 
-ym.both.df <- merge(ym.con.df.sum,ym.drought.df.sum,
+ym.both.df <- merge(ym.con.df.sum,
+                    ym.drought.df.sum,
                     by = c('Date'))
 library(lubridate)
 # ym.both.df <- ym.both.df[month(ym.both.df$Date) %in% 6:11,]
 # 
-plot(GCC.mean.drt~Date,data = ym.both.df,type='l',col='red')
-points(GCC.mean.con~Date,data = ym.both.df,type='l',col='navy')
+mean(ym.both.df$GCC.norm.smooth.drt) / mean(ym.both.df$GCC.norm.smooth.con)
+plot(GCC.norm.smooth.drt~Date,data = ym.both.df,type='l',col='red')
+points(GCC.norm.smooth.con~Date,data = ym.both.df,type='l',col='navy')
 # 
 plot(vwc.mean.drt~Date,data = ym.both.df,type='l',col='red')
 points(vwc.mean.con~Date,data = ym.both.df,type='l',col='navy')
@@ -45,13 +44,14 @@ points(vwc.mean.con~Date,data = ym.both.df,type='l',col='navy')
 daily.reduction <- with(ym.both.df,GCC.mean.drt/GCC.mean.con)
 hist(daily.reduction,freq = F)
 # 
-mean.annual.reduction <- with(ym.both.df,mean(GCC.mean.drt) / mean(GCC.mean.con))
+
+mean.annual.reduction <- with(ym.both.df,mean(GCC.norm.smooth.drt) / mean(GCC.norm.smooth.con))
 mean.annual.reduction.vwc <- with(ym.both.df,sum(vwc.mean.drt) / sum(vwc.mean.con))
-# pace data
+# all data####
 pace.ls <- list()
 species.vec <- c('Bis','Luc','Dig','Kan','Rho','Fes','Rye','YM')
 for (i in seq_along(species.vec)) {
-  fn.con <- sprintf('tmp/pred.smv13.2qchain.%s.Control.Ambient.rds',
+  fn.con <- sprintf('tmp/pred.smsmv13.2q.chain.%s.Control.Ambient.rds',
                     species.vec[i])
   # dat.con <- get.pace.func(gcc.met.pace.df,
   #                          species.in=species.vec[i],
@@ -59,31 +59,48 @@ for (i in seq_along(species.vec)) {
   #                          temp.in ='Ambient',
   #                          subplot = NA,
   #                          norm.min.max = NULL)
-  
+
   dat.con <- readRDS(fn.con)
   dat.con <- dat.con[,c('Date','GCC.norm',
-                        'GCC.norm.sd','vwc','cover.hufken','Rain')]
+                        'GCC.norm.sd','swc.hufken','cover.hufken','Rain')]
   names(dat.con) <- c("Date","GCC.mean.con",
                       'GCC.sd.con',"vwc.mean.con",'cover.pred.con','rain.con')
+  # get dry obs
+  if( species.vec[i] != 'YM'){
+    df <- get.pace.func(gcc.met.pace.df,
+                        species.in=species.vec[i],
+                        prep.in = 'Drought',
+                        temp.in ='Ambient',
+                        subplot = NA,
+                        norm.min.max = NULL)
+  }else{
+    df <- get.pace.func(get.ym.func('Drought'),
+                        species.in='ym',
+                        prep.in = 'Drought',
+                        temp.in ='Ambient',
+                        subplot = NA,
+                        norm.min.max = NULL)
+  }
+  dat.drought.obs <- df
   
-  # dat.drought <- get.pace.func(gcc.met.pace.df,
-  #                              species.in=species.vec[i],
-  #                              prep.in = 'Drought',
-  #                              temp.in ='Ambient',
-  #                              subplot = NA,
-  #                              norm.min.max = NULL)
-  fn.drt <- sprintf('tmp/pred.smv13.2qchain.%s.Control.predict.Ambient.rds',
+  dat.drought.obs <- dat.drought.obs[,c('Date','GCC.norm',
+                                       'GCC.norm.sd')]
+  
+  # 
+  fn.drt <- sprintf('tmp/pred.smsmv13.2q.chain.%s.Control.predict.Ambient.rds',
                     species.vec[i])
-  dat.drought <- readRDS(fn.drt)
-  dat.drought <- dat.drought[,c('Date','GCC.norm',
-                        'GCC.norm.sd','vwc','cover.hufken','Rain')]
+
+  dat.drought.pred <- readRDS(fn.drt)
+  dat.drought.pred <- dat.drought.pred[,c('Date','swc.hufken','cover.hufken','Rain')]
+  dat.drought <- merge(dat.drought.obs,dat.drought.pred,by='Date',all.y=T)
+  
   names(dat.drought) <- c("Date","GCC.mean.drt",
                       'GCC.sd.drt',"vwc.mean.drt",'cover.pred.drt','rain.drt')
   
   dat.both.df <- merge(dat.con,dat.drought,
                       by = c('Date'))
  if( species.vec[i] != 'YM'){
-   dat.both.df <- dat.both.df[month(dat.both.df$Date) %in% 6:11,]
+   dat.both.df <- dat.both.df[month(dat.both.df$Date) %in% 8:11,]
  }
   
   dat.both.df$daily.reduction.obs <- with(dat.both.df,
@@ -92,25 +109,25 @@ for (i in seq_along(species.vec)) {
                                            cover.pred.drt/cover.pred.con)
   
   dat.both.df$mean.annual.reduction.obs <- with(dat.both.df,
-                                                sum(GCC.mean.drt,na.rm=T) /
-                                                  sum(GCC.mean.con,na.rm=T))
+                                                mean(GCC.mean.drt,na.rm=T) /
+                                                  mean(GCC.mean.con,na.rm=T))
   dat.both.df$mean.annual.reduction.ped <- with(dat.both.df,
-                                                sum(cover.pred.drt,na.rm=T) / 
-                                                  sum(cover.pred.con,na.rm=T))
+                                                mean(cover.pred.drt,na.rm=T) / 
+                                                  mean(cover.pred.con,na.rm=T))
   dat.both.df$mean.annual.reduction.rain <- with(dat.both.df,
-                                                sum(rain.drt,na.rm=T) / 
-                                                  sum(rain.con,na.rm=T))
+                                                 mean(rain.drt,na.rm=T) / 
+                                                   mean(rain.con,na.rm=T))
   
   dat.both.df$spc <- species.vec[i] 
  
   pace.ls[[i]] <-  dat.both.df
 
 }
-plot(GCC.mean.drt~Date,data = dat.both.df,type='l',col='red')
-points(GCC.mean.con~Date,data = dat.both.df,type='l',col='navy')
+# plot(GCC.mean.drt~Date,data = dat.both.df,type='l',col='red')
+# points(GCC.mean.con~Date,data = dat.both.df,type='l',col='navy')
 
 reduction.obs <- reduction.peds <- reduction.rain  <- c()
-for (i in 1:9) {
+for (i in 1:8) {
 reduction.obs[i] <- (unique(pace.ls[[i]]$mean.annual.reduction.obs))  
 reduction.peds[i] <-(unique(pace.ls[[i]]$mean.annual.reduction.ped))  
 reduction.rain[i] <- (unique(pace.ls[[i]]$mean.annual.reduction.rain))  
@@ -149,7 +166,7 @@ par(mar=c(5,5,1,1))
 barplot(reduction.obs,col=t_col('black',50),border = F,
         names.arg = species.vec,
         ylab='Annual reduction in cover',
-        ylim=c(0,1.2))
+        ylim=c(0,1.0))
 
 barplot(reduction.peds,add=T,col=t_col('pink',50),border = F)
 
@@ -177,20 +194,20 @@ for(plot.i in plot.vec){
 
 dev.off()
 
-pdf('figures/check.drought.pdf',width = 8,height = 8*3*.618)
-
-plot.vec <- c(3,4,6,7)
-par(mfrow=c(3,1))
-for(plot.i in plot.vec){
-  dig.df <- pace.ls[[plot.i]]
-  with(dig.df,plot(GCC.mean.con~Date,
-                   main = species.vec[plot.i]))
-  with(dig.df,points(GCC.mean.drt~Date,pch=16,col='red'))
-  # par(new=T)
-  with(dig.df,plot(rain.con~Date,type='s'))
-  with(dig.df,plot(rain.drt~Date,type='s',col='red'))
-  
-}
+# pdf('figures/check.drought.pdf',width = 8,height = 8*3*.618)
+# 
+# plot.vec <- c(3,4,6,7)
+# par(mfrow=c(3,1))
+# for(plot.i in plot.vec){
+#   dig.df <- pace.ls[[plot.i]]
+#   with(dig.df,plot(GCC.mean.con~Date,
+#                    main = species.vec[plot.i]))
+#   with(dig.df,points(GCC.mean.drt~Date,pch=16,col='red'))
+#   # par(new=T)
+#   with(dig.df,plot(rain.con~Date,type='s'))
+#   with(dig.df,plot(rain.drt~Date,type='s',col='red'))
+#   
+# }
 
 
 

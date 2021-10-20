@@ -3,18 +3,18 @@ source('r/pace_data_process.R')
 source('r/ym_data_process.R')
 source('r/v13_common_fun.R')
 source('models/hufkens/hufkensV13.R')
-source('r/process_paddock_gcc_met.R')
+# source('r/process_paddock_gcc_met.R')
 devtools::source_url("https://github.com/Jinyan-Yang/colors/blob/master/R/col.R?raw=TRUE")
 library(zoo)
 source('r/plot.mcmc.r')
 
 ym.18.df <- get.ym.func(18)
-gcc.met.con.df <- get.paddock.func('control')
-# species.vec <- c('Bis','Dig','Luc','Fes','Rye','Kan','Rho','ym','flux')
-species.vec <- c('Bis','Luc','Dig','Wal','Rho','Fes','Pha','Rye','ym','flux')
+# gcc.met.con.df <- get.paddock.func('control')
+species.vec <- c('Bis','Dig','Luc','Fes','Rye','Kan','Rho','ym','flux')
+# species.vec <- c('Bis','Luc','Dig','Wal','Rho','Fes','Pha','Rye','ym','flux')
 # species.vec <- 'Kan'
 
-pdf('figures/obs_pred.pdf',width = 8,height = 8*.618)
+# pdf('figures/obs_pred.pdf',width = 8,height = 8*.618)
 for (i in seq_along(species.vec)) {
   
   if(species.vec[i]!='ym'){
@@ -42,12 +42,12 @@ for (i in seq_along(species.vec)) {
   
   plot.mcmc.func.2q(df,species.vec[i],'Control','Ambient',
                     my.fun = phenoGrass.func.v13,
-                    nm.note='v13.2q.',use.smooth = TRUE,day.lag = 3,
+                    nm.note='smv13.2q.',use.smooth = TRUE,day.lag = 3,
                     swc.in.cap = swc.cap,swc.in.wilt = swc.wilt,bucket.size = bucket.size)
 
   plot.title.func(species.vec[i]) 
 }
-dev.off()
+# dev.off()
 
 
 # 

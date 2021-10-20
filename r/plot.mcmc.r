@@ -219,7 +219,7 @@ plot.mcmc.func.2q = function(df = gcc.met.pace.df,
                                         prep.in = prep.in,
                                         temp.in =temp.in,
                                         norm.min.max=norm.min.max)
-    
+
     if(use.smooth){
       sm.nm='sm'
     }else{
@@ -229,11 +229,28 @@ plot.mcmc.func.2q = function(df = gcc.met.pace.df,
     if(is.null(do.predict)){
       fn=paste0('cache/',sm.nm,nm.note,'chain.',
                 species.in,'.',prep.in,'.',temp.in,'.rds')
-      rds.nm = paste0('tmp/pred.',sm.nm,nm.note,'chain.',species.in,'.',prep.in,'.',temp.in,'.rds')
+      rds.nm = paste0('tmp/pred.',sm.nm,nm.note,'chain.',
+                      species.in,'.',
+                      prep.in,'.',
+                      temp.in,'.rds')
+      print(rds.nm)
     }else{
       fn=paste0('cache/',sm.nm,nm.note,'chain.',
                 species.in,'.',do.predict,'.',temp.in,'.rds')
       rds.nm = paste0('tmp/pred.',sm.nm,nm.note,'chain.',species.in,'.',do.predict,'.predict.',temp.in,'.rds')
+      
+      # reduce rainfall for drt species
+      
+      if(tolower(species.in) == 'ym'){
+        gcc.met.pace.df.16$irrig.tot <- gcc.met.pace.df.16$irrig.tot * 0.35
+        gcc.met.pace.df.16$Rain <- gcc.met.pace.df.16$Rain * 0.35
+  
+      }else{
+        gcc.met.pace.df.16$irrig.tot[month(gcc.met.pace.df.16$Date) %in% 6:11] <- 
+          gcc.met.pace.df.16$irrig.tot[month(gcc.met.pace.df.16$Date) %in% 6:11] * 0.4
+        gcc.met.pace.df.16$Rain[month(gcc.met.pace.df.16$Date) %in% 6:11] <- 
+          gcc.met.pace.df.16$Rain[month(gcc.met.pace.df.16$Date) %in% 6:11] * 0.4
+      }
     }
     
    
@@ -256,7 +273,7 @@ plot.mcmc.func.2q = function(df = gcc.met.pace.df,
     
     rds.nm = paste0('tmp/pred.',sm.nm,nm.note,'chain.',subplot,'.rds')
   }
-  
+  report.df <<- gcc.met.pace.df.16
   # fn='cache/smv10.testchain.Fes.Control.Ambient.rds'
   # gcc.met.pace.df.16 <- gcc.met.pace.df.16[(gcc.met.pace.df.16$Date) < as.Date('2019-11-26'),]
   # gcc.met.pace.df.16$map <- 760
@@ -310,7 +327,7 @@ plot.mcmc.func.2q = function(df = gcc.met.pace.df,
   }
 
   par.df["fit",] <- fit.par.vec
-  
+  print(fit.par.vec)
   # 
   # bucket.size = 300
   gcc.met.pace.df.16 <- gcc.met.pace.df.16[order(gcc.met.pace.df.16$Date),]
