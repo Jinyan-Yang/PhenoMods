@@ -177,7 +177,7 @@ phenoGrass.func.v13 <- function(gcc.df,
 
     # account for harvest
     if(gcc.df$harvest[nm.day] == 1){
-      cover.pred.vec[nm.day] <- gcc.df$cover[nm.day+2]
+      cover.pred.vec[nm.day] <- mean(gcc.df$cover[nm.day:(nm.day+2)])
     }
     # calculate swc
     evap.vec[nm.day] <- (1 - cover.pred.vec[nm.day-1]) *
